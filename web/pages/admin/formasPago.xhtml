@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{formaPagoBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .fpTable{ width: 800px;}
+        </style>
+        <h:form id="formFP">
+            <p:dataTable id="dataFP" var="fp" value="#{formaPagoBean.tiposFormaPago}" 
+                         rowKey="#{fp.tfpCodigo}"  sortBy="#{fp.tfpDescripcion}"
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle fpTable" >
+                <p:ajax event="rowSelect" update=":formFP:dataFP"/>                      
+                <p:ajax event="rowUnselect"  update=":formFP:dataFP"/>                   
+                <p:column headerText="Ord." style="text-align: center;" width="3%">  
+                    <span style="font-weight: bold">#{rowIndex+1}</span>
+                </p:column>  
+                <p:column headerText="Código"  width="4%" style="text-align: center" >   
+                    #{fp.tfpCodigo}
+                </p:column>                  
+                <p:column headerText="Formas de Pago"  width="33%" >   
+                    <h:outputText value="#{fp.tfpDescripcion}" style="color: blue"/>
+                </p:column>    
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

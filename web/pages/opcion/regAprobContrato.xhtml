@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <style>
+        .ui-datatable-viaticos .ui-datatable-empty-message{font-size: 8pt}
+        .ui-datatable.ui-datatable-viaticos {font-size: 7pt;}
+        .ui-datatable-viaticos .ui-datatable-header {padding: 2px 5px;}
+        .ui-datatable-viaticos .ui-datatable-footer {padding: 2px 5px;}
+        .concepto{ color:blue;font-weight: bold;}
+        .headerViatico {border-style: hidden;}
+        .headerViatico tbody td {border-color: transparent;padding: 0px;}
+        .colHeadViatico1{width: 70%;text-align: left;}
+        .colHeadViatico2{width: 30%;text-align: right;}
+        .colFooterViatico1{width: 82%;text-align: right;}
+        .colFooterViatico2{width: 17%;text-align: right;}
+        .colViatico1{width: 70px;} .colViatico2{width: 40px;} .colViatico3{width: 650px;} .colMono{width: 850px;}
+        .colUnoSolic{width: 110px;font-weight: bold;color: navy}
+        .calendarioFin .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .cantidad-disabled .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;opacity: 1.0}
+        .colorCounter{color: brown;font-weight: bold;font-size: 8pt}
+        .ui-separator.ui-state-default{border-color: brown}
+        .ui-dialog .ui-dialog-buttonpane{text-align: center;margin: 0 0;background-color: #F5F5DC;}
+        .ui-dialog .ui-dialog-titlebar{color: brown;}
+        .ui-chkbox-boxReadOnly .ui-state-disabled{opacity: 1.0}
+        .colUnoPasajes{font-weight: bold;color: navy;width: 75px;} .colDosPasajes{width: 125px;}
+        .colUnoRuta{font-weight: bold;color: navy;} .colDosRuta{width: 300px;}
+        .colDosResidencia{width: 200px;text-align: left;}
+        .estiloPanelelectOneMenuAprob .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 9pt;border-color: transparent;text-transform: uppercase}
+        .estiloOneMenuAprob .ui-selectonemenu-label{font-size: 8pt;text-transform: uppercase;}
+    </style>
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 815px;"  >
+        <h:panelGrid id="pnlSolicFecha" columns="4" cellpadding="0" cellspacing="2" columnClasses="colUnoSolic">
+            <p:outputLabel  id="outputLabeFechaSolic" value="Fecha Solicitud: " />
+            <h:outputText value="#{aprobContrBean.contratoEdit.cdoFechaCrea}" style="text-transform: uppercase">
+                <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+            </h:outputText>
+            <p:outputLabel  id="outputLabeMonto" value="Monto Total: " style="padding-left: 375px" styleClass="colUnoSolic" />
+            <h:outputText id="outputTextMonto" style="font-weight: bold;color: brown;padding-left: 10px"
+                          value="#{aprobContrBean.contratoEdit.cdoCantUnidad*aprobContrBean.valorFuncion}">
+                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+            </h:outputText>
+        </h:panelGrid>
+        <h:panelGrid id="pnlSolic" columns="6" cellpadding="2" cellspacing="0" width="100%" columnClasses="colUnoSolic,,colUnoSolic,,colUnoSolic">
+            <p:outputLabel  value="Activ. académica: "  />
+            <h:outputText value="#{aprobContrBean.contratoEdit.rolDocente.rdoDescripcion}" style="text-transform: uppercase"/>
+            <p:outputLabel  value="Proceso: "  />
+            <h:outputText value="#{aprobContrBean.contratoEdit.siguienteProceso}" style="font-weight: bold;text-transform: uppercase; color:red;"/>  
+            <p:outputLabel  value="Estado Solicititud: "  rendered="#{aprobContrBean.contratoEdit.estadoContrato eq aprobContrBean.estadoPerfil}"/>
+            <p:selectOneMenu value="#{aprobContrBean.esc.estadoSolicContratoPK.staCodigo}"  panelStyleClass="estiloPanelelectOneMenuAprob" styleClass="estiloOneMenuAprob"
+                             style="width: 150px;" rendered="#{aprobContrBean.contratoEdit.estadoContrato eq aprobContrBean.estadoPerfil}" >  
+                <f:selectItem itemValue=" " itemLabel="Seleccione opción..." noSelectionOption="true"/>                        
+                <f:selectItem itemValue="#{aprobContrBean.estadoAprob}"  
+                              itemLabel="#{fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO') ? 'Autorizado':'Revisado'}"/>
+                <f:selectItem itemValue="D"  itemLabel="Devolver" />
+                <f:selectItem itemValue="X"  itemLabel="Anular" itemDisabled="#{!fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO')}"/>                
+                <p:ajax update="commandButtonGrabar pnlDocente" />  
+            </p:selectOneMenu>             
+        </h:panelGrid>
+        <h:panelGrid id="pnlDocente" columns="5" cellpadding="2" cellspacing="0"  columnClasses="colUnoSolic,,,colUnoRuta," width="100%">
+            <p:outputLabel  value="Docente: " />
+            <h:outputText value="#{aprobContrBean.contratoEdit.contratado.nombresApellidos}"/>
+            <p:spacer width="25"/>
+            <p:outputLabel  id="outputLabeObs" value="Motivo: " 
+                            rendered="#{aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq 'D' or aprobContrBean.contratoEdit.estadoContrato eq 'D'
+                                        or (fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO') and (aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq 'X' or aprobContrBean.contratoEdit.estadoContrato eq 'X'))}" />
+            <p:inputTextarea id="inputTextObs" value="#{aprobContrBean.esc.escObservacion}" cols="110" maxlength="255"  
+                             disabled="#{aprobContrBean.contratoEdit.estadoContrato eq 'D' or aprobContrBean.contratoEdit.estadoContrato eq 'X'}"
+                             rendered="#{aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq 'D' or aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq 'X'}" counterTemplate="{0} caracteres disponibles." autoResize="true"
+                             style="width: 325px;height: 2.5em;opacity: #{aprobContrBean.contratoEdit.estadoContrato eq 'D' or aprobContrBean.contratoEdit.estadoContrato eq 'X' ? '0.75' : '1.0'}" >
+            </p:inputTextarea>
+        </h:panelGrid>
+        <h:panelGrid id="pnlSolicAsig" columns="2"  columnClasses="colUnoSolic">
+            <p:outputLabel  id="outputLabeAsig" value="Asignatura:"  rendered="#{aprobContrBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}" />
+            <h:outputText value="#{aprobContrBean.asignat.idAsignatura} - #{aprobContrBean.asignat.assNombre} - #{aprobContrBean.asignat.grpNombre}" 
+                          rendered="#{aprobContrBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}" style="text-transform:  uppercase"/>
+        </h:panelGrid>        
+        <h:panelGrid  columns="3" cellpadding="3" cellspacing="0" columnClasses="colUnoSolic" width="100%" 
+                      rendered="#{aprobContrBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}">
+            <p:outputLabel  id="outputLabeCantidad" value="Nº de #{aprobContrBean.unidadMedida}: " />
+            <h:outputText value="#{aprobContrBean.contratoEdit.cdoCantUnidad}" />
+            <h:panelGrid id="pnlRango" columns="4"  cellpadding="0" cellspacing="0" columnClasses="colUnoPasajes,colDosPasajes,colUnoPasajes,colDosPasajes"
+                         rendered="#{aprobContrBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}">
+                <p:outputLabel id="lblInicio" value="Desde: " />
+                <h:outputText value="#{aprobContrBean.contratoEdit.cdoFecini}" style="text-transform: uppercase">
+                    <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>         
+                <p:outputLabel id="lblCierre" value="Hasta: " style="padding-left:  25px;"/>
+                <h:outputText value="#{aprobContrBean.contratoEdit.cdoFecfin}" style="text-transform: uppercase">
+                    <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>                  
+            </h:panelGrid> 
+        </h:panelGrid>
+
+        <p:dataTable id="tesMon" value="#{aprobContrBean.tutorias}" rowIndexVar="rowIndex" var="tutoria" styleClass="ui-datatable-viaticos" 
+                     rendered="#{aprobContrBean.contratoEdit.rolDocente.rdoCodigo ne 'D'}"
+                     scrollable="true" scrollHeight="50"  tableStyle="width: 780px">
+            <p:column headerText="Ord." style="text-align: center;" width="4%">  
+                <span style="font-weight: bold">#{rowIndex + 1}</span>
+            </p:column>                 
+            <p:column headerText="Alumno"  style="width: 28%">
+                <h:outputText value="#{tutoria.nombres}" />
+            </p:column>
+            <p:column headerText="Tesis/Monografía" style="width: 50%">
+                <h:outputText value="#{tutoria.ttmTitulo}" />
+            </p:column>
+            <p:column headerText="Inicio" style="text-align: center;width: 9%"  >
+                <h:outputText value="#{tutoria.ttmFechaIniprog}">
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>                              
+            </p:column>                
+            <p:column headerText="Fin" style="text-align: center;width: 9%" >
+                <h:outputText value="#{tutoria.ttmFechaFinprog}">
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>                              
+            </p:column>
+        </p:dataTable>
+
+        <p:separator/>
+        <h:panelGrid id="pnlHonorarios" columns="4"  columnClasses="colUnoSolic,,colUnoSolic" cellpadding="0" cellspacing="0" width="100%">
+            <p:outputLabel  id="outputLabeValorHora" value="Honorarios: "/>
+            <h:outputText value="#{aprobContrBean.contratoEdit.cdoMonto}" >
+                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+            </h:outputText>
+            <p:outputLabel  id="outputLabeFPago" value="Forma de pago:"   />
+            <h:outputText value="#{aprobContrBean.contratoEdit.tiposFormaPago.tfpDescripcion}" />
+        </h:panelGrid>
+        <h:panelGrid id="pnlPasajes" columns="3"  cellpadding="0" cellspacing="0" columnClasses="colUnoSolic,colDosPasajes" width="100%">
+            <p:outputLabel  id="outputLabePasaje" value="Pasaje:" />
+            <h:outputText style="text-transform: uppercase"
+                          value="#{aprobContrBean.datosViaje.dviTipoPasaje eq 'N'?'Nacional':aprobContrBean.datosViaje.dviTipoPasaje eq 'I'?'Internacional':'Sin pasaje'}" />
+            <h:panelGrid id="pnlRuta" columns="3"  cellpadding="3" cellspacing="0"  columnClasses="colUnoRuta,colDosRuta" width="100%"
+                         style="visibility: #{aprobContrBean.datosViaje ne null?'visible':'hidden'}">
+                <p:outputLabel  id="outputLabeRuta" value="Ruta:" style="padding-left:  5px;" />
+                <h:outputText value="#{aprobContrBean.datosViaje.dviRutaPasaje}" />
+                <h:panelGrid id="pnlRutaFecha" columns="2"  cellpadding="0" cellspacing="0" columnClasses="colUnoPasajes,colDosPasajes">
+                    <p:outputLabel  id="outputLabeLLega" value="Llegada:"  />
+                    <h:outputText value="#{aprobContrBean.datosViaje.dviFechaDesde}" style="text-transform: uppercase">
+                        <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>
+                    <p:outputLabel  id="outputLabeSalida" value="Salida:" />
+                    <h:outputText value="#{aprobContrBean.datosViaje.dviFechaHasta}" style="text-transform: uppercase">
+                        <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                    
+                </h:panelGrid>
+            </h:panelGrid>            
+        </h:panelGrid>
+        <h:panelGrid id="pnlObs" columns="2"  columnClasses="colUnoSolic"  cellpadding="0" cellspacing="0" width="100%">
+            <p:outputLabel  value="Observaciones:"  />
+            <h:outputText  value="#{aprobContrBean.contratoEdit.cdoObservaciones}" style="color:red"/>
+        </h:panelGrid>        
+        <p:separator/>      
+        <h:panelGrid columns="7" columnClasses="colViatico1,colViatico2,colViatico3" width="790px"   cellpadding="0" cellspacing="0">
+            <p:outputLabel  id="outputLabeViaticos" value="Viáticos:"  style="font-weight: bold;color: navy" />
+            <p:selectBooleanCheckbox value="#{aprobContrBean.tieneViatico}" disabled="true" styleClass="ui-chkbox-boxReadOnly"/>
+            <p:dataTable id="viaticos" var="vtico" value="#{aprobContrBean.viaticos}" rowIndexVar="rowIndex" styleClass="ui-datatable-viaticos" 
+                         selection="#{aprobContrBean.viaticoSelected}" rowKey="#{vtico.honorariosPK.rubCodigo}" selectionMode="single" 
+                         emptyMessage="Sin viáticos" scrollable="true" scrollHeight="75"  widgetVar="datatableViaticosWidget">
+                <f:facet name="footer">
+                    <h:panelGrid columns="2" id="footerViaticos" styleClass="headerViatico" style="color: brown;" columnClasses="colFooterViatico1,colFooterViatico2">
+                        <p:outputLabel value="TOTAL VIATICOS: "  style="visibility: #{aprobContrBean.tieneViatico ? 'visible':'hidden'}" />
+                        <h:outputText id="outputTotal" value="#{aprobContrBean.totalViaticos}"  style=" padding-right: 20px;visibility: #{aprobContrBean.tieneViatico ? 'visible':'hidden'}" >
+                            <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                        </h:outputText>
+                    </h:panelGrid>
+                </f:facet>
+                <p:ajax event="rowSelect" update=":formMant:viaticos"/>                      
+                <p:ajax event="rowUnselect"  update=":formMant:viaticos"/>                 
+                <p:column headerText="Concepto"  style="text-align: left" width="60%">
+                    <h:outputText  style="text-transform: uppercase" value="#{vtico.descripRubro}"/>
+                </p:column>
+                <p:column headerText="Nro. Días" style="text-align: center" width="12%">
+                    <h:outputText value="#{vtico.honCantidad}">
+                        <f:convertNumber pattern="#0"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor Unit." style="text-align: center" width="12%" >
+                    <h:outputText value="#{vtico.honValor}">
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Total" style="text-align: right" width="12%" >
+                    <h:outputText value="#{vtico.honCantidad*vtico.honValor}" id="outputTextVT" transient="true" >
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>
+                </p:column>      
+                <p:column  style="text-align: center" width="4%">
+                    <p:commandLink value="Editar" title="Editar registro" immediate="true" id="commandLinkEditCon" styleClass="ui-icon ui-icon-pencil" 
+                                   partialSubmit="true" action="#{aprobContrBean.editarConceptoButton_processAction}" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'FINANCIE')}"
+                                   update=":formTema :formMant:viaticos" onclick="datatableViaticosWidget.selectRow(#{rowIndex})">
+                        <f:setPropertyActionListener value="#{vtico}" target="#{aprobContrBean.viaticoSelected}" />  
+                    </p:commandLink>                    
+                </p:column>                     
+            </p:dataTable>
+        </h:panelGrid>
+        <h:panelGrid id="pnlResidencia" columns="3" cellpadding="3" cellspacing="3" columnClasses="colUnoPasajes,colDosResidencia" width="100%" >
+            <p:outputLabel  id="outputLabeRes" value="Residencia:"  />
+            <h:outputText value="#{aprobContrBean.residencia eq null?'SIN RESIDENCIA':aprobContrBean.residencia.rubros.rubDescripcion}" />
+            <h:panelGrid id="pnlFechaResid" columns="4"  cellpadding="0" cellspacing="0" 
+                         style="visibility:  #{ aprobContrBean.residencia ne null ?'visible':'hidden'}" 
+                         columnClasses="colUnoPasajes,colDosPasajes,colUnoPasajes,colDosPasajes">
+                <p:outputLabel  id="outputLabeIngresoRes" value="Ingreso:"  />
+                <h:outputText value="#{aprobContrBean.residencia.dviFechaDesde}"  style="text-transform: uppercase">
+                    <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>
+                <p:outputLabel  id="outputLabeSalidaRes" value="Salida:" style="padding-left:  25px;"/>
+                <h:outputText value="#{aprobContrBean.residencia.dviFechaHasta}"  style="text-transform: uppercase">
+                    <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>
+            </h:panelGrid>
+        </h:panelGrid>
+        <h:panelGrid id="pnlValorResid" columns="5"  cellpadding="0" cellspacing="2"
+                     style="visibility:  #{ aprobContrBean.residencia ne null ?'visible':'hidden'}" >
+            <p:outputLabel  id="outputLabeTotalRes" value="Valor por Residencia:"  style="font-weight: bold;color: navy" />
+            <h:outputFormat id="outputTextDiasRes" style="font-weight: bold;color: brown;padding-left: 25px;" 
+                            value="{0} Día(s) x {1,Number,$ #,##0.00} = {2,Number,$ #,##0.00}">
+                <f:param value="#{aprobContrBean.residencia.dviCantidad}"/>  
+                <f:param value="#{aprobContrBean.residencia.dviValorDiario}"/>  
+                <f:param value="#{aprobContrBean.residencia.dviCantidad*aprobContrBean.residencia.dviValorDiario}"/>  
+            </h:outputFormat><p:spacer width="25"/>
+            <p:outputLabel value="Descuento uso de Residencia: "  style="font-weight: bold;color: navy" />
+            <p:selectBooleanCheckbox value="#{aprobContrBean.descPorResidencia}" disabled="true" styleClass="ui-chkbox-boxReadOnly"/>
+        </h:panelGrid>    
+
+    </p:panel>
+    <h:panelGroup>
+        <div align="right" style="margin-top: 5px;">
+            <p:commandButton  id="commandButtonGrabar" value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  
+                              disabled="#{aprobContrBean.esc eq null or aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq null 
+                                          or aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq ' ' or (aprobContrBean.contratoEdit.estadoContrato ne aprobContrBean.estadoPerfil)}" 
+                              update=":formLogin:growlLogin @form" actionListener="#{aprobContrBean.guardarButton_processAction}" process="@form" />
+            <span style="padding-right: 10px;"/>
+            <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" update="formMant:panelMant"
+                              actionListener="#{aprobContrBean.cancelarButton_processAction(ae)}" onclick="mantWidget.hide();widgetContrato.unselectAllRows();"/>
+        </div>
+    </h:panelGroup>
+
+</ui:composition>
+

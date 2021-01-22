@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:p="http://primefaces.org/ui" xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html" xmlns:pe="http://primefaces.org/ui/extensions">
+    <f:view contentType="text/html">
+        <h:head>
+            <f:facet name="first">
+                <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7, IE=9"/> 
+                <meta http-equiv="Content-Type" content='text/html; charset=UTF-8' /> 
+                <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate, max-age=0" />
+                <meta http-equiv="pragma" content="no-cache" />
+                <meta http-equiv="refresh" content="0;url=#{facesContext.externalContext.requestScheme}://#{facesContext.externalContext.requestServerName}:#{facesContext.externalContext.requestServerPort}/ServletImpresion/servlet?#{sessionScope.urlRep}"/> 
+            </f:facet>
+            <style type="text/css">
+                .ui-dialog.ui-widget.ui-widget-content.relogArenaReporte {
+                    background: none repeat scroll 0 0 transparent;
+                    color: black;
+                    box-shadow: none;
+                    border-color: transparent;
+                    height: 57px !important;width: 517px !important;
+                }
+                .pe-blockui .pe-blockui-content{background-color: buttonface !important}
+            </style>
+        </h:head>
+        <h:body  style="width: 99%;" onload="statusReporte.show();esperarPorReporteWidget.block();" >
+            <!--#{facesContext.externalContext.requestScheme}://#{facesContext.externalContext.requestServerName}:#{facesContext.externalContext.requestServerPort}/ServletImpresion/servlet?#{sessionScope.urlRep}-->
+            <p:dialog id="body1" widgetVar="statusReporte" draggable="false" closable="false" showHeader="false" resizable="false" styleClass="relogArenaReporte" >
+                <pe:blockUI target="body1"  widgetVar="esperarPorReporteWidget" >
+                    <h:panelGrid columns="2" >  
+                        <h:graphicImage library="images" name="ajax-loader1.gif"  
+                                        style="margin-right: 12px; vertical-align: middle;"/>  
+                        <h:outputText value="Por favor espere, esto puede tardar algunos minutos..." style="white-space: nowrap;"/>  
+                    </h:panelGrid>    
+                </pe:blockUI> 
+            </p:dialog>
+        </h:body>
+
+    </f:view>
+</html>

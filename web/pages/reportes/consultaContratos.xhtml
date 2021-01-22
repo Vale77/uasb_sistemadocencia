@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{consultaResideBean.navigationJSFManagedBean.nombreOpcion} - Aprobados">
+        <style>
+            .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;}
+            .estiloPanelelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 9pt;border-color: transparent;text-transform: uppercase}
+            .estiloSelectOneMenu {font-size: 9pt;text-transform: uppercase;}
+            .ui-icon.ui-icon-pencil {background-image: url("#{resource['images/User-Ok.png']}") !important;  background-repeat:inherit;}
+            .ui-state-default .ui-icon-refrescar {background-image: url("#{resource['/images/refresh.png'] }");background-size: 18px 18px;}
+        </style>
+        <h:form id="formSolic">
+            <h:panelGrid id="pnlRango" columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelDesde" value="Desde:" style="font-weight: bold;color: blue" for="inputTextDesde"/>
+                <p:calendar id="inputTextDesde" value="#{consultaResideBean.desde}" pattern="dd-MMMM-yyyy" 
+                            locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="16"  styleClass="calendario" 
+                            required="true" requiredMessage="Fecha Desde requerida" showOn="button" autocomplete="off">
+                    <p:ajax event="dateSelect" update="pnlRango"  listener="#{consultaResideBean.changeFecha}"/>
+                </p:calendar>
+                <p:message for="inputTextDesde"  display="icon" />  
+                <p:spacer width="10"/>
+                <p:commandButton value="Buscar" icon="ui-icon-refrescar" title="Buscar solicitudes" id="btnBuscar" disabled="#{consultaResideBean.disabledBuscar}"
+                                 action="#{consultaResideBean.buscarButton_processAction}" update=":formSolic:dataContrato"
+                                 oncomplete="widgetContrato.unselectAllRows();"/>                
+            </h:panelGrid>                          
+            <p:dataTable id="dataContrato" var="contrato" value="#{consultaResideBean.contratosDocentes}" 
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle"  widgetVar="widgetContrato"
+                         selection="#{consultaResideBean.contratoSelected}" rowKey="#{contrato.cdoCodigo}"  
+                         emptyMessage="#{consultaResideBean.desde eq null ? 'Ingrese la fecha de busqueda':'No existen solicitudes desde esta fecha.'}">
+                <p:ajax event="rowSelect" update=":formSolic:dataContrato"/>                      
+                <p:ajax event="rowUnselect"  update=":formSolic:dataContrato"/>                   
+                <p:column headerText="Ord." style="text-align: center;" width="3%">  
+                    <span style="font-weight: bold">#{rowIndex+1}</span>
+                </p:column>  
+                <p:column headerText="Área"  width="30%" >   
+                    #{contrato.areaContrato}
+                </p:column>                  
+                <p:column headerText="Nombres y Apellidos"  width="26%" >   
+                    #{contrato.contratado.nombresApellidos}
+                </p:column>    
+                <p:column headerText="Activ. Acad." style="text-align: center"  width="11%">   
+                    #{contrato.rolDocente.rdoDescripcion} 
+                </p:column>  
+                <p:column headerText="Aprobación" style="text-align: center"  width="9%">   
+                    <h:outputText value="#{contrato.estadoSolicContrato.escFecha}" >
+                        <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                       
+                </p:column>                  
+                <p:column headerText="Llega" style="text-align: center"  width="9%">   
+                    <h:outputText value="#{contrato.residencia.dviFechaDesde}" >
+                        <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                       
+                </p:column>    
+                <p:column headerText="Sale" style="text-align: center"  width="9%">   
+                    <h:outputText value="#{contrato.residencia.dviFechaHasta}" >
+                        <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                       
+                </p:column>                      
+                <p:column headerText="Detalle"  style="text-align: center"  width="3%">  
+                    <div align="center">
+                        <p:commandLink value="Detalle" title="Detalle solicitud" immediate="true"  styleClass="ui-icon ui-icon-pencil" 
+                                       partialSubmit="true" action="#{consultaResideBean.imprimirButton_processAction(ae)}" style="color:blue;"
+                                       oncomplete="pdfWidget.show();" update="dataContrato :pdfDialog ">
+                            <f:setPropertyActionListener value="#{contrato}" target="#{consultaResideBean.contratoSelected}" />  
+                        </p:commandLink>  
+                    </div>
+                </p:column> 
+
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

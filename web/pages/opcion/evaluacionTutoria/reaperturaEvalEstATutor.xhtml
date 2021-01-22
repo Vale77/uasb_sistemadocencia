@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+  <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{reaperturaEvalEstATutor.navigationJSFManagedBean.nombreOpcion}">      
+        <h:form id="freaperturaEstATut">
+            <p:growl id="messagedato"/> 
+            <h:panelGrid id="gfiltro" columns="7" style="font-family: Arial; font-size: 7pt"> 
+                <h:outputText  value="Ciclo Académico* :" style="font-weight: bold" />
+                <h:panelGrid columns="2" id="ganio">
+                    <p:selectOneMenu value="#{reaperturaEvalEstATutor.smciclo}" id="iciclo"
+                                     required="true" requiredMessage="Anio se requiere un valor">
+                        <f:selectItem  itemLabel="Escoja uno.." itemValue="" />
+                        <f:selectItems  value="#{reaperturaEvalEstATutor.ciclos}" var="lanio" itemLabel="#{lanio.nombreCiclo}" itemValue="#{lanio.anio}"/>                               
+                        <p:ajax update="ganio gdetalle" listener="#{reaperturaEvalEstATutor.ciclovalueChangeListener()}"/>
+                    </p:selectOneMenu> 
+                    <p:message for="iciclo" display="icon"/> 
+                </h:panelGrid>              
+                <p:commandButton   icon="ui-icon-refresh" title="Refrescar registros"   immediate="true" update="gdetalle" 
+                                   actionListener="#{reaperturaEvalEstATutor.ciclovalueChangeListener}"/> 
+            </h:panelGrid>                                    
+            <h:panelGrid id="gdetalle" >
+                <p:dataTable id="tcalendario" 
+                             value="#{reaperturaEvalEstATutor.listTutoriaReapertura}" 
+                             var="asigreapertura" 
+                             scrollable="true" scrollHeight="95%" 
+                             style=" font-family: Arial; font-size: 7pt;width: 100%"
+                             rowKey="#{asigreapertura[0]}" 
+                             resizableColumns="true"  
+                             selection="#{reaperturaEvalEstATutor.selectedasignatura}" 
+                             selectionMode="single"
+                             emptyMessage="No existen datos"
+                             editable="true" 
+                             filteredValue="#{reaperturaEvalEstATutor.listTutoriaFiltro}">
+
+                    <f:facet name="header">
+                        <p:ajax event="rowEdit" listener="#{reaperturaEvalEstATutor.onRowEdit}" update=":freaperturaEstATut:messagedato" />                               
+                    </f:facet>
+                     <p:column filterBy="#{asigreapertura[17]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Programa" style="width: 20%">
+                        <h:outputText value="#{asigreapertura[17]}" style="text-transform: uppercase; text-align: left"  />          
+                    </p:column>
+                    <p:column filterBy="#{asigreapertura[19]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Estudiante" style="width: 20%">
+                        <h:outputText value="#{asigreapertura[19]}" style="text-transform: uppercase; text-align: left"  />          
+                    </p:column>
+
+                    <p:column filterBy="#{asigreapertura[12]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Docente" style="width: 20%">
+                        <h:outputText value="#{asigreapertura[12]}" style="text-transform: uppercase; text-align: left"/>                                            
+                    </p:column>
+                    <p:column headerText="Evaluación" style="width: 15%; text-align: center">
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{asigreapertura[14]}" /></f:facet>
+                            <f:facet name="input">
+                                <h:selectOneMenu value="#{reaperturaEvalEstATutor.sencuesta}" style="width:100%">
+                                    <f:selectItem  itemLabel="Escoja uno.." itemValue="" />
+                                    <f:selectItems  value="#{reaperturaEvalEstATutor.listEncuesta}" var="lencuesta" itemLabel="#{lencuesta.titulo}" itemValue="#{lencuesta.codigoEncuesta}" />                               
+                                </h:selectOneMenu>
+                            </f:facet>
+                        </p:cellEditor>
+
+                    </p:column>
+                                       
+                    <p:column headerText="Fecha Inicio" style="width: 5%">                                        
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{asigreapertura[9]}"/>  </f:facet>
+                            <f:facet name="input">
+                                <p:calendar  value="#{reaperturaEvalEstATutor.fecinicio}" id="fecinicio"
+                                             pattern="dd/MM/yyyy" timeZone="America/Guayaquil" required="true" requiredMessage="Fecha Inicio: se requiere un valor"
+                                             locale="es" >
+                                    <p:ajax immediate="true"/>                
+                                </p:calendar>
+                            </f:facet>
+                        </p:cellEditor>                                                                                                                     
+                    </p:column>
+                    <p:column headerText="Fecha Fin" style="width: 5%">
+                        <h:outputText value="#{asigreapertura[10]}" style="text-transform: uppercase"/>                                                                                    
+                    </p:column>
+                    <p:column headerText="Realizado?" style="width: 5%" >
+                        <h:outputText value="#{asigreapertura[18]}" style="text-transform: uppercase; text-align: left"/>                                            
+                    </p:column>
+                    <p:column style="width: 2%;" >
+                        <p:rowEditor />
+                    </p:column>
+                </p:dataTable>               
+            </h:panelGrid>
+        </h:form>
+    </p:panel>  
+
+
+</ui:composition>

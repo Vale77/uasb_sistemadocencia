@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="Mi cuenta">
+        <style>
+            .estiloFilaDatos{width: 100%;}
+            .estiloFilaDatos tr,.estiloFilaDatos td {border-width: 0px !important; background-color: #F5F5DC;padding:  5px 0 2px 5px;}
+            .colEtiqueta{text-align: left;font-weight: bold;color: blue;}
+            .colDato{text-align: left;}
+            .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center}
+            .calendario .ui-state-disabled {opacity: 1 ;background-color: #F5F5DC;box-shadow: none;border:none}
+            .ui-datepicker .ui-datepicker-buttonpane button {font-size: 8pt;}            
+            .ui-datepicker .ui-datepicker-buttonpane button.ui-datepicker-current{visibility: hidden;}
+            .separator {width: 700px;}     
+            .campoNoEditado.ui-state-disabled {box-shadow: none;border:none;background-color: #F5F5DC;opacity: 1 ;}
+            .estiloPanelelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 8pt;border-color: transparent}
+            .estiloSelectOneMenuNull.ui-state-disabled {opacity: 1 ;border:none;}
+            .estiloSelectOneMenuNull.ui-state-disabled .ui-inputfield{color:red;background-color: #F5F5DC;box-shadow: none;padding: 0px 0px;}  
+            .estiloSelectOneMenuNull.ui-state-disabled .ui-state-default{visibility: hidden; width: 0px;border: none}
+            .estiloSelectOneMenu.ui-state-disabled {opacity: 1 ;border:none;}
+            .estiloSelectOneMenu.ui-state-disabled .ui-inputfield{background-color: #F5F5DC;box-shadow: none;padding: 0px 0px;}
+            .estiloSelectOneMenu.ui-state-disabled .ui-state-default{visibility: hidden; width: 0px;border: none}      
+        </style>
+        <h:form id="formFicha">
+            <p:panel style="width: 100%;max-width: 925px" >
+                <p:panelGrid columns="5"  styleClass="estiloFilaDatos" >  
+                    <h:outputText value="Información general" style="color: brown;font-weight: bold;"/>  
+                    <p:separator styleClass="separator" style="width: 600px;"/>  
+                    <p:commandButton id="editarTemaButton" value="Editar"  icon="ui-icon-pencil" title="Editar ficha" 
+                                     actionListener="#{cuentaBean.editarButton_processAction}"  update=":formFicha"
+                                     rendered="#{cuentaBean.editarFicha}" />  
+                    <p:commandButton id="salvarTemaButton" value="Guardar" icon="ui-icon-disk" title="Guardar datos" 
+                                     actionListener="#{cuentaBean.guardarDatosButton_processAction}" update=":formLogin:growlLogin" process="@form"
+                                     rendered="#{!cuentaBean.editarFicha}" />
+                    <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" 
+                                      action="#{cuentaBean.cancelarDatosButton_processAction}"  update=":formFicha"
+                                      rendered="#{!cuentaBean.editarFicha}" process="@this" />
+                </p:panelGrid>             
+                <p:panelGrid columns="9" columnClasses="colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato" 
+                             styleClass="estiloFilaDatos"  >
+                    <p:outputLabel value="#{cuentaBean.profesor.tipoCedPas eq 'C'?'Cédula':'Pasaporte'}: " />
+                    <h:outputText value="#{cuentaBean.profesor.cedPasProfesor}"/> 
+                    <p:outputLabel value="Apelativo: "/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.apelativo.codigoApelativo}"    disabled="#{cuentaBean.editarFicha}"    style="width: 100px;"
+                                     styleClass="estiloSelectOneMenu" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione un pais..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listApelativos}" var="apelativo" itemValue="#{apelativo.codigoApelativo}" 
+                                       itemLabel="#{cuentaBean.profesor.sexoProfesor eq 'M'? apelativo.nombreApelativo:apelativo.nombreFemApelativo}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Nombres: " />
+                    <h:outputText value="#{cuentaBean.profesor.nombreProfesor}"   />
+                    <p:outputLabel value="Apellidos: " />
+                    <h:outputText value="#{cuentaBean.profesor.apellidoProfesor}" /> 
+                    <h:outputLabel style="padding-left: 150px;"/>
+
+                </p:panelGrid>            
+                <p:panelGrid columns="6"  columnClasses="colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="Pais de Nacimiento: " />
+                    <p:selectOneMenu value="#{cuentaBean.profesor.codPaisOrigen}"   style="width: 175px;"  disabled="#{cuentaBean.editarFicha}"
+                                     styleClass="#{cuentaBean.profesor.codPaisOrigen eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}"  panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione uno..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listPaises}" var="paisNac" itemValue="#{paisNac.codPais}" itemLabel="#{paisNac.nomPais}"/>
+                        <p:ajax event="change"  update="selectOneMenuCiuNac formFicha:pnlProv" listener="#{cuentaBean.cargarCiudades('Nacim')}"/>
+                        <p:ajax event="click"  update="formFicha:pnlProv"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Ciudad de Nacimiento: " />
+                    <p:selectOneMenu value="#{cuentaBean.profesor.codCiudadOrigen}"    id="selectOneMenuCiuNac" disabled="#{cuentaBean.editarFicha}"
+                                     styleClass="#{cuentaBean.profesor.codCiudadOrigen eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione una..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listCiudades}"  var="ciuNac" itemValue="#{ciuNac.ciudadPK.codCiudad}" itemLabel="#{ciuNac.nomCiudad}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Fecha Nacimiento: "/>
+                    <p:calendar locale="es" pattern="dd-MMMM-yyyy" showOn="button" readonlyInput="true" required="true" size="15"  
+                                styleClass="calendario"   disabled="#{cuentaBean.editarFicha}"
+                                label="fecha jornada"  timeZone="America/Guayaquil" requiredMessage="Ingrese la Fecha"   navigator="true"
+                                maxdate="#{now}" showButtonPanel="true" 
+                                value="#{cuentaBean.profesor.fechaNacProfesor}">
+                    </p:calendar>  
+                </p:panelGrid>
+                <p:panelGrid columns="6"  columnClasses="colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato" styleClass="estiloFilaDatos"
+                             id="pnlProv" >
+                    <p:outputLabel value="Provincia: " style="visibility: #{cuentaBean.profesor.codPaisOrigen eq 1 ? 'visible':'hidden'}"/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.codigoProvincia}" disabled="#{cuentaBean.editarFicha}" 
+                                     style="width: 225px;visibility: #{cuentaBean.profesor.codPaisOrigen eq 1 ? 'visible':'hidden'};" 
+                                     styleClass="#{cuentaBean.profesor.codigoProvincia eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}"  panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione una..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listProvincias}" var="provNac" itemValue="#{provNac.provinciaPK.codigoProvincia}" itemLabel="#{provNac.nombreProvincia}"/>
+                        <p:ajax event="change"  update="selectOneMenuCanton selectOneMenuParroquia" listener="#{cuentaBean.cargarListas('Canton')}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Canton: " style="padding-left: 80px;visibility: #{cuentaBean.profesor.codPaisOrigen eq 1 ? 'visible':'hidden'}"/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.codigoCanton}"   style="width: 175px;visibility: #{cuentaBean.profesor.codPaisOrigen eq 1 ? 'visible':'hidden'}"
+                                     disabled="#{cuentaBean.editarFicha}" id="selectOneMenuCanton" panelStyleClass="estiloPanelelectOneMenu"
+                                     styleClass="#{cuentaBean.profesor.codigoCanton eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" >
+                        <f:selectItem itemLabel="Seleccione uno..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listCantones}" var="canNac" itemValue="#{canNac.cantonPK.codigoCanton}" itemLabel="#{canNac.nombreCanton}"/>
+                        <p:ajax event="change"  update="selectOneMenuParroquia" listener="#{cuentaBean.cargarListas('Parr')}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Parroquia: " style="visibility: #{cuentaBean.profesor.codPaisOrigen eq 1 ? 'visible':'hidden'}"/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.codigoParroquia}"   style="width: 200px;visibility: #{cuentaBean.profesor.codPaisOrigen eq 1 ? 'visible':'hidden'}"
+                                     disabled="#{cuentaBean.editarFicha}"  id="selectOneMenuParroquia" panelStyleClass="estiloPanelelectOneMenu"
+                                     styleClass="#{cuentaBean.profesor.codigoParroquia eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}"  >
+                        <f:selectItem itemLabel="Seleccione una..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listParroquias}" var="parroNac" itemValue="#{parroNac.parroquiaPK.codigoParroquia}" itemLabel="#{parroNac.nombreParroquia}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid> 
+                <p:panelGrid columns="9"  columnClasses="colEtiqueta,colDato,,colEtiqueta,colDato,,colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="Nacionalidad: " />
+                    <p:selectOneMenu value="#{cuentaBean.profesor.nacionalidad.codigoNacionalidad}" disabled="#{cuentaBean.editarFicha}"
+                                     styleClass="#{cuentaBean.profesor.nacionalidad.codigoNacionalidad eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItems value="#{cuentaBean.listNacionalidad}" var="nac" itemValue="#{nac.codigoNacionalidad}" itemLabel="#{nac.nombreNacionalidad}"/>
+                    </p:selectOneMenu>               
+                    <p:outputLabel style="padding-left:  125px;"/>
+                    <p:outputLabel value="Genero: " />                
+                    <p:selectOneMenu value="#{cuentaBean.profesor.sexoProfesor}"  disabled="#{cuentaBean.editarFicha}" style="text-transform: uppercase"
+                                     styleClass="estiloSelectOneMenu" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemValue="M" itemLabel="Masculino"/>                
+                        <f:selectItem itemValue="F" itemLabel="Femenino"/>                
+                    </p:selectOneMenu>      
+                    <p:outputLabel style="padding-left:  50px;"/>
+                    <p:outputLabel value="Estado Civil: " />
+                    <p:selectOneMenu value="#{cuentaBean.profesor.estcivilProfesor}" disabled="#{cuentaBean.editarFicha}" style="text-transform: uppercase"
+                                     styleClass="estiloSelectOneMenu" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemValue="S" itemLabel="Soltero"/>                
+                        <f:selectItem itemValue="C" itemLabel="Casado"/>                
+                        <f:selectItem itemValue="V" itemLabel="Viudo"/>                
+                        <f:selectItem itemValue="D" itemLabel="Divorciado"/>                
+                        <f:selectItem itemValue="U" itemLabel="Unión Libre"/>                
+                    </p:selectOneMenu>
+                    <p:outputLabel style="padding-left:  75px;"/>
+                </p:panelGrid>    
+                <p:panelGrid columns="7"  columnClasses="colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="E-mail: "/>
+                    <p:inputText value="#{cuentaBean.profesor.emailProfesor}"   style="width: 175px;" disabled="#{cuentaBean.editarFicha}" styleClass="campoNoEditado"
+                                 title="ejemplo: 'nombre@dominio.com', sólo un email principal " />               
+                    <p:outputLabel value="E-mail alternativo: "/>
+                    <p:inputText value="#{cuentaBean.profesor.emailsecProfesor}"   style="width: 300px" disabled="#{cuentaBean.editarFicha}"  styleClass="campoNoEditado"
+                                 title="puede haber más de uno separado por punto y coma, por ejemplo: 'correo1@dominio.com;correo2@dominio.com'"/>                               
+
+                    <p:outputLabel value="Celular: "/>
+                    <p:inputText value="#{cuentaBean.profesor.celularProfesor}"   style="width: 75px;" disabled="#{cuentaBean.editarFicha}" styleClass="campoNoEditado"/>                      
+                    <p:outputLabel style="padding-left:  10px;"/>
+                </p:panelGrid>
+                <p:panelGrid columns="2"  styleClass="estiloFilaDatos">  
+                    <h:outputText value="Datos de Domicilio" style="color: brown;font-weight: bold;" />  
+                    <p:separator styleClass="separator"/>  
+                </p:panelGrid> 
+                <p:panelGrid columns="6"  columnClasses="colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="País: "/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.paisDomProfesor}"   style="width: 175px;" disabled="#{cuentaBean.editarFicha}"
+                                     styleClass="#{cuentaBean.profesor.paisDomProfesor eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione uno..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listPaisesDom}" var="paisDom" itemValue="#{paisDom.codPais}" itemLabel="#{paisDom.nomPais}"/>
+                        <p:ajax event="change"  update="selectOneMenuCiuDom" listener="#{cuentaBean.cargarCiudades('Dom')}"/>
+                    </p:selectOneMenu>                
+                    <p:outputLabel value="Ciudad: "/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.ciudadDomProfesor}"   style="width: 125px;" disabled="#{cuentaBean.editarFicha}" id="selectOneMenuCiuDom" 
+                                     styleClass="#{cuentaBean.profesor.ciudadDomProfesor eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione una..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listCiudadesDom}"  var="ciuDom" itemValue="#{ciuDom.ciudadPK.codCiudad}" itemLabel="#{ciuDom.nomCiudad}"/>
+                    </p:selectOneMenu>                
+                    <p:outputLabel value="Teléfono: "/>
+                    <p:inputText value="#{cuentaBean.profesor.telfdomProfesor}"   style="width: 75px" disabled="#{cuentaBean.editarFicha}"  styleClass="campoNoEditado"/>  
+                </p:panelGrid>
+                <p:panelGrid columns="2" columnClasses="colEtiqueta,colDato"  styleClass="estiloFilaDatos">
+                    <p:outputLabel value="Dirección: " />
+                    <p:inputText value="#{cuentaBean.profesor.dirdomProfesor}" disabled="#{cuentaBean.editarFicha}"  styleClass="campoNoEditado"
+                                 style="width: 800px;;text-align: left" />  
+
+                </p:panelGrid>
+                <p:panelGrid columns="2"  styleClass="estiloFilaDatos">  
+                    <h:outputText value="Lugar de Trabajo" style="color: brown;font-weight: bold;"/>  
+                    <p:separator styleClass="separator"/>  
+                </p:panelGrid>  
+                <p:panelGrid columns="6"  columnClasses="colEtiqueta,colDato,colEtiqueta,colDato,colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="País: "/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.paisTrabProfesor}"   style="width: 175px;" disabled="#{cuentaBean.editarFicha}"
+                                     styleClass="#{cuentaBean.profesor.paisTrabProfesor eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione uno..." noSelectionOption="true" itemValue="" />                        
+                        <f:selectItems value="#{cuentaBean.listPaisesTrab}" var="paisTrab" itemValue="#{paisTrab.codPais}" itemLabel="#{paisTrab.nomPais}"/>
+                        <p:ajax event="change"  update="selectOneMenuCiuTrab" listener="#{cuentaBean.cargarCiudades('Trab')}"/>
+                    </p:selectOneMenu>                
+                    <p:outputLabel value="Ciudad: "/>
+                    <p:selectOneMenu value="#{cuentaBean.profesor.ciudadTrabProfesor}"   style="width: 175px;" disabled="#{cuentaBean.editarFicha}"  id="selectOneMenuCiuTrab"
+                                     styleClass="#{cuentaBean.profesor.ciudadTrabProfesor eq null ?'estiloSelectOneMenuNull':'estiloSelectOneMenu'}" panelStyleClass="estiloPanelelectOneMenu">
+                        <f:selectItem itemLabel="Seleccione una..." noSelectionOption="true" itemValue="" />
+                        <f:selectItems value="#{cuentaBean.listCiudadesTrab}"  var="ciuTrab" itemValue="#{ciuTrab.ciudadPK.codCiudad}" itemLabel="#{ciuTrab.nomCiudad}"/>
+                    </p:selectOneMenu>                
+                    <p:outputLabel value="Teléfono: "/>
+                    <p:inputText value="#{cuentaBean.profesor.telefonoProfesor}"   style="width: 100px" disabled="#{cuentaBean.editarFicha}" styleClass="campoNoEditado"/>  
+                </p:panelGrid>
+                <p:panelGrid columns="4"  columnClasses="colEtiqueta,colDato,colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="Institución/Empresa: "/>
+                    <p:inputText value="#{cuentaBean.profesor.trabajoProfesor}"   style="width: 350px;text-transform: uppercase" disabled="#{cuentaBean.editarFicha}" styleClass="campoNoEditado"/>  
+                    <p:outputLabel value="Cargo: "/>
+                    <p:inputText value="#{cuentaBean.profesor.cargoProfesor}"   style="width: 250px" disabled="#{cuentaBean.editarFicha}" styleClass="campoNoEditado"/>  
+                </p:panelGrid>            
+                <p:panelGrid columns="2"  columnClasses="colEtiqueta,colDato" styleClass="estiloFilaDatos">
+                    <p:outputLabel value="Dirección: "/>
+                    <p:inputText value="#{cuentaBean.profesor.dirtrabProfesor}" disabled="#{cuentaBean.editarFicha}"  style="width: 800px;" styleClass="campoNoEditado" maxlength="255"/>  
+                </p:panelGrid>            
+
+            </p:panel>
+        </h:form>
+    </p:panel>
+
+</ui:composition>
+

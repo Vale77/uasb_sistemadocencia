@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="residencia" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="91a64204-b677-4233-9782-188360bdb9a9">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="nroContrato" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     DATOS_VIAJERO."CDO_CODIGO" AS DATOS_VIAJERO_CDO_CODIGO,
+     DATOS_VIAJERO."RUB_CODIGO" AS DATOS_VIAJERO_RUB_CODIGO,
+DATOS_VIAJERO."DVI_CANTIDAD" AS DVI_CANTIDAD,
+     DATOS_VIAJERO."DVI_VALOR_DIARIO" AS DATOS_VIAJERO_DVI_VALOR_DIARIO,
+     RUBROS."RUB_DESCRIPCION" AS RUBROS_RUB_DESCRIPCION,
+     RUBROS."RUB_CATEGORIA" AS RUBROS_RUB_CATEGORIA,
+     DATOS_VIAJERO."DVI_FECHA_DESDE" AS DATOS_VIAJERO_DVI_FECHA_DESDE,
+     DATOS_VIAJERO."DVI_FECHA_HASTA" AS DATOS_VIAJERO_DVI_FECHA_HASTA
+FROM
+     interfaseOcu."GESTIONDOCENTE"."RUBROS" RUBROS INNER JOIN interfaseOcu."GESTIONDOCENTE"."DATOS_VIAJERO" DATOS_VIAJERO ON RUBROS."RUB_CODIGO" = DATOS_VIAJERO."RUB_CODIGO"
+WHERE
+     DATOS_VIAJERO."DVI_TIPO_REGISTRO" = 'R'
+     and DATOS_VIAJERO."CDO_CODIGO" = $P{nroContrato}]]>
+	</queryString>
+	<field name="DATOS_VIAJERO_CDO_CODIGO" class="java.lang.Long"/>
+	<field name="DATOS_VIAJERO_RUB_CODIGO" class="java.lang.Long"/>
+	<field name="DVI_CANTIDAD" class="java.lang.Integer"/>
+	<field name="DATOS_VIAJERO_DVI_VALOR_DIARIO" class="java.math.BigDecimal"/>
+	<field name="RUBROS_RUB_DESCRIPCION" class="java.lang.String"/>
+	<field name="RUBROS_RUB_CATEGORIA" class="java.lang.String"/>
+	<field name="DATOS_VIAJERO_DVI_FECHA_DESDE" class="java.sql.Timestamp"/>
+	<field name="DATOS_VIAJERO_DVI_FECHA_HASTA" class="java.sql.Timestamp"/>
+	<variable name="dias" class="java.lang.Integer">
+		<variableExpression><![CDATA[($F{DATOS_VIAJERO_DVI_FECHA_HASTA}.getTime() - $F{DATOS_VIAJERO_DVI_FECHA_DESDE}.getTime()).div(1000 * 60 * 60 * 24)]]></variableExpression>
+	</variable>
+	<columnHeader>
+		<band height="37" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="2" y="6" width="188" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="69028445-06a1-4674-aee1-581af272ea69"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[COSTO POR RESIDENCIA:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="29" y="26" width="216" height="11" uuid="9100074d-775a-4f95-8be3-5a5bca0b6e12"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tipo Residencia]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="245" y="26" width="60" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="bd9ac299-bae7-4d95-b147-e2e701f0defd"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[F. Ingreso]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="305" y="26" width="60" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="4f395755-ebc9-4778-916d-712ec66816e1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[F.Salida]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="403" y="26" width="41" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="e6adbe68-8be8-4be9-8709-3bebde491330"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Valor]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="365" y="26" width="38" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="7376e104-f729-4662-83d7-417bdef28cc8"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Días]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="444" y="26" width="56" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="52546b34-46a5-4549-a190-11bcd8abf7f3"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<textField pattern="dd MMM yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="245" y="0" width="60" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="46769ddc-dd7c-4d30-ba27-20081248fbe0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DATOS_VIAJERO_DVI_FECHA_DESDE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd MMM yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="305" y="0" width="60" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="b9eb8c00-800c-4375-9deb-8db4f5d2f9a8"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DATOS_VIAJERO_DVI_FECHA_HASTA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="403" y="0" width="41" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="f6e92bfa-f917-47ab-b384-9233878134a1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DATOS_VIAJERO_DVI_VALOR_DIARIO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="444" y="0" width="56" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="839eff90-c25e-4e9d-ae5c-fc1e3f9a96a6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DATOS_VIAJERO_DVI_VALOR_DIARIO}.multiply(new BigDecimal($F{DVI_CANTIDAD}) )]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="365" y="0" width="38" height="12" uuid="84c22d38-cde5-494b-b025-98b1d318724f"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DVI_CANTIDAD}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="29" y="0" width="216" height="12" uuid="1fe8963d-a19a-4233-a683-73b0ae18dc1a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif" size="8"/>
+					<paragraph leftIndent="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RUBROS_RUB_DESCRIPCION}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

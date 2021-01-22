@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{rolesBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .rolTable{ width: 99%;}
+        </style>
+        <h:form id="formRoles">
+            <p:dataTable id="dataRoles" var="rol" value="#{rolesBean.rolesDocentes}" 
+                         rowKey="#{rol.rdoCodigo}"  sortBy="#{rol.rdoEstado}"
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle rolTable" >
+                <p:ajax event="rowSelect" update=":formRoles:dataRoles"/>                      
+                <p:ajax event="rowUnselect"  update=":formRoles:dataRoles"/>         
+                <p:columnGroup type="header">  
+                    <p:row>  
+                        <p:column rowspan="2" headerText="Ord." width="3%"/>
+                        <p:column rowspan="2" headerText="Código"  width="3%" />     
+                        <p:column rowspan="2" headerText="Actividad académica"  width="20%" />  
+                        <p:column rowspan="2" headerText="Vigencia"  width="7%"/>  
+                        <p:column rowspan="2" headerText="Rubro"  width="20%"/>  
+                        <p:column colspan="3" headerText="Valor"  width="30%"/>  
+                        <p:column rowspan="2" headerText="Unidad"  width="17%"/>
+                    </p:row>  
+                    <p:row>  
+                        <p:column headerText="Especialización" />
+                        <p:column headerText="Maestria"  />     
+                        <p:column headerText="Doctorado"  />  
+                    </p:row>  
+                </p:columnGroup>                 
+                <p:column headerText="Ord." style="text-align: center;" >  
+                    <span style="font-weight: bold">#{rowIndex+1}</span>
+                </p:column>  
+                <p:column headerText="Código" style="text-align: center" >   
+                    #{rol.rdoCodigo}
+                </p:column>                  
+                <p:column headerText="Actividad académica" >   
+                    <h:outputText value="#{rol.rdoDescripcion}" style="color: blue"/>
+                </p:column>    
+                <p:column headerText="Estado" style="text-align: center" >   
+                    <h:outputText value="#{rol.rdoEstado eq 'I'?'Inactivo':'Activo'}" style="color: #{rol.rdoEstado eq 'I'?'normal':'brown'}; font-weight: bold"/> 
+                </p:column>     
+                <p:column headerText="Rubro"   width="28%">   
+                    #{rol.rubros.rubDescripcion}
+                </p:column> 
+                <p:column headerText="Especialización"   style="text-align: right">   
+                    <h:outputText value="#{rol.rubros.rubValorEspe}" >
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>  
+                </p:column>  
+                <p:column headerText="Maestria"  style="text-align: right">   
+                    <h:outputText value="#{rol.rubros.rubValorMaes}" >
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>  
+                </p:column>    
+                <p:column headerText="Doctorado"  style="text-align: right">   
+                    <h:outputText value="#{rol.rubros.rubValorDocto}" >
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>  
+                </p:column>      
+                <p:column headerText="Unidad"  style="text-align: right">
+                    <h:outputText value=" por cada / #{rol.rubros.rubUnimedida}" style="visibility: #{rol.rubros.rubUnimedida eq null ? 'hidden':'visible'}"/>
+                </p:column>                
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

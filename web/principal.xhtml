@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./WEB-INF/templates/default.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" >
+
+    <ui:define name="page-content">
+        <h:outputScript library="js" name="principal.js" target="head"/>
+        <h:outputScript library="js" name="calendar_es.js" target="head"/>
+        <h:outputScript library="js" name="clock_es.js" target="head"/>
+        <ui:include src="#{facesContext.externalContext.sessionMap.containsKey('logined')? navigationMgmtBean.selectedIncludePath:navigationMgmtBean.paginaPortal}.xhtml"/>
+    </ui:define>
+    <ui:define name="login">
+        <ui:include src="/WEB-INF/templates/includes/login.xhtml"/>
+    </ui:define>    
+    <ui:define name="messagesDlgs">
+        <p:confirmDialog id="confirmDialogEnviar"  header="Confirmación" 
+                         widgetVar="confirmeEnviar" appendToBody="true" closable="false" width="475"> 
+            <f:facet name="message">
+                <div align="center" style="font-weight: bold">
+                    <span style="color: blue;text-align: justify;"> Está seguro de haber registrado todos los datos. </span>
+                    <br/><br/>
+                    Desea enviarla ?
+                </div>
+            </f:facet>            
+            <f:facet name="severity">
+                <p class="logo"/>
+            </f:facet>
+            <p:commandButton id="commandButtonEnviar" value="Si"  styleClass="ui-confirmdialog-yes" icon="ui-icon-check" update=":formLogin:growlLogin"
+                             actionListener="#{navigationMgmtBean.baseJSFManagedBean.guardarButton_processAction}"  oncomplete="confirmeEnviar.hide()"/> 
+            <p:spacer width="25"/>
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" onclick="confirmeEnviar.hide()"/>  
+        </p:confirmDialog>  
+        <p:confirmDialog id="confirmDialogGrabar"  header="Confirmación" 
+                         widgetVar="confirmeGrabar" appendToBody="true" closable="false" width="475"> 
+            <f:facet name="message">
+                <div align="center" style="font-weight: bold">
+                    <span style="color: blue;text-align: justify;"> Ha hecho modificaciones. </span>
+                    <br/><br/>
+                    Desea guardarlas ?
+                </div>
+            </f:facet>            
+            <f:facet name="severity">
+                <p class="logo"/>
+            </f:facet>
+            <p:commandButton value="Si"  styleClass="ui-confirmdialog-yes" icon="ui-icon-check" update=":formLogin:growlLogin"
+                             actionListener="#{navigationMgmtBean.baseJSFManagedBean.guardarButton_processAction(ae)}"  oncomplete="confirmeGrabar.hide()"/> 
+            <p:spacer width="25"/>
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" onclick="confirmeGrabar.hide()"/>  
+        </p:confirmDialog>          
+        <p:dialog id="dialogMessage" header="#{navigationMgmtBean.iconMensaje eq 'error.png'?'Error':'Atención'}" widgetVar="mensajeWidget"  modal="true" resizable="false" 
+                  style="font-size: 9pt;"  height="auto" draggable="false" showEffect="explode" hideEffect="explode">
+            <div align="center" style="font-size: 8pt;width:700px;">
+                <h:panelGrid columns="3">
+                    <h:graphicImage name="#{navigationMgmtBean.iconMensaje}" library="images"/><p:spacer width="20px;"/>                         
+                    <p:outputLabel value="#{navigationMgmtBean.mensaje}" style="font-size: 8pt;font-weight: bold;text-align: justify;color: darkblue" escape="false"/>
+                </h:panelGrid><br/>
+                <p:commandButton  value="Aceptar" icon="ui-icon-check" title="Cerrar" process="@this"  onclick="mensajeWidget.hide();"/>
+            </div>
+        </p:dialog>  
+        <p:dialog id="dialogMessageErrores" header="Errores" modal="true" position="center" showEffect="fade" hideEffect="fade" 
+                  style="font-size: 9pt;left:170px;" widgetVar="dlgErrores">  
+            <h:panelGrid columns="1" id="displayError">  
+                <p:messages autoUpdate="true"/> 
+            </h:panelGrid>  
+            <div align="center">
+                <p:commandButton  value="Cerrar"  onclick="dlgErrores.hide();"/>
+            </div>
+        </p:dialog>             
+        <p:dialog id="pdfDialog" header="#{navigationMgmtBean.nombreReporte}" widgetVar="pdfWidget"  modal="true" resizable="false" 
+                  width="985" height="540" draggable="false" showEffect="explode" hideEffect="explode" >
+            <p:ajax event="close" listener="#{navigationMgmtBean.handleClose}" immediate="true" partialSubmit="true"/>             
+            <iframe id="iFramePdf" src="#{facesContext.externalContext.requestContextPath}/delay.xhtml" frameborder="0"  width="100%" height="100%"/>
+            <!--p:media id="visorPdf" width="100%" height="100%" player="pdf" value="#{navigationMgmtBean.displayReporte}"> 
+                <div align="center" style="padding-top: 100px;">
+                    <h:outputLabel value="Su explorador no soporta desplegar archivos en PDF" style="font-size: 14pt;"/><br/>
+                    <h:outputLink style="color:blue;font-size: 14pt;" value="#{navigationMgmtBean.displayReporte}">Click Aqui</h:outputLink><br/>
+                    <h:outputLabel value="para Descargar el archivo." style="font-size: 14pt;"/>  
+                </div>
+            </p:media-->  
+        </p:dialog>   
+        <p:dialog id="mantDialog" header="#{navigationMgmtBean.nombreOpcion}" widgetVar="mantWidget"  modal="true" resizable="false" closable="false"
+                  style="font-size: 9pt;" width="auto" height="auto" draggable="false" showEffect="explode" hideEffect="explode"
+                  position="center #{navigationMgmtBean.baseJSFManagedBean.posicionYMant}" >
+            <pe:ckEditor rendered="false" />
+            <h:form id="formMant">     
+                <ui:include src="#{navigationMgmtBean.baseJSFManagedBean.paginaMant}.xhtml"/>
+                <!--p:separator />
+                <div align="right" style="font-size: 8pt;">
+                    <p:commandButton  id="commandButtonGrabar" value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  update="formMant"
+                                      actionListener="#{navigationMgmtBean.baseJSFManagedBean.guardarButton_processAction(ae)}" process="@form" />
+                    <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro"  onclick="mantWidget.hide();" process="@this" 
+                                      actionListener="#{navigationMgmtBean.baseJSFManagedBean.cancelarButton_processAction(ae)}" />
+                </div-->
+            </h:form>  
+        </p:dialog>   
+        <p:dialog id="mantTema" widgetVar="mantWidgetTema"  modal="true" resizable="false" position="center #{navigationMgmtBean.baseJSFManagedBean.posicionY}"
+                  style="font-size: 9pt;" width="auto" draggable="false" showEffect="explode" hideEffect="explode" closable="false" 
+                  showHeader="false">
+            <h:form id="formTema" >
+                <ui:include src="#{navigationMgmtBean.baseJSFManagedBean.paginaTema}.xhtml"/>
+            </h:form>      
+        </p:dialog>    
+
+        <p:dialog  id="pnlRelojArena" widgetVar="statusDialog" draggable="false" closable="false" showHeader="false" resizable="false"
+                   styleClass="relogArena" >
+            <p:graphicImage library="images" name="loading.gif" height="48" width="48"/>
+        </p:dialog>
+
+    </ui:define>
+</ui:composition>

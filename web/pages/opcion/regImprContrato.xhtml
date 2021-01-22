@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <style>
+        .ui-dialog .ui-dialog-buttonpane{text-align: center;margin: 0 0;background-color: #F5F5DC;}
+        .ui-dialog .ui-dialog-titlebar{color: brown;}
+        .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;}
+        .calendario .ui-state-disabled {opacity: 1 ;background-color: #F5F5DC;box-shadow: none;border:none}
+        .inputContrato .ui-state-disabled {opacity: 1 ;background-color: #F5F5DC;box-shadow: none;border:none}
+        .etiquetaCss{font-weight: bold;color: navy}
+        .colorCounter{color: brown;font-weight: bold;font-size: 8pt}
+        .colErrMsg{width: 35px;}
+    </style>
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 815px;"  >
+        <style>
+            .colUnoFecha{width: 75px;}  .colUnoContrato{width: 90px;} .colDosContrato{width: 15px;}
+            .colUnoRevis{text-align: right} .colDosRevis{width: 200px;}
+            .pnlPdfDialog .ui-widget-content{background-color: white;height: 520px;padding: 0px;}
+        </style>
+        <h:panelGrid id="pnlContrato" columns="9" cellpadding="0" cellspacing="2" 
+                     columnClasses="colUnoFecha,,colErrMsg,colUnoContrato,colDosContrato,colErrMsg,colUnoRevis,colDosRevis inputContrato,colErrMsg">
+            <p:outputLabel value="Fecha: " styleClass="etiquetaCss"  for="calendarFecha"/>
+            <p:calendar id="calendarFecha" value="#{revisImprBean.contratoEdit.cdoFechaGenContr}" pattern="dd-MMMM-yyyy" 
+                        locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="15"  styleClass="calendario" 
+                        required="true" requiredMessage="Fecha requerida" showOn="button" autocomplete="off" 
+                        disabled="#{revisImprBean.contratoEdit.estadoContrato eq 'P'  or revisImprBean.anularContrato}" >
+                <p:ajax event="dateSelect" update="pnlContrato :formLogin:growlLogin commandButtonGrabar" listener="#{revisImprBean.validateFechaContrato()}"/>
+            </p:calendar>
+            <p:message for="calendarFecha"  display="icon" />  
+            <p:outputLabel id="outputLabelFecha" value="Nº Contrato : " styleClass="etiquetaCss"  for="inputMaskCantidad"/>
+            <pe:inputNumber id="inputMaskCantidad" value="#{revisImprBean.nroContrato}" maxlength="3" style="width: 25px;text-align: center"
+                            onclick="document.getElementById('formMant:inputMaskCantidad_input').select();"  autocomplete="off" 
+                            required="#{!revisImprBean.anularContrato}" requiredMessage="Ingrese el Nro. de contrato" decimalPlaces="0" minValue="1" maxValue="999"
+                            disabled="#{revisImprBean.contratoEdit.estadoContrato eq 'P' or revisImprBean.anularContrato}" styleClass="inputContrato">  
+                <f:convertNumber integerOnly="true"/>                
+                <p:ajax event="keyup" update="commandButtonGrabar"/>  
+                <p:watermark for="inputMaskCantidad" value="##" />
+            </pe:inputNumber>   
+            <p:message for="inputMaskCantidad"  display="icon" />  
+            <p:outputLabel value="Revisado por: " styleClass="etiquetaCss"   for="inputTextRevisado"/>
+            <p:inputText id="inputTextRevisado" value="#{revisImprBean.contratoEdit.cdoRevisadoPor}" style="width: 200px"
+                         required="#{!revisImprBean.anularContrato}" requiredMessage="Dato 'Revisado por' es requerido" autocomplete="off" 
+                         disabled="#{revisImprBean.contratoEdit.estadoContrato eq 'P' or revisImprBean.anularContrato}" styleClass="inputContrato"/>
+            <p:message for="inputTextRevisado"  display="icon" />  
+        </h:panelGrid>
+        <h:panelGrid id="pnlContratar"  columns="5" cellpadding="0" cellspacing="2" columnClasses=",,,,inputContrato">
+            <p:outputLabel value="Anular Contrato:"  style="font-weight: bold;color: navy"/>
+            <p:selectBooleanCheckbox value="#{revisImprBean.anularContrato}" id="selectBooleanCheckboxAnular">
+                <p:ajax update="pnlContrato pnlContratar commandButtonGrabar commandButtonAnular" 
+                        listener="#{revisImprBean.resetCampo('nrocontrato')}"/>
+            </p:selectBooleanCheckbox><p:spacer width="25"/>
+            <p:outputLabel id="outputLabelObs" value="Observación: " styleClass="etiquetaCss" rendered="#{revisImprBean.anularContrato}"/>
+            <p:inputTextarea id="inputTextObs" value="#{revisImprBean.esc.escObservacion}" cols="100" maxlength="255" rows="1" style="resize: none"
+                             required="#{revisImprBean.anularContrato}" requiredMessage="El motivo de la anulación es necesario"
+                             counterTemplate="{0} caracteres disponibles." autoResize="false"  counter="counterTit" rendered="#{revisImprBean.anularContrato}">
+            </p:inputTextarea>   
+            <p:outputLabel/> <p:outputLabel/><p:outputLabel/><p:outputLabel/>
+            <h:outputText id="counterTit" styleClass="colorCounter"  rendered="#{revisImprBean.anularContrato}"
+                          style="visibility: #{revisImprBean.contratoEdit.estadoContrato eq 'P' ? 'hidden':'visible'}"/>
+        </h:panelGrid>
+        <p:panel id="pnlPdfDialog" styleClass="pnlPdfDialog" style="padding: 0px">
+            <iframe id="iFramePdf" src="#{facesContext.externalContext.requestContextPath}/delay.xhtml" frameborder="0"  width="100%" height="100%"/>
+        </p:panel>
+    </p:panel>
+    <h:panelGroup>
+        <div align="right" style="margin-top: 5px;">
+            <p:commandButton  id="commandButtonAnular" value="Anular contrato" icon="ui-icon-closethick" title="Anular el contrato" process="@form"
+                              disabled="#{not revisImprBean.anularContrato}"
+                              update=":formLogin:growlLogin @form" actionListener="#{revisImprBean.guardarButton_processAction}"/>
+            <span style="padding-right: 10px;"/>            
+            <p:commandButton  id="commandButtonGrabar" value="Generar contrato" 
+                              icon="ui-icon-disk" title="Guardar datos ingresados" process="@form"
+                              disabled="#{revisImprBean.anularContrato ? true: revisImprBean.contratoEdit.estadoContrato eq 'P' or revisImprBean.contratoEdit.cdoFechaGenContr eq null or revisImprBean.nroContrato eq null}"
+                              update=":formLogin:growlLogin @form" actionListener="#{revisImprBean.guardarButton_processAction}"/>
+            <span style="padding-right: 10px;"/>
+            <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" update="formMant:panelMant"
+                              actionListener="#{revisImprBean.cancelarButton_processAction(ae)}" onclick="mantWidget.hide();"/>
+        </div>
+    </h:panelGroup>
+
+</ui:composition>
+

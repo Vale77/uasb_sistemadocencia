@@ -1,0 +1,49 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ice="http://www.icesoft.com/icefaces/component"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html">
+
+    <h:outputStylesheet library="css" name="loginStyle.css"/>  
+    <p:dialog id="dialog" header="Ingreso al sistema" widgetVar="dlg" modal="true" style="font-size: 10pt;"
+              hideEffect="explode" showEffect="explode"
+              position="center" resizable="false" closable="false" draggable="false" styleClass="ui-dialog-contentLogin">  
+        <h:form id="formLogin">  
+            <p:growl id="growlLogin"/> 
+            <p:panel id="panel-signup">
+                <p:focus context="loginPanel" />
+                <p:panelGrid  columns="2"  styleClass="ui-panelGridLogin">
+                    <p:graphicImage library="images" name="Login.png" width="48" height="48"/>
+                    <p:panelGrid id="loginPanel" columns="2" styleClass="ui-panelGridLogin">  
+                        <p:outputLabel for="username" value="Usuario:" style="font-weight: bold"/>  
+                        <p:inputText value="#{loginMgmtBean.userName}"  requiredMessage="Por favor, ingrese su nombre de usuario"
+                                     id="username" required="true" autocomplete="off">
+                            <p:watermark for="username" value="nombre de usuario" />
+                        </p:inputText>  
+                        <p:outputLabel for="password" value="Clave:" style="font-weight: bold"/>  
+                        <p:password value="#{loginMgmtBean.password}" requiredMessage="Por favor ingrese, su clave"
+                                    id="password" required="true">
+                            <p:watermark for="password" value="clave personal" />
+                        </p:password> 
+                    </p:panelGrid>  
+                </p:panelGrid>
+            </p:panel>
+            <div class="buttons">
+                <p:commandButton id="loginButton" icon="ui-icon-person"  value="Ingresar" action="#{loginMgmtBean.login('GestionAdminis')}" 
+                                 oncomplete="handleLoginRequest(xhr, status, args)" update="@form growlLogin"/><p:spacer width="5"/>
+                <p:commandButton id="cancelLoginButton" value="Cancelar" oncomplete="dlg.hide();" icon="ui-icon-cancel" 
+                                 immediate="true" update="@form">
+                    <p:resetInput target="loginPanel"/>
+                </p:commandButton>
+            </div>    
+        </h:form> 
+        <!--div  class="InstCont" >
+            <h:outputLink value="#" title="Haga click aquí si ha olvidado su usuario o su contraseña"
+                          style="color:brown"
+                          onclick="return open_win('#{facesContext.externalContext.requestScheme}://#{facesContext.externalContext.requestServerName}#{facesContext.externalContext.requestServerPort ne ''?':'.concat(facesContext.externalContext.requestServerPort):''}/resetuserdoc', 'v5');">
+                ¿ Ha olvidado su usuario o clave ?
+            </h:outputLink>
+        </div-->  
+    </p:dialog>  
+</ui:composition>

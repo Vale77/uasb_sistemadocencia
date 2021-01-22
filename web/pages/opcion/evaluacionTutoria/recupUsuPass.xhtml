@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                >
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{recusuEst.navigationJSFManagedBean.nombreOpcion}">      
+        <h:form id="frecusuPass">
+            <p:growl id="messagedato"/> 
+
+            <h:panelGrid id="gfiltro" columns="7" style="font-family: Arial; font-size: 7pt"> 
+                <h:outputText  value="Apellido* :" style="font-weight: bold" />
+                <h:panelGrid columns="2" id="gapellido" >
+                    <h:inputText value="#{recusuEst.smapellido}" style=" width: 100px; text-transform: uppercase" 
+                                 id="inombre"
+                                 required="true" requiredMessage="Apellido: se requiere un valor"  >
+                        <p:ajax update="gapellido" immediate="true"/>
+                    </h:inputText> 
+                    <p:message for="inombre" display="icon"/> 
+                </h:panelGrid>
+                <h:outputText  value="Nombre* :" style="font-weight: bold" />
+                <h:panelGrid columns="2" id="gnombre" >
+                    <h:inputText value="#{recusuEst.smnombre}" style=" width: 100px; text-transform: uppercase" >
+                        <p:ajax update="gnombre" immediate="true"/>
+                    </h:inputText>                    
+                </h:panelGrid>            
+
+                <p:commandButton   icon="ui-icon-refresh" title="Refrescar registros" 
+                                   immediate="true" update="gdetalle" 
+                                   actionListener="#{recusuEst.profesorvalueChangeListener}"/> 
+            </h:panelGrid>  
+
+
+            <h:panelGrid id="gdetalle" >
+                <p:dataTable value="#{recusuEst.listDatEst}" 
+                             id="tdatosDoc" var="detdat" 
+                             scrollable="true" 
+                             rowIndexVar="rowIndex"                                              
+                             rowKey="#{detdat[0]}"
+                             selection="#{recusuEst.selectedDatEst}"
+                             selectionMode="single"
+                             resizableColumns="true"                                             
+                             emptyMessage="No existen datos"
+                             styleClass="evalFormStyle"  
+                             widgetVar="widgetEEADA">
+                    <f:facet name="header">
+                        <h:outputText  value="DATOS ESTUDIANTE" style="font-weight: bold" />                        
+                    </f:facet>
+                    <p:column headerText="Cédula" style="width: 10%; text-align: center">
+                        <h:outputText value="#{detdat[0]}" style="text-transform: uppercase"/>
+                    </p:column>                    
+                    <p:column headerText="Nombres" style="width: 45%; text-align: center">
+                        <h:outputText value="#{detdat[1]}" style="text-transform: uppercase"/>                                            
+                    </p:column>                   
+                    <p:column headerText="Email" style="width: 15%; text-align: center">
+                        <h:outputText value="#{detdat[2]}" />                                            
+                    </p:column>
+                    <p:column headerText="Enviar"  style="text-align: center"  width="10%">  
+                        <div align="center">
+                            <p:commandLink value="Enviar" 
+                                           title="Enviar" immediate="true"  
+                                           partialSubmit="true" style="color:blue;"
+                                           styleClass="ui-icon ui-icon-search"  action="#{recusuEst.enviarButton_processAction(ae)}"
+                                           onstart="widgetEEADA.unselectAllRows();widgetEEADA.selectRow(#{rowIndex})"
+                                           update="@form">
+                                <f:setPropertyActionListener value="#{detdat}" target="#{recusuEst.selectedDatEst}" />  
+                            </p:commandLink>  
+                        </div>
+                    </p:column>  
+                </p:dataTable>    
+            </h:panelGrid>
+        </h:form>
+    </p:panel>  
+
+</ui:composition>

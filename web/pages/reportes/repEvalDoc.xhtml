@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{repEvalDocBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .estiloPanelSelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 8pt;border-color: whitesmoke}
+            .estiloPanelSelectOneMenu .ui-selectonemenu-filter{text-transform: uppercase;width: 165%;font-size: 8pt;}
+            .estiloPanelSelectOneMenu .ui-selectonemenu-filter-container .ui-icon{right: -100px;}
+            .estiloSelectOneMenuAre.ui-state-disabled {opacity: 1 ;border:none;}
+            .tablaSilabo {font-size: 7pt }
+            .ui-state-default .ui-icon-refrescar {background-image: url("#{resource['/images/refresh.png'] }");background-size: 18px 18px;}            
+        </style>
+        <h:form id="formEvalDoc">
+            <h:panelGrid id="pnlArea" columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelArea" value="Área:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuArea" value="#{repEvalDocBean.area}" style="width: 300px;" 
+                                 disabled="#{repEvalDocBean.areas.size()==1}"
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{repEvalDocBean.areas}"  var="area" itemValue="#{area.areCodigo}"
+                                   itemLabel="#{area.nombreArea}" itemDescription="#{area.areCodigo.toString()}"/>
+                    <p:ajax update="selectOneMenuProg" listener="#{repEvalDocBean.handleAreaAnioProgChange('areas')}" />                 
+                </p:selectOneMenu> 
+                <p:spacer width="10"/>
+                <p:outputLabel id="outputLabelAnio" value="Año académico:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuAnio" value="#{repEvalDocBean.anio}" style="width: 100px;" 
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                                                                
+                    <f:selectItems value="#{repEvalDocBean.academicos}"  var="anioAcad" itemValue="#{anioAcad.anio}"
+                                   itemLabel="#{anioAcad.nombreCiclo}" itemDescription="#{anioAcad.nombreCiclo}"/>
+                    <p:ajax update="selectOneMenuProg"  listener="#{repEvalDocBean.handleAreaAnioProgChange('anio')}"/>                 
+                </p:selectOneMenu> 
+            </h:panelGrid>
+            <h:panelGrid columns="2" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelProg" value="Programa:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuProg" value="#{repEvalDocBean.progra}" style="width: 600px" converter="programaConverter"
+                                 disabled="#{repEvalDocBean.programas.size()==1}"  styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." noSelectionOption="true" />                     
+                    <f:selectItems value="#{repEvalDocBean.programas}"  var="prog" itemValue="#{prog}"
+                                   itemLabel="#{prog.nombrePrograma}" itemDescription="#{prog.programaPK.prgCodigo.toString()}"/>
+                    <p:ajax update="selectOneMenuRep"   listener="#{repEvalDocBean.handleAreaAnioProgChange('programa')}" />                 
+                </p:selectOneMenu>                  
+
+            </h:panelGrid>     
+            <h:panelGrid columns="3" cellpadding="5" cellspacing="0">                   
+                <p:outputLabel id="outputLabelRep" value="Reporte:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuRep" value="#{repEvalDocBean.smtipo}" style="width: 300px" 
+                                 panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItem itemValue="D" itemLabel="Del Estudiante Al Docente"/>
+                    <f:selectItem itemValue="CD" itemLabel="Consolidado Del Estudiante Al Docente"/>
+                    <f:selectItem itemValue="A" itemLabel="Del Estudiante A la Asignatura/Módulo"/> 
+                    <f:selectItem itemValue="CA" itemLabel="Consolidado Del Estudiante A La Asignatura/Módulo"/>
+                    <f:selectItem itemValue="T" itemLabel="Del Estudiante Al Tutor"/>
+                    <f:selectItem itemValue="CT" itemLabel="Consolidado Del Estudiante Al Tutor"/>
+                    <f:selectItem itemValue="P" itemLabel="Del Estudiante Al Programa"/>
+                    <f:selectItem itemValue="CP" itemLabel="Consolidado Del Estudiante Al Programa- Especialización"/>
+                    <f:selectItem  itemValue="CPM" itemLabel="Consolidado Del Estudiante Al Programa -Maestría Investigación"/>
+                    <f:selectItem  itemValue="CPD" itemLabel="Consolidado Del Estudiante Al Programa - Doctorado "/>
+                    <f:selectItem itemValue="C" itemLabel="Del Coordinador Al Docente"/>
+                    <f:selectItem  itemValue="CC" itemLabel="Consolidado Del Coordinador Al Docente"/>
+                    <f:selectItem itemValue="COP" itemLabel="Del Comité Al Programa"/>
+                    <f:selectItem itemValue="CCOP" itemLabel="Consolidado Del Comité Al Programa"/>
+                    <p:ajax update="gdatAsig dataAsig btnBuscar" partialSubmit="true" listener="#{repEvalDocBean.handleAreaAnioProgChange('reporte')}" />                 
+                </p:selectOneMenu>  
+                <p:commandButton  icon="ui-icon-refrescar" title="Ver Reporte" id="btnBuscar" 
+                                  disabled="#{repEvalDocBean.area eq null or repEvalDocBean.progra eq null or repEvalDocBean.anio eq null}"
+                                  update="@form :pdfDialog" action="#{repEvalDocBean.imprimirPrograma_processAction(ae)}"
+                                  oncomplete="pdfWidget.show();"/>               
+            </h:panelGrid>               
+            <h:panelGrid id="gdatAsig" style="width:100%" >                
+                   <p:dataTable rendered="#{repEvalDocBean.smtipo eq 'D'or repEvalDocBean.smtipo eq 'T' or repEvalDocBean.smtipo eq 'C'}"
+                       id="dataAsig" var="asig" value="#{repEvalDocBean.listDocProg}" 
+                    rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle" rowStyleClass="tablaSilabo"
+                    selection="#{repEvalDocBean.selectedProgDocMateria}" 
+                    widgetVar="widgetSilabo"
+                    rowKey="#{asig[0]}"  
+                    emptyMessage="No existen docentes con evaluaciones realizadas para este ciclo y programa">                         
+                    <p:column headerText="Docente"  width="30%" style="text-transform: uppercase">   
+                        #{asig[1]}
+                    </p:column>    
+
+                    <p:column headerText="PDF Sílabo"  style="text-align: center"  width="4%">  
+                        <p:commandButton id="selectButton"  icon="ui-icon-search" title="Ver Sílabo"  update="@form :pdfDialog"                                     
+                                         action="#{repEvalDocBean.imprimirButton_processAction(ae)}" 
+                                         onstart="widgetSilabo.selectRow(#{rowIndex});" oncomplete="pdfWidget.show();">  
+                            <f:setPropertyActionListener value="#{asig}" target="#{repEvalDocBean.selectedProgDocMateria}" />  
+                        </p:commandButton>
+                    </p:column>      
+                </p:dataTable>                
+            </h:panelGrid>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <h:form >  
+        <style>
+            .ui-accordion .ui-accordion-content{padding: 1em 1.2em;margin-left: -9px;}
+            .cuaderno , .ui-accordion-content{padding: 0 0;}
+            .filaClass{height: 20px;}
+            .celdaClass{padding-left:20px;}
+        </style>
+
+        <p:accordionPanel styleClass="cuaderno">
+            <p:tab title="Administración de Códigos" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or
+                                                                 fn:containsIgnoreCase(sessionScope.perfiles,'RECURSOS')}">
+                <h:panelGrid columns="1" cellpadding="5" cellspacing="0" rowClasses="filaClass" columnClasses="celdaClass">                
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Autoridades" >  
+                        <f:param name="includePath" value="/pages/admin/autoridades"/>
+                    </p:commandLink>                      
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Parámetros" >  
+                        <f:param name="includePath" value="/pages/admin/parametros"/>
+                    </p:commandLink>  
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Actividades del docente" >  
+                        <f:param name="includePath" value="/pages/admin/roles"/>
+                    </p:commandLink>                      
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Formas de pago" >  
+                        <f:param name="includePath" value="/pages/admin/formasPago"/>
+                    </p:commandLink>    
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Estados de contrato" >  
+                        <f:param name="includePath" value="/pages/admin/estados"/>
+                    </p:commandLink>    
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Rubros" >  
+                        <f:param name="includePath" value="/pages/admin/rubros"/>
+                    </p:commandLink>    
+
+                </h:panelGrid>
+            </p:tab>   
+            <p:tab title="General" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or                                                       
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">
+                <h:panelGrid columns="1" cellpadding="5" cellspacing="0" rowClasses="filaClass" columnClasses="celdaClass">
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Reenvío de claves de estudiantes" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or                                                       
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">  
+                        <f:param name="includePath" value="/pages/opcion/evaluacionTutoria/recupUsuPass"/>
+                    </p:commandLink> 
+                </h:panelGrid>
+
+            </p:tab>            
+            <p:tab title="Opciones" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA') or 
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'RECURSOS') or
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'FINANCIE') or
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO') or
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'VICEREC')  or
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC') or 
+                                                fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">
+                <h:panelGrid columns="1" cellpadding="5" cellspacing="0" rowClasses="filaClass" columnClasses="celdaClass">      
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Solicitud de Contrato" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or
+                                                                             fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA')}">  
+                        <f:param name="includePath" value="/pages/opcion/soliciContrato"/>
+                    </p:commandLink>  
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Revisión de Contratos" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'RECURSOS') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'FINANCIE') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO')}">  
+                        <f:param name="includePath" value="/pages/opcion/aprobContrato"/>
+                    </p:commandLink>   
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Contratación docente" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'VICEREC') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">  
+                        <f:param name="includePath" value="/pages/opcion/revisImprContrato"/>
+                    </p:commandLink>                       
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Calendarización tutorías" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC')}">  
+                        <f:param name="includePath" value="/pages/opcion/evaluacionTutoria/reaperturaEvalEstATutor"/>
+                    </p:commandLink>   
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Pago estampilla" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC')}">  
+                        <f:param name="includePath" value="/pages/opcion/evaluacionTutoria/pagEstampillaAsignatura"/>
+                    </p:commandLink>    
+                </h:panelGrid>
+            </p:tab>
+            <p:tab title="Reportes y Consultas" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                                            fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA')  or 
+                                                            fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC') or 
+                                                            fn:containsIgnoreCase(sessionScope.perfiles,'US_BIBLI') or 
+                                                            fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">
+                <h:panelGrid columns="1" cellpadding="5" cellspacing="0" rowClasses="filaClass" columnClasses="celdaClass">
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Contratos con Residencia" 
+                                   rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or
+                                               fn:containsIgnoreCase(sessionScope.perfiles,'RESIDEN')}">  
+                        <f:param name="includePath" value="/pages/reportes/consultaContratos"/>
+                    </p:commandLink>                      
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Consulta de sílabo" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                                                          fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA') or 
+                                                                          fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC') or 
+                                                                          fn:containsIgnoreCase(sessionScope.perfiles,'US_BIBLI') or 
+                                                                          fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">  
+                        <f:param name="includePath" value="/pages/reportes/silabo"/>
+                    </p:commandLink>  
+                    <p:commandLink actionListener="#{navigationMgmtBean.navigationPathChange}" immediate="true" update=":pnlContent" 
+                                   value="Evaluaciones Docente" rendered="#{fn:containsIgnoreCase(sessionScope.perfiles,'USU_SIST') or 
+                                                                            fn:containsIgnoreCase(sessionScope.perfiles,'SEC_AREA') or 
+                                                                            fn:containsIgnoreCase(sessionScope.perfiles,'SEC_GREC') or 
+                                                                            fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">  
+                        <f:param name="includePath" value="/pages/reportes/repEvalDoc"/>
+                    </p:commandLink>                     
+                </h:panelGrid>
+            </p:tab>                
+        </p:accordionPanel>        
+    </h:form>        
+</ui:composition>
+

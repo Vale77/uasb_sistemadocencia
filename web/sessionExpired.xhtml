@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./WEB-INF/templates/default.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+
+    <ui:define name="cambioClave"/>
+    <ui:define name="page-content">
+        <p:panel id="pnlContent" >
+            <p:fieldset legend="#{i18n['session.expired.tittle']}" style="background-color: activecaption;text-align: center">
+                <br/>
+                <p:outputLabel value="#{i18n['session.expired.messaje']}" style="font-weight: bold;font-size: 10pt;color: white"/>
+                <br/><br/>
+                <p:commandButton id="confirmBackToLogin" type="button" value="#{i18n['btn.refresh']}" icon="ui-icon-refresh"
+                                 onclick="window.location = '#{facesContext.externalContext.requestContextPath}/principal.xhtml';" />
+
+            </p:fieldset>  
+
+        </p:panel>
+
+    </ui:define>    
+</ui:composition>

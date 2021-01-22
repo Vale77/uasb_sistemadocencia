@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{estadosBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .estadoTable{ width: 850px}
+            .estiloSelectOneMenuFirma.ui-state-disabled .ui-corner-all{border-radius: 0px}
+            .estiloSelectOneMenuFirma.ui-state-disabled {opacity: 1 ;border: none}
+            .estiloSelectOneMenuFirmaPar.ui-state-disabled .ui-inputfield{ box-shadow: none;padding: 0px 0px;}
+            .estiloSelectOneMenuFirmaImpar.ui-state-disabled .ui-inputfield{background-color: #f2f5f9; box-shadow: none;padding: 0px 0px;}
+            .estiloSelectOneMenuFirma.ui-state-disabled .ui-state-default{visibility: hidden; width: 0px;border: none}    
+        </style>
+        <h:form id="formEstado">
+            <p:dataTable id="dataEstado" var="estado" value="#{estadosBean.estados}"  rowKey="#{estado.staCodigo}"  sortBy="#{estado.staOrden}"
+                         rowIndexVar="rowIndex" styleClass="evalFormStyle estadoTable" >
+                <!--p:ajax event="rowSelect" update=":formEstado:dataEstado"/>                      
+                <p:ajax event="rowUnselect"  update=":formEstado:dataEstado"/-->                   
+                <p:column headerText="Ord." style="text-align: center;" width="3%">  
+                    <span style="font-weight: bold">#{rowIndex+1}</span>
+                </p:column>  
+                <p:column headerText="Código"  width="4%" style="text-align: center" >   
+                    #{estado.staCodigo}
+                </p:column>                  
+                <p:column headerText="Descripción"  width="25%" >   
+                    <h:outputText value="#{estado.staDescripcion}" style="color: blue"/>
+                </p:column>    
+                <p:column headerText="Orden"  width="3%" style="text-align: center">   
+                    <h:outputText value="#{estado.staOrden}" />
+                </p:column>    
+                <p:column headerText="Perfil siguiente"  width="15%"  style="text-align: center">   
+                    <h:outputText value="#{estado.staSiguientePerfil eq null?'No Asignado':estado.staSiguientePerfil}" style="color: brown"/>
+                </p:column>                     
+                <p:column headerText="Estado siguiente"  width="15%" style="text-align: center">   
+                    <h:outputText value="#{estado.staSiguienteProceso eq null?'Ninguno':estado.staSiguienteProceso}"  style="color: darkblue"/>
+                </p:column>      
+                <p:column headerText="Firma autorizada en siguiente perfil"  width="35%" >   
+                    <p:selectOneMenu value="#{estado.staSiguienteProceso eq null?null:estado.staFirmaUsrSigPerfil}" disabled="true"
+                                     style="border-radius: 0px "
+                                     styleClass="estiloSelectOneMenuFirma #{rowIndex % 2 eq 0 ? 'estiloSelectOneMenuFirmaPar' :'estiloSelectOneMenuFirmaImpar'}">
+                        <f:selectItem itemValue="" itemLabel=""/>    
+                        <f:selectItems value="#{estadosBean.listaPersonal}" var="personal" itemValue="#{personal.codNum}" itemLabel="#{personal.nombres} #{personal.apellidos}"/>
+                    </p:selectOneMenu>
+                </p:column>      
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

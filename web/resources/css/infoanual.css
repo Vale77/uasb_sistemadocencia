@@ -1,0 +1,49 @@
+/* 
+    Document   : infoanual
+    Created on : 26-jul-2013, 11:12:23
+    Author     : johana.orozco
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.ui-datatable .ui-datatable-header{
+    text-align: right;
+}
+.ui-selectoneradio label {
+    display: block;
+    margin-top: 4px;
+    font-size: 8pt;
+}
+.ui-tabs-left > .ui-tabs-nav {
+    background-image: none;
+    float: left;
+    height: 100%;
+    padding-top: 1px;
+    width: 20%;
+    font-size: 7.5pt;
+}
+.ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td{
+    white-space:normal !important;
+}
+.ui-selectonemenu-list-item {
+    border: 0 none;
+    cursor: pointer;
+    margin: 1px 0;
+    padding: 3px 5px;
+    text-align: left;
+    white-space: nowrap;
+    font-family: Arial; 
+    font-size: 8pt;                
+} 
+.ui-growl-item {
+    display: block;
+    padding: 10px 15px;
+    font-size: 9pt;
+    font-family: Arial
+}
+.ui-datepicker {
+    display: none;
+    padding: 0.2em 0.2em 0;
+    width: 17em;
+    font-size: 8pt;
+}

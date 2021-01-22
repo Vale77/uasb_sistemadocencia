@@ -1,0 +1,915 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EvalDeEstudAlProgramaConsol" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b8280f6c-93bd-4a9d-ae12-d1ce1ed35281">
+	<property name="ireport.zoom" value="3.0"/>
+	<property name="ireport.x" value="371"/>
+	<property name="ireport.y" value="315"/>
+	<subDataset name="promedioporpregunta" uuid="f7f7aed8-91d8-4f9a-b5c5-6232556abd19">
+		<parameter name="codArea" class="java.lang.String"/>
+		<parameter name="anio" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[DECLARE @MATERIA TABLE ( CODIGO_ESP VARCHAR(4), CODIGO_FACULTAD NUMERIC(7,0),  ANIO INT, CODIGO_NIVEACAD VARCHAR(3))
+INSERT INTO @MATERIA(CODIGO_ESP , CODIGO_FACULTAD ,  ANIO , CODIGO_NIVEACAD )
+SELECT distinct PRG_CODIGO , ARE_CODIGO ,  ANIO , COD_NIVEL_ACAD
+FROM interfaseOcu.dbo.PROGRAMA
+where anio = $P{anio}
+SELECT DISTINCT  VEVAL.CODIGO_PREGUNTA,VEVAL.PREGUNTA, CONVERT(DECIMAL(8, 2),AVG( VEVAL.VALOR)) AS VALOR
+FROM interfaseOcu.EVALUACION.VISTA_TABULACION_EVALDOCENTEANIO as VEVAL INNER JOIN @MATERIA AS MATERIA
+ON VEVAL.ANIO  = MATERIA.ANIO
+AND VEVAL.CODIGO_ESP = MATERIA.CODIGO_ESP
+WHERE VEVAL.tipo_encuesta = 'P'
+AND VEVAL.CODIGO_ENCUESTA =19
+AND MATERIA.CODIGO_NIVEACAD <> 3
+AND MATERIA.CODIGO_FACULTAD = $P{codArea}
+AND VEVAL.ANIO = $P{anio}
+GROUP BY VEVAL.CODIGO_PREGUNTA,VEVAL.PREGUNTA]]>
+		</queryString>
+		<field name="CODIGO_PREGUNTA" class="java.math.BigDecimal"/>
+		<field name="PREGUNTA" class="java.lang.String"/>
+		<field name="VALOR" class="java.math.BigDecimal"/>
+		<sortField name="CODIGO_PREGUNTA"/>
+	</subDataset>
+	<subDataset name="promedioHistorico" uuid="a93a6542-afdd-4b06-9361-7967145747fd">
+		<parameter name="codArea" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[DECLARE @MATERIA TABLE ( CODIGO_ESP VARCHAR(4),  ANIO INT, CODIGO_NIVEACAD VARCHAR(3), CODIGO_FACULTAD NUMERIC(8,0))
+INSERT INTO @MATERIA( CODIGO_ESP ,   ANIO , CODIGO_NIVEACAD , CODIGO_FACULTAD )
+SELECT distinct PRG_CODIGO ,  ANIO , COD_NIVEL_ACAD , ARE_CODIGO
+FROM interfaseOcu.dbo.PROGRAMA
+SELECT DISTINCT VEVAL.ANIO,CONVERT(DECIMAL(8, 2),AVG(VEVAL.VALOR)) AS VALOR
+FROM interfaseOcu.EVALUACION.VISTA_TABULACION_EVALDOCENTEANIO AS VEVAL iNNER JOIN @MATERIA AS MATERIA
+ON VEVAL.ANIO  = MATERIA.ANIO
+AND VEVAL.CODIGO_ESP = MATERIA.CODIGO_ESP
+WHERE MATERIA.CODIGO_NIVEACAD <> 3 AND VEVAL.CODIGO_ENCUESTA =19
+AND MATERIA.CODIGO_FACULTAD = $P{codArea}
+GROUP BY VEVAL.anio]]>
+		</queryString>
+		<field name="ANIO" class="java.math.BigDecimal"/>
+		<field name="VALOR" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="tipReporte" class="java.lang.String"/>
+	<parameter name="anio" class="java.lang.String"/>
+	<parameter name="codArea" class="java.lang.String"/>
+	<parameter name="codEsp" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[DECLARE @MATERIA TABLE ( AREA VARCHAR(75), PROGRAMA VARCHAR(500),CODIGO_ESP VARCHAR(4), CODIGO_FACULTAD NUMERIC(7,0),  ANIO INT, CODIGO_NIVEACAD VARCHAR(3))
+DECLARE @MATEST TABLE ( ANIO INT,CODIGO_ESP VARCHAR(4), NUM_EST INT)
+INSERT INTO @MATERIA(AREA, PROGRAMA ,CODIGO_ESP , CODIGO_FACULTAD ,  ANIO , CODIGO_NIVEACAD  )
+SELECT distinct  ARE_NOMBRE, NOMBRE_PROGRAMA ,PRG_CODIGO , ARE_CODIGO ,  ANIO , COD_NIVEL_ACAD
+FROM interfaseOcu.dbo.PROGRAMA
+where anio = $P{anio}
+INSERT INTO @MATEST  ( ANIO ,CODIGO_ESP, NUM_EST )
+SELECT DISTINCT ANIO, CODIGO_ESP, NUMEST
+FROM interfaseOcu.dbo.VISTA_NUMESTUDIANTE_PROGRAMA
+WHERE ANIO = $P{anio}
+
+select DISTINCT CICLO_ACADEMICO.NOMBRE_CICLO,
+MATERIA.PROGRAMA AS programa,
+VEVAL.ANIO, VEVAL.CODIGO_ENCUESTA,
+CONVERT(DECIMAL(8, 3),AVG(CASE WHEN VEVAL.CODIGO_PREGUNTA=1 THEN VEVAL.VALOR END)) AS PROM_PREG1,
+CONVERT(DECIMAL(8, 3),AVG(CASE WHEN VEVAL.CODIGO_PREGUNTA=2 THEN VEVAL.VALOR END)) AS PROM_PREG2,
+CONVERT(DECIMAL(8, 3),AVG(CASE WHEN VEVAL.CODIGO_PREGUNTA=3 THEN VEVAL.VALOR END)) AS PROM_PREG3,
+CONVERT(DECIMAL(8, 3),AVG(CASE WHEN VEVAL.CODIGO_PREGUNTA=4 THEN VEVAL.VALOR END)) AS PROM_PREG4,
+CONVERT(DECIMAL(8, 3),AVG(CASE WHEN VEVAL.CODIGO_PREGUNTA=5 THEN VEVAL.VALOR END)) AS PROM_PREG5,
+MAX(VEVAL.NE2010) AS NE_R,
+MAX(MATEST.NUM_EST ) AS NE_P,
+MATERIA.AREA AS area, MATERIA.codigo_niveacad,
+MATERIA.CODIGO_ESP, MATERIA.CODIGO_FACULTAD
+from interfaseOcu.EVALUACION.VISTA_TABULACION_EVALDOCENTEANIO as VEVAL  INNER JOIN interfaseOcu.dbo.CICLO_ACADEMICO
+ON VEVAL.ANIO  = CICLO_ACADEMICO.ANIO iNNER JOIN @MATERIA AS MATERIA
+ON VEVAL.ANIO  = MATERIA.ANIO
+AND VEVAL.CODIGO_ESP = MATERIA.CODIGO_ESP INNER JOIN @MATEST AS MATEST
+ ON VEVAL.ANIO  = MATEST.ANIO
+ AND VEVAL.CODIGO_ESP = MATEST.CODIGO_ESP
+WHERE VEVAL.TIPO_ENCUESTA = 'P'
+and VEVAL.codigo_encuesta = 19
+AND MATERIA.CODIGO_NIVEACAD <> 3
+AND VEVAL.ANIO =$P{anio}
+and VEVAL.CODIGO_MATERIA = -1
+and VEVAL.CODIGO_PROFESOR = -1
+and VEVAL.CODIGO_NIVEL = -1
+AND (CASE when(($P{tipReporte} ='A' OR $P{tipReporte} ='P')and $P{codArea} <>'T')  then  MATERIA.CODIGO_FACULTAD ELSE '0' END )= (CASE  when(($P{tipReporte} ='A' OR $P{tipReporte} ='P')and $P{codArea} <>'T')THEN $P{codArea}  ELSE '0' END)
+AND (CASE when(($P{tipReporte}='P')and $P{codEsp} <> 'T') THEN VEVAL.CODIGO_ESP ELSE '0' END )= (CASE when(($P{tipReporte} ='P' )and $P{codEsp} <> 'T')THEN  $P{codEsp} ELSE '0' END  )
+GROUP BY CICLO_ACADEMICO.NOMBRE_CICLO,MATERIA.PROGRAMA,VEVAL.ANIO, VEVAL.CODIGO_ENCUESTA, MATERIA.AREA,MATERIA.codigo_niveacad, MATERIA.CODIGO_ESP, MATERIA.CODIGO_FACULTAD]]>
+	</queryString>
+	<field name="NOMBRE_CICLO" class="java.lang.String"/>
+	<field name="programa" class="java.lang.String"/>
+	<field name="ANIO" class="java.math.BigDecimal"/>
+	<field name="CODIGO_ENCUESTA" class="java.math.BigDecimal"/>
+	<field name="PROM_PREG1" class="java.math.BigDecimal"/>
+	<field name="PROM_PREG2" class="java.math.BigDecimal"/>
+	<field name="PROM_PREG3" class="java.math.BigDecimal"/>
+	<field name="PROM_PREG4" class="java.math.BigDecimal"/>
+	<field name="PROM_PREG5" class="java.math.BigDecimal"/>
+	<field name="NE_R" class="java.lang.Integer"/>
+	<field name="NE_P" class="java.lang.Integer"/>
+	<field name="area" class="java.lang.String"/>
+	<field name="codigo_niveacad" class="java.lang.String"/>
+	<field name="CODIGO_ESP" class="java.lang.String"/>
+	<field name="CODIGO_FACULTAD" class="java.math.BigDecimal"/>
+	<sortField name="ANIO"/>
+	<sortField name="area"/>
+	<sortField name="codigo_niveacad" order="Descending"/>
+	<sortField name="programa"/>
+	<variable name="sumaPregDoc" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{PROM_PREG1}.add($F{PROM_PREG2}).add($F{PROM_PREG3}).add($F{PROM_PREG4}).add($F{PROM_PREG5})]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="valor1" class="java.math.BigDecimal" resetType="Group" resetGroup="area" calculation="Average">
+		<variableExpression><![CDATA[$F{PROM_PREG1}]]></variableExpression>
+	</variable>
+	<variable name="valor2" class="java.math.BigDecimal" resetType="Group" resetGroup="area" calculation="Average">
+		<variableExpression><![CDATA[$F{PROM_PREG2}]]></variableExpression>
+	</variable>
+	<variable name="valor3" class="java.math.BigDecimal" resetType="Group" resetGroup="area" calculation="Average">
+		<variableExpression><![CDATA[$F{PROM_PREG3}]]></variableExpression>
+	</variable>
+	<variable name="valor4" class="java.math.BigDecimal" resetType="Group" resetGroup="area" calculation="Average">
+		<variableExpression><![CDATA[$F{PROM_PREG4}]]></variableExpression>
+	</variable>
+	<variable name="valor5" class="java.math.BigDecimal" resetType="Group" resetGroup="area" calculation="Average">
+		<variableExpression><![CDATA[$F{PROM_PREG5}]]></variableExpression>
+	</variable>
+	<variable name="promedioPrograma" class="java.math.BigDecimal" resetType="Group" resetGroup="area" calculation="Average">
+		<variableExpression><![CDATA[$V{sumaPregOtros}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="sumaPregOtros" class="java.math.BigDecimal" resetType="Group" resetGroup="area">
+		<variableExpression><![CDATA[($F{PROM_PREG1}.add($F{PROM_PREG2}).add($F{PROM_PREG3}).add($F{PROM_PREG4}).add($F{PROM_PREG5})).divide(new BigDecimal("5"), RoundingMode.HALF_UP)]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="promedioArea" class="java.math.BigDecimal" resetType="Column" incrementType="Report" calculation="Average">
+		<variableExpression><![CDATA[$V{promedioPrograma}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="promedioEP" class="java.math.BigDecimal" calculation="Average">
+		<variableExpression><![CDATA[$F{NE_P}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="promedioER" class="java.math.BigDecimal" calculation="Average">
+		<variableExpression><![CDATA[$F{NE_R}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="sumaDoctorado" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{codigo_niveacad}.equals(new BigDecimal("3"))? new BigDecimal("0"):new BigDecimal("1")]]></variableExpression>
+	</variable>
+	<variable name="NE_P_1" class="java.lang.Double" resetType="Group" resetGroup="area" calculation="Sum">
+		<variableExpression><![CDATA[$F{NE_P}]]></variableExpression>
+	</variable>
+	<variable name="NE_R_1" class="java.lang.Double" resetType="Group" resetGroup="area" calculation="Sum">
+		<variableExpression><![CDATA[$F{NE_R}]]></variableExpression>
+	</variable>
+	<group name="area" isStartNewPage="true" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{area}]]></groupExpression>
+		<groupHeader>
+			<band height="22">
+				<staticText>
+					<reportElement x="0" y="0" width="267" height="22" uuid="7e63bfcf-080b-48ac-9a83-b4cf9c93f935"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[PROGRAMA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="444" y="0" width="110" height="11" uuid="9b592d97-8267-440a-b7b7-70cabc340735"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[ENCUESTAS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="267" y="0" width="110" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="bcc8e8ef-625a-4255-8bdd-1e721b73c93b"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[PROMEDIO POR PREGUNTA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="267" y="11" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="ca131090-4695-45e3-9e59-2d5efc0c6bd2"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[1]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="289" y="11" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="f9e05be8-a1b9-4887-bc33-ae37b20fa916"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[2]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="311" y="11" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="cc1c197b-560d-40cd-b15e-53e4bbac9037"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[3]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="333" y="11" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="e2d2350f-0c6f-426c-aaa9-807f68884ce9"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[4]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="355" y="11" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="276c3c4a-cb92-40e9-90ba-8df10f2dee93"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[5]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="377" y="0" width="67" height="22" forecolor="#000000" backcolor="#FFFFFF" uuid="b9beb5b7-731d-4843-bb0b-3584f190ead2"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[PROMEDIO DEL PROGRAMA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="444" y="11" width="55" height="11" uuid="085c2864-3861-4b33-8d02-e9ce1600b642"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[PREVISTAS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="499" y="11" width="55" height="11" uuid="e7752ea7-60f5-4d26-8767-e17827a6416d"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[REALIZADAS]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="206">
+				<textField evaluationTime="Group" evaluationGroup="area" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="267" y="0" width="22" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="90175f83-0169-4520-a0b0-a0cc0a63c2da"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{valor1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="area" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="289" y="0" width="22" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="f4ce1e89-51e8-40c7-99ce-04e780850d4a"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{valor2}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="area" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="311" y="0" width="22" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="517834e9-e1e4-42ee-9c52-cab796840c76"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{valor3}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="area" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="333" y="0" width="22" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="bbb07004-5c07-44df-9e2d-15f93e52add6"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{valor4}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="area" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="355" y="0" width="22" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="5880d29c-4f31-42fc-948c-01ac6305db8c"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{valor5}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="0" y="0" width="267" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="60d554bf-f6c5-4b09-b6e4-80b8fc221c6a"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[PROMEDIO]]></text>
+				</staticText>
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="377" y="0" width="67" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="8dc5afb8-302b-48ea-b30d-e6f0f0ee3547"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{valor1}.add($V{valor2}).add($V{valor3}).add($V{valor4}).add($V{valor5})).divide(new BigDecimal("5"), RoundingMode.HALF_UP)]]></textFieldExpression>
+				</textField>
+				<barChart>
+					<chart isShowLegend="false" evaluationTime="Group" evaluationGroup="area">
+						<reportElement x="19" y="44" width="210" height="129" uuid="e4b204c6-49a4-4163-b314-0694b156ac92"/>
+						<chartTitle>
+							<font size="8" isBold="true"/>
+							<titleExpression><![CDATA["Promedio del Programa por pregunta"]]></titleExpression>
+						</chartTitle>
+						<chartSubtitle/>
+						<chartLegend/>
+					</chart>
+					<categoryDataset>
+						<dataset>
+							<datasetRun subDataset="promedioporpregunta" uuid="47bc6f3d-e08e-480b-a0ba-25f1542fcc55">
+								<datasetParameter name="codArea">
+									<datasetParameterExpression><![CDATA[$F{CODIGO_FACULTAD}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter name="anio">
+									<datasetParameterExpression><![CDATA[$F{ANIO}]]></datasetParameterExpression>
+								</datasetParameter>
+							</datasetRun>
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[""]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{CODIGO_PREGUNTA}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{VALOR}]]></valueExpression>
+							<labelExpression><![CDATA[(new DecimalFormat ("#.00")).format($F{VALOR})]]></labelExpression>
+						</categorySeries>
+					</categoryDataset>
+					<barPlot isShowLabels="true" isShowTickLabels="true" isShowTickMarks="true">
+						<plot/>
+						<itemLabel>
+							<font size="5"/>
+						</itemLabel>
+						<categoryAxisFormat>
+							<axisFormat verticalTickLabels="false">
+								<labelFont>
+									<font size="8"/>
+								</labelFont>
+								<tickLabelFont>
+									<font size="5"/>
+								</tickLabelFont>
+							</axisFormat>
+						</categoryAxisFormat>
+						<valueAxisFormat>
+							<axisFormat>
+								<labelFont>
+									<font size="5"/>
+								</labelFont>
+								<tickLabelFont>
+									<font size="5"/>
+								</tickLabelFont>
+							</axisFormat>
+						</valueAxisFormat>
+					</barPlot>
+				</barChart>
+				<componentElement>
+					<reportElement key="table" x="0" y="187" width="552" height="14" uuid="679636b0-518f-4f4b-8933-3431576a7d86"/>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="promedioporpregunta" uuid="009a1478-224f-439d-8511-9c09a9b97c05">
+							<datasetParameter name="codArea">
+								<datasetParameterExpression><![CDATA[$F{CODIGO_FACULTAD}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="anio">
+								<datasetParameterExpression><![CDATA[$F{ANIO}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="17" uuid="77d7e375-1d04-4e5f-9065-187235753087">
+							<jr:tableHeader height="0" rowSpan="1"/>
+							<jr:tableFooter height="13" rowSpan="1"/>
+							<jr:columnHeader height="0" rowSpan="1"/>
+							<jr:columnFooter height="3" rowSpan="1"/>
+							<jr:detailCell height="11" rowSpan="1">
+								<textField>
+									<reportElement x="0" y="0" width="17" height="11" uuid="58b7c366-f157-4d5c-8d4a-74dedc6e5467"/>
+									<textElement>
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{CODIGO_PREGUNTA}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="509" uuid="58b33976-fbdf-4eba-8ac6-ea1bcbf1f6e2">
+							<jr:tableHeader height="0" rowSpan="1"/>
+							<jr:tableFooter height="13" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="509" height="12" uuid="dafc79d3-ab8b-430b-8919-487d2e518862"/>
+									<textElement>
+										<font size="8" isBold="true"/>
+									</textElement>
+									<text><![CDATA[Escala utilizada: 1. Deficiente 2. Regular 3. Bueno 4. Muy Bueno 5. Excelente]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:columnHeader height="0" rowSpan="1"/>
+							<jr:columnFooter height="3" rowSpan="1"/>
+							<jr:detailCell height="11" rowSpan="1">
+								<textField isStretchWithOverflow="true">
+									<reportElement x="0" y="0" width="509" height="11" uuid="dfbb89e6-a3cd-415f-b483-a7986ad50f5c"/>
+									<textElement textAlignment="Justified">
+										<font size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{PREGUNTA}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement x="0" y="176" width="48" height="11" uuid="a7b11d3b-471a-41d0-b014-e5ece10d2966"/>
+					<textElement>
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Preguntas]]></text>
+				</staticText>
+				<barChart>
+					<chart isShowLegend="false" evaluationTime="Group" evaluationGroup="area">
+						<reportElement x="272" y="44" width="210" height="129" uuid="123b7499-dc31-4d98-ac76-b8410195bf4f"/>
+						<chartTitle>
+							<font size="8" isBold="true"/>
+						</chartTitle>
+						<chartSubtitle>
+							<font size="8" isBold="true"/>
+							<subtitleExpression><![CDATA["Promedio Histórico Programa"]]></subtitleExpression>
+						</chartSubtitle>
+						<chartLegend/>
+					</chart>
+					<categoryDataset>
+						<dataset>
+							<datasetRun subDataset="promedioHistorico" uuid="94729238-1011-42de-b8ff-895e30ac2457">
+								<datasetParameter name="codArea">
+									<datasetParameterExpression><![CDATA[$F{CODIGO_FACULTAD}]]></datasetParameterExpression>
+								</datasetParameter>
+							</datasetRun>
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{ANIO}]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{ANIO}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{VALOR}]]></valueExpression>
+						</categorySeries>
+					</categoryDataset>
+					<barPlot isShowLabels="true">
+						<plot/>
+						<itemLabel>
+							<font size="6"/>
+						</itemLabel>
+						<categoryAxisFormat>
+							<axisFormat>
+								<labelFont>
+									<font size="6"/>
+								</labelFont>
+								<tickLabelFont>
+									<font size="6"/>
+								</tickLabelFont>
+							</axisFormat>
+						</categoryAxisFormat>
+						<valueAxisFormat>
+							<axisFormat>
+								<labelFont>
+									<font size="6"/>
+								</labelFont>
+								<tickLabelFont>
+									<font size="6"/>
+								</tickLabelFont>
+							</axisFormat>
+						</valueAxisFormat>
+					</barPlot>
+				</barChart>
+				<staticText>
+					<reportElement mode="Transparent" x="377" y="17" width="67" height="17" forecolor="#000000" backcolor="#FFFFFF" uuid="24d35ae1-6468-4c58-a9df-72fdd62d2cdf"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[TOTALES: ]]></text>
+				</staticText>
+				<textField pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="444" y="17" width="55" height="17" uuid="04410f80-5fbd-4194-95ac-78c84266caf1"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{NE_P_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="499" y="17" width="53" height="17" uuid="44e56daf-c253-4486-a876-fec984a73542"/>
+					<box>
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{NE_R_1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="119" splitType="Stretch">
+			<staticText>
+				<reportElement x="74" y="16" width="480" height="15" uuid="c04661fc-c502-410f-b412-f76435f83a91"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PROGRAMAS DE DOCTORADO, MAESTRÍA  Y ESPECIALIZACIÓN SUPERIOR]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy">
+				<reportElement x="501" y="72" width="51" height="11" uuid="237148d7-2b05-42ba-a33b-537e67dfcc35"/>
+				<textElement>
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="74" y="1" width="480" height="15" uuid="3b273006-32cf-4b01-954d-0129f80af8dd"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SISTEMA DE EVALUACIÓN ACADÉMICA]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="74" y="31" width="480" height="15" uuid="456bb3c4-888e-4c46-8fe9-392105bbb000"/>
+				<textElement textAlignment="Center">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CICLO ACADÉMICO: "+$F{NOMBRE_CICLO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="459" y="72" width="43" height="11" uuid="1b255c88-eff9-4728-820b-faf76d14b1ae"/>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha Impr.]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1" y="83" width="552" height="1" uuid="709beea9-aa54-483e-a75e-7b9ae3e8c942"/>
+			</line>
+			<image>
+				<reportElement x="1" y="1" width="73" height="55" uuid="ba1b3b02-97e1-4b95-8f7f-4d22cc1b3b3d"/>
+				<imageExpression><![CDATA["Logo-UASB-E-centr.gif"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="74" y="46" width="480" height="26" uuid="b5c159a9-6540-41e6-8cda-2cf20dc1ebae"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONSOLIDADO EVALUACIÓN DE LOS ESTUDIANTES A LOS PROGRAMAS DE ESPECIALIZACION SUPERIOR Y MAESTRÍA PROFESIONAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1" y="92" width="47" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="b05d68dc-dad2-45e4-916c-1c0429bd1c8e"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[AREA :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="50" y="92" width="505" height="11" uuid="2eadbad3-58f9-45df-8863-b320f78aee79"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{area}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="3" y="116" width="552" height="1" uuid="2d484c63-93eb-486b-bbd4-ee720632844e"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="267" height="11" uuid="cdfd4b7f-3ca0-44a1-9a7a-2bdd2dca7e27"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{programa}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="499" y="0" width="55" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="b652e695-21d3-46c2-be94-2c6fff1545e4"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NE_R}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="267" y="0" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="fca1ba8c-7517-4125-91e4-e86919f7c3dd"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PROM_PREG1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="289" y="0" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="4ba2dd05-69d2-40ee-baea-fc3b12c975ae"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PROM_PREG2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="311" y="0" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="852fc47b-0c73-4d9e-8747-15a4e62408ca"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PROM_PREG3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="333" y="0" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="c6ad48f6-4966-40ad-a570-52150af1e700"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PROM_PREG4}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="355" y="0" width="22" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="2850f27a-7517-41b2-9828-cdb07bff95be"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PROM_PREG5}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="444" y="0" width="55" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="9f282ddc-51df-40fc-b28c-9b8f1a2f5794"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NE_P}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="377" y="0" width="67" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="f79283fa-74de-4409-84e1-254e8e0d9ccb"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{sumaPregOtros}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="12" splitType="Stretch">
+			<textField evaluationTime="Report" pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="533" y="0" width="20" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="c9512e52-b736-4857-8214-a15edfb328da"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["" + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="488" y="0" width="45" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="b340ae00-5a69-44ca-bf5d-32f5943386f5"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pagina " + $V{PAGE_NUMBER} + " de "]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="389" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="e26a391a-d16b-44f4-85c6-5c62d9cf0e02"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[SISTEMA ACADEMICO v1.0]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="1" splitType="Stretch"/>
+	</summary>
+</jasperReport>

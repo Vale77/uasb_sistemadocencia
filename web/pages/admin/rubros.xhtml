@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core"
+                 xmlns:pe="http://primefaces.org/ui/extensions" >
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{rubrosBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .rubrosTable{ width: 850px;}
+        </style>
+        <h:form id="formRubros">
+            <h:panelGrid id="pnlArea" columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelRubros" value="Tipo rubro" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuRubros" value="#{rubrosBean.tipoRubro}" style="width: 150px;"
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione uno..." noSelectionOption="true" />                        
+                    <f:selectItem itemValue="H" itemLabel="Honorarios"/>  
+                    <f:selectItem itemValue="R" itemLabel="Residencia"/>  
+                    <f:selectItem itemValue="V" itemLabel="Viáticos"/>                      
+                    <p:ajax update="dataRubros"  listener="#{rubrosBean.recuperarListados()}" oncomplete="widgetContrato.unselectAllRows();"/>                 
+                </p:selectOneMenu> 
+            </h:panelGrid>            
+            <p:dataTable id="dataRubros" var="rubro" value="#{rubrosBean.rubros}" rowKey="#{rubro.rubCodigo}"  sortBy="#{rubro.rubDescripcion}"
+                         emptyMessage="#{rubrosBean.tipoRubro eq null ? 'Seleccione un tipo de rubro' : empty rubrosBean.rubros ? 'No existen rubros para este tipo':''}"
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle rubrosTable"  widgetVar="widgetContrato"  editable="true">
+                <!--p:ajax event="rowSelect" update=":formRubros:dataRubros"/>                      
+                <p:ajax event="rowUnselect"  update=":formRubros:dataRubros"/-->   
+                <p:ajax event="rowEdit" listener="#{rubrosBean.onRowEdit}" update=":formLogin:growlLogin"/>
+                <p:ajax event="rowEditCancel" listener="#{rubrosBean.onRowCancel}" />                    
+                <p:columnGroup type="header">  
+                    <p:row>  
+                        <p:column rowspan="2" headerText="Ord." width="3%"/>
+                        <p:column rowspan="2" headerText="Tipo Rubro"  width="10%" />     
+                        <p:column rowspan="2" headerText="Código"  width="3%" />  
+                        <p:column rowspan="2" headerText="Descripción"  width="33%"/>  
+                        <p:column rowspan="2" headerText="Unidad"  width="10%"/>  
+                        <p:column colspan="3" headerText="Valor"  width="34%"/> 
+                        <p:column rowspan="2" width="7%"/> 
+                    </p:row>  
+                    <p:row>  
+                        <p:column headerText="Especialización" />
+                        <p:column headerText="Maestria"  />     
+                        <p:column headerText="Doctorado"  />  
+                    </p:row>  
+                </p:columnGroup>                     
+                <p:column headerText="Ord." style="text-align: center;" >  
+                    <span style="font-weight: bold">#{rowIndex+1}</span>
+                </p:column>  
+                <p:column headerText="Tipo Rubro"   style="text-align: center">   
+                    <h:outputText value="#{rubro.rubCategoria eq 'H'?'Honorarios':rubro.rubCategoria eq 'V'?'Viáticos':'Residencia'}" style="color: brown"/>
+                </p:column>                  
+                <p:column headerText="Código"  style="text-align: center" >   
+                    #{rubro.rubCodigo}
+                </p:column>                  
+                <p:column headerText="Descripción"  >   
+                    <h:outputText value="#{rubro.rubDescripcion}" style="color: blue"/>
+                </p:column>    
+                <p:column headerText="Unidad"  style="text-align: center">   
+                    <h:outputText value="#{rubro.rubUnimedida}" />
+                </p:column>    
+                <p:column headerText="Especialización" style="text-align: center">   
+                    <p:cellEditor>
+                        <f:facet name="output">                    
+                            <h:outputText value="#{rubro.rubValorEspe}" >
+                                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                            </h:outputText> 
+                        </f:facet>
+                        <f:facet name="input">
+                            <pe:inputNumber id="inputMaskValorEspe" value="#{rubro.rubValorEspe}"  style="width: 50px;text-align: center"
+                                            required="true" requiredMessage="Ingrese el valor de honorarios por Especialidad" autocomplete="off" decimalPlaces="0" 
+                                            onclick="document.getElementById('formRubros:dataRubros:#{rowIndex}:inputMaskValorEspe_input').select();">  
+                                <f:validateLongRange minimum="0" />  
+                            </pe:inputNumber>   
+                        </f:facet>
+                    </p:cellEditor>                      
+                </p:column>                     
+                <p:column headerText="Maestria"  style="text-align: right">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{rubro.rubValorMaes}" >
+                                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                            </h:outputText>  
+                        </f:facet>
+                        <f:facet name="input">
+                            <pe:inputNumber id="inputMaskValorMaes" value="#{rubro.rubValorMaes}"  style="width: 50px;text-align: center"
+                                            required="true" requiredMessage="Ingrese el valor de honorarios por Maestria" autocomplete="off" decimalPlaces="0"
+                                             onclick="document.getElementById('formRubros:dataRubros:#{rowIndex}:inputMaskValorMaes_input').select();">  
+                                <f:validateLongRange minimum="0"/>  
+                            </pe:inputNumber>   
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>    
+                <p:column headerText="Doctorado"  style="text-align: right">   
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{rubro.rubValorDocto}" >
+                                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                            </h:outputText>  
+                        </f:facet>
+                        <f:facet name="input">
+                            <pe:inputNumber id="inputMaskValorDocto" value="#{rubro.rubValorDocto}"  style="width: 50px;text-align: center"
+                                            required="true" requiredMessage="Ingrese el valor de honorarios por Doctorado" autocomplete="off" decimalPlaces="0"
+                                            onclick="document.getElementById('formRubros:dataRubros:#{rowIndex}:inputMaskValorDocto_input').select();">  
+                                <f:validateLongRange minimum="0"/>  
+                            </pe:inputNumber>   
+                        </f:facet>
+                    </p:cellEditor>                        
+                </p:column>   
+                <p:column  style="text-align: center" >
+                    <p:rowEditor id="rowEditControl" />
+                </p:column>                  
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

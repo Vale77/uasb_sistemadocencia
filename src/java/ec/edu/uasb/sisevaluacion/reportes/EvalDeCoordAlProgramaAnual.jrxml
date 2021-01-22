@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EvalDeCoordAlProgramaAnual" language="groovy" pageWidth="595" pageHeight="842" columnWidth="565" leftMargin="15" rightMargin="15" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" uuid="8f444923-4a80-4ea0-9a79-ff68c8fe454b">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<parameter name="anio" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["..\\PortalSisEval\\web\\reportes\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="tipReporte" class="java.lang.String"/>
+	<parameter name="codArea" class="java.lang.String"/>
+	<parameter name="codEsp" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[DECLARE @MATERIA TABLE ( AREA VARCHAR(75), PROGRAMA VARCHAR(500),CODIGO_ESP VARCHAR(4), CODIGO_FACULTAD NUMERIC(7,0),  ANIO INT, CODIGO_NIVEACAD VARCHAR(3), CICLO VARCHAR(384))
+INSERT INTO @MATERIA(AREA, PROGRAMA ,CODIGO_ESP , CODIGO_FACULTAD ,  ANIO , CODIGO_NIVEACAD , CICLO)
+SELECT distinct  ARE_NOMBRE, NOMBRE_PROGRAMA ,PRG_CODIGO , ARE_CODIGO,  ANIO , COD_NIVEL_ACAD , 1
+FROM interfaseOcu.dbo.PROGRAMA with (NOLOCK)
+where anio = $P{anio}
+SELECT  DISTINCT CICLO_ACADEMICO.NOMBRE_CICLO, AREA, PROGRAMA,
+ENCCAL.ANIO, ENCCAL.CICLO,ENCCAL.CODIGO_ENCUESTA,
+ENCCAL.CODIGO_ESP
+FROM @MATERIA MATERIA  INNER JOIN interfaseOcu.EVALUACION.ENCUESTA_CALENDARIO ENCCAL with (NOLOCK)
+ON MATERIA.ANIO = ENCCAL.ANIO
+AND MATERIA.CICLO = ENCCAL.CICLO
+AND MATERIA.CODIGO_ESP = ENCCAL.CODIGO_ESP  INNER JOIN interfaseOcu.dbo.CICLO_ACADEMICO with (NOLOCK)
+ON CICLO_ACADEMICO.ANIO = ENCCAL.ANIO
+AND CICLO_ACADEMICO.CICLO = ENCCAL.CICLO
+WHERE  ENCCAL.TIPO_ENCUESTA = 'O'
+AND ENCCAL.CODIGO_MATERIA = -1
+AND ENCCAL.CODIGO_PROFESOR = -1
+AND ENCCAL.CODIGO_NIVEL = -1
+AND ENCCAL.ANIO = $P{anio}
+AND (CASE when(($P{tipReporte} ='A' OR $P{tipReporte} ='P')and $P{codArea} <>'T')  then  MATERIA.CODIGO_FACULTAD ELSE '0' END )= (CASE  when(($P{tipReporte} ='A' OR $P{tipReporte} ='P' )and $P{codArea} <>'T')THEN $P{codArea}  ELSE '0' END)
+AND (CASE when(($P{tipReporte}='P')and $P{codEsp} <> 'T') THEN ENCCAL.CODIGO_ESP ELSE '0' END )= (CASE when(($P{tipReporte} ='P')and $P{codEsp} <> 'T')THEN  $P{codEsp} ELSE '0' END  )]]>
+	</queryString>
+	<field name="NOMBRE_CICLO" class="java.lang.String"/>
+	<field name="AREA" class="java.lang.String"/>
+	<field name="PROGRAMA" class="java.lang.String"/>
+	<field name="ANIO" class="java.math.BigDecimal"/>
+	<field name="CICLO" class="java.math.BigDecimal"/>
+	<field name="CODIGO_ENCUESTA" class="java.math.BigDecimal"/>
+	<field name="CODIGO_ESP" class="java.math.BigDecimal"/>
+	<sortField name="AREA"/>
+	<sortField name="PROGRAMA"/>
+	<group name="area" isStartNewPage="true" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{AREA}]]></groupExpression>
+		<groupHeader>
+			<band height="11">
+				<staticText>
+					<reportElement mode="Transparent" x="2" y="0" width="101" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="a0e3426a-cdec-4e6b-af7f-87c0ae32e774"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single" rightIndent="2"/>
+					</textElement>
+					<text><![CDATA[AREA ACADÉMICA:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="105" y="0" width="446" height="11" uuid="8caa3fb9-e91f-46c8-9574-c3cbb9887a17"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{AREA}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="PROGRAMA" isStartNewPage="true" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{PROGRAMA}]]></groupExpression>
+		<groupHeader>
+			<band height="23">
+				<staticText>
+					<reportElement mode="Transparent" x="2" y="0" width="101" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="77926027-0fd9-42d4-b744-c2d7b7a4f7b0"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single" rightIndent="2"/>
+					</textElement>
+					<text><![CDATA[PROGRAMA:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="105" y="0" width="445" height="11" uuid="52c09bc2-3a31-43a5-b379-1ce830ae787e"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{PROGRAMA}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="22" width="565" height="1" uuid="8a17255f-2eb9-4a39-a63b-96621ee45d43"/>
+					<graphicElement>
+						<pen lineWidth="0.75" lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="33">
+				<subreport>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="4" y="0" width="561" height="33" uuid="3e8723b4-0648-4e42-a836-0e17e19dce62"/>
+					<subreportParameter name="anio">
+						<subreportParameterExpression><![CDATA[$F{ANIO}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="codEncu">
+						<subreportParameterExpression><![CDATA[$F{CODIGO_ENCUESTA}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="codEsp">
+						<subreportParameterExpression><![CDATA[$F{CODIGO_ESP}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["EvalDeCoordAlProgramaDetEncuesta_texto.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="74" splitType="Stretch">
+			<textField>
+				<reportElement x="75" y="31" width="490" height="15" uuid="98955a52-4205-45e2-940a-a83993fcd38a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CICLO ACADÉMICO: "+$F{NOMBRE_CICLO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="75" y="16" width="490" height="15" uuid="8172eda8-7da8-4123-877c-5bc06bd0db95"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PROGRAMAS DE DOCTORADO, MAESTRÍA Y ESPECIALIZACIÓN SUPERIOR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="75" y="46" width="490" height="15" uuid="158b40f1-4e24-4e5c-8db7-bbc02a73df5f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE  DE LA EVALUACIÓN DEL PROGRAMA ACADÉMICO POR EL COMITÉ DE POSGRADO]]></text>
+			</staticText>
+			<image>
+				<reportElement x="0" y="1" width="73" height="55" uuid="6d535a99-53b1-4b33-a350-967f417b53fd"/>
+				<imageExpression><![CDATA["Logo-UASB-E-centr.gif"]]></imageExpression>
+			</image>
+			<textField pattern="dd-MMM-yyyy">
+				<reportElement x="505" y="61" width="60" height="11" uuid="01b0abd6-c40b-462e-9873-0010921afe93"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="458" y="61" width="47" height="11" uuid="27f5ad95-76e9-4d8f-ac8b-f620408ab539"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha Impr:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="75" y="1" width="490" height="15" uuid="3344314b-df9f-4061-9012-fcabc64f4452"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SISTEMA DE EVALUACIÓN ACADÉMICA]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="71" width="565" height="1" uuid="4ca4f66e-690e-4f48-afa3-64eb609ffb9e"/>
+				<graphicElement>
+					<pen lineWidth="0.75" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="28" splitType="Stretch">
+			<subreport>
+				<reportElement x="4" y="0" width="561" height="27" uuid="29ff6da1-9fb9-40c8-8b50-63a3086237aa"/>
+				<subreportParameter name="anio">
+					<subreportParameterExpression><![CDATA[$F{ANIO}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="codEncu">
+					<subreportParameterExpression><![CDATA[$F{CODIGO_ENCUESTA}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="codEsp">
+					<subreportParameterExpression><![CDATA[$F{CODIGO_ESP}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["EvalDeCoordAlProgramaDetEncuesta.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="12" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="4" y="1" width="389" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="65bc7a83-919f-4d40-ba4d-4f1766879f49"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[SISTEMA ACADEMICO v1.0]]></text>
+			</staticText>
+			<textField evaluationTime="Report">
+				<reportElement x="536" y="1" width="15" height="11" uuid="c4e64308-f71a-4b2d-8eda-7f96d918959f"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="486" y="1" width="50" height="11" uuid="c4fb34d1-49c7-4364-bc94-5819b9ee619d"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

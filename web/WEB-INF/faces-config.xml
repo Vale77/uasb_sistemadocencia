@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!-- =========== FULL CONFIGURATION FILE ================================== -->
+
+<faces-config version="2.1"
+              xmlns="http://java.sun.com/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd">
+
+    <application>
+        <!-- locale application properties -->
+        <resource-bundle>
+            <base-name>i18n_es_EC</base-name>
+            <var>i18n</var>
+        </resource-bundle>
+        <!--message-bundle>i18n</message-bundle-->
+        <locale-config>
+            <default-locale>es_EC</default-locale>
+            <!--supported-locale>en_US</supported-locale-->
+        </locale-config>
+    </application>
+    <factory>
+        <exception-handler-factory>ec.edu.uasb.utils.ViewExpiredExceptionExceptionHandlerFactory</exception-handler-factory>
+    </factory>    
+    <render-kit>
+        <!--renderer>
+            <component-family>org.primefaces.component</component-family>
+            <renderer-type>org.primefaces.component.SelectOneMenuRenderer</renderer-type>
+            <renderer-class>ec.edu.uasb.extendedTags.ExSelectOneMenuRenderer</renderer-class>
+        </renderer-->
+        <!--renderer>
+            <component-family>org.primefaces.component</component-family>
+            <renderer-type>org.primefaces.component.SelectOneRadioRenderer</renderer-type>
+            <renderer-class>ec.edu.uasb.extendedTags.ExSelectOneRadioRenderer</renderer-class>
+        </renderer-->            
+        <renderer>
+            <component-family>org.primefaces.component</component-family>
+            <renderer-type>org.primefaces.component.OutputLabelRenderer</renderer-type>
+            <renderer-class>ec.edu.uasb.extendedTags.ExOutputLabelRenderer</renderer-class>
+        </renderer>            
+    </render-kit> 
+</faces-config>

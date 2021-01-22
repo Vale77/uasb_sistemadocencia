@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{parametrosBean.navigationJSFManagedBean.nombreOpcion}">
+        <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 815px;"  >
+            <h:form id="formParam">
+                <h:panelGrid id="pnlParamRector" columns="4" cellpadding="0" cellspacing="2" >
+                    <p:outputLabel value="Rector:" style="font-weight: bold;color: blue" for="selectOneRector"/>
+                    <p:selectOneMenu id="selectOneRector" value="#{parametrosBean.codAutoridad}"  styleClass="estiloSelectOneMenu"
+                                     panelStyleClass="estiloPanelelectOneMenu" style=" width: 175px;" 
+                                     required="true" requiredMessage="El Rector es obligatorio">  
+                        <f:selectItem itemValue=""  itemLabel="Selecciona una autoridad..." noSelectionOption="true" />
+                        <f:selectItems value="#{parametrosBean.autoridades}" var="autor" itemValue="#{autor.autCodigo}"
+                                       itemLabel="#{autor.autApelativo} #{autor.autNombres}"/>
+                        <p:ajax update="pnlParamRector" listener="#{parametrosBean.changeRector}"/>
+                    </p:selectOneMenu>     
+                    <p:outputLabel id="outputLabelEncargado"  style="padding-left: 15px;font-weight: bold;color: red" 
+                                   value="  - #{parametrosBean.parametros.prmEtiquetaRector}"
+                                  rendered="#{parametrosBean.codAutoridad ne 1 and parametrosBean.codAutoridad ne null}"/>
+                     <p:message for="selectOneRector" display="icon" />  
+                </h:panelGrid>
+                <div align="right" style="margin-top: 5px;">
+                    <p:commandButton  id="commandButtonGrabar" value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  
+                                      update=":formLogin:growlLogin @form "
+                                      actionListener="#{parametrosBean.guardarButton_processAction}" process="@form" />
+                </div>
+            </h:form> 
+        </p:panel>
+    </p:panel>
+</ui:composition>
+

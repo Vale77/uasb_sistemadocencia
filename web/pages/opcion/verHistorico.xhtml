@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <style>
+        .green{color: green;} .black{color: black;} .tablaRegistro thead th{color:brown ! important;} .headerHistorico {border-style: hidden;color: blue}
+        .headerHistorico tbody td {border-color: transparent;padding: 0px;} .colHeadNro{width: 70%;text-align: left} .colHeadProfe{width: 30%;text-align: right;}
+    </style>
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 900px;font-size: 8pt;"  >
+        <p:dataTable id="dataRegistro" var="registro" value="#{verHistoricoBean.historiaEstados}" 
+                     rowIndexVar="rowIndex" styleClass="evalFormStyle tablaRegistro" scrollable="true" scrollHeight="150"
+                     rowStyleClass="#{rowIndex eq 0 ? 'green' : 'black'}"
+                     rowKey="#{registro.estadoSolicContratoPK}" >
+            <f:facet name="header">
+                <h:panelGrid  id="headerTesis" columns="2"  styleClass="headerHistorico" columnClasses="colHeadNro,colHeadProfe">
+                    <h:outputText value="HISTORICO DE SOLICITUD No.: &lt;span style='color:brown'&gt;#{verHistoricoBean.contratoSelected.cdoCodigo} &lt;/span&gt;" escape="false"/>
+                    <h:outputText value="#{verHistoricoBean.contratoSelected.contratado.nombresApellidos}"/>
+                </h:panelGrid>
+
+            </f:facet>
+            <!--p:column headerText="Ord." style="text-align: center;" width="3%">  
+                <span style="font-weight: bold">#{rowIndex+1}</span>
+            </p:column-->      
+            <p:column headerText="Fecha" style="text-align: center"  width="10%">   
+                <h:outputText value="#{registro.escFecha}" style="color: darkblue" >
+                    <f:convertDateTime pattern="dd MMM yyyy HH:mm"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>                       
+            </p:column>        
+            <p:column headerText="Estado"  style="text-align: center"  width="20%">
+                #{registro.tipoEstado.staDescripcion}
+            </p:column>            
+            <p:column headerText="Usuario"  width="30%" >   
+                #{registro.usuario.usuNombreUsuario} #{registro.usuario.usuApellUsuario}
+            </p:column> 
+            <p:column headerText="Observación"  style="text-align: justify"  width="25%">
+                #{registro.escObservacion}
+            </p:column> 
+            <p:column headerText="Ubicación actual"  style="text-align: center"  width="15%">
+                #{registro.tipoEstado.staSiguienteProceso}
+            </p:column>             
+        </p:dataTable>
+    </p:panel>
+    <h:panelGroup>
+        <div align="right" style="margin-top: 5px;">
+            <p:commandButton  value="Cerrar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" 
+                              onclick="mantWidget.hide();widgetContrato.unselectAllRows();"/>
+        </div>
+    </h:panelGroup>
+
+</ui:composition>
+

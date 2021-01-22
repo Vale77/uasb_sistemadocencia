@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="solicitud" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="40" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f3018ae4-a3a2-4cef-9a7e-a5c02249abf3">
+	<property name="ireport.zoom" value="4.0"/>
+	<property name="ireport.x" value="80"/>
+	<property name="ireport.y" value="456"/>
+	<subDataset name="Table Dataset 1" uuid="278cdd1e-13b1-4008-a0f5-c61607812f97"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\CoreUASB2013\\SIU\\Aplicaciones\\PortalGesDocente\\src\\java\\ec\\edu\\uasb\\portalgesdocente\\reportes\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="nroSolicitud" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT V_GRUPO_ASIGNATURA_PROGRAMA.NOMBRE_PROGRAMA,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ARE_NOMBRE,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ID_ASSIGNATURA,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ASS_NOMBRE,
+       V_GRUPO_ASIGNATURA_PROGRAMA.GRP_NOMBRE,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ACT_CODIGO,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ID_ACTIVIDAD,
+       V_GRUPO_ASIGNATURA_PROGRAMA.EJE_CODIGO,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ANIO,V_GRUPO_ASIGNATURA_PROGRAMA.COORDINADOR,
+       PROFESOR.*,
+       CONTRATO_DOCENTE.*,
+ TITULO, UNIVERSIDAD_OBTENCION, PAIS_OBTENCION ,REGISTRO_SENECYT,
+ (SELECT PERSONAL.NOMBRE_COMPLETO  FROM interfaseOcu.GESTIONDOCENTE.TIPO_ESTADO TPE
+  LEFT OUTER JOIN (select CODNUM,NOMBRE_COMPLETO  FROM
+  OPENQUERY(OCU,'select CODNUM,NOMPRS || '' '' || LL1PRS || '' '' || LL2PRS NOMBRE_COMPLETO,DNIPRS  from VUIB_DATOSPERSONALES DP  WHERE DP.FLGPAS = ''S''') ) AS PERSONAL
+  ON (TPE.STA_FIRMA_USR_SIG_PERFIL = PERSONAL.CODNUM) WHERE TPE.STA_CODIGO = 'S') FIRMA_REVISADO_RRHH,
+ (SELECT PERSONAL.NOMBRE_COMPLETO  FROM interfaseOcu.GESTIONDOCENTE.TIPO_ESTADO TPE
+  LEFT OUTER JOIN (select CODNUM,NOMBRE_COMPLETO  FROM
+  OPENQUERY(OCU,'select CODNUM,NOMPRS || '' '' || LL1PRS || '' '' || LL2PRS NOMBRE_COMPLETO,DNIPRS  from VUIB_DATOSPERSONALES DP  WHERE DP.FLGPAS = ''S''') ) AS PERSONAL
+  ON (TPE.STA_FIRMA_USR_SIG_PERFIL = PERSONAL.CODNUM) WHERE TPE.STA_CODIGO = 'H') FIRMA_REVISADO_FIN,
+ (SELECT PERSONAL.NOMBRE_COMPLETO
+  FROM interfaseOcu.GESTIONADMIN.AUTORIDAD AUTORIDAD
+       INNER JOIN interfaseOcu.GESTIONADMIN.PARAMETROS PARAMETROS ON (AUTORIDAD.AUT_CODIGO = PARAMETROS.PRM_COD_RECTOR)
+   LEFT OUTER JOIN (select CODNUM,NOMBRE_COMPLETO  FROM
+  OPENQUERY(OCU,'select CODNUM,NOMPRS || '' '' || LL1PRS || '' '' || LL2PRS NOMBRE_COMPLETO,DNIPRS  from VUIB_DATOSPERSONALES DP  WHERE DP.FLGPAS = ''S''') ) AS PERSONAL
+  ON (AUTORIDAD.AUT_COD_PERSONAL = PERSONAL.CODNUM)
+   WHERE PARAMETROS.PRM_CODIGO = 1) FIRMA_AUTORIZADO_RECTORADO,
+(SELECT V_USUARIO.NOMBRES+' '+V_USUARIO.APELLIDOS FROM interfaseOcu.dbo.V_USUARIO where ID_PERFIL = 'P_COMUN' AND CODIGO = CONTRATO_DOCENTE.CDO_USU_CREA ) REGISTRADO,
+       (SELECT  R.RDO_DESCRIPCION FROM  interfaseOcu.GESTIONDOCENTE.ROL_DOCENTE R WHERE convert(varchar(1),R.RDO_CODIGO) = convert(varchar(1),CONTRATO_DOCENTE.RDO_CODIGO))  RDO_DESCRIPCION,
+       (SELECT FP.TFP_DESCRIPCION FROM  interfaseOcu.GESTIONDOCENTE.TIPOS_FORMA_PAGO FP WHERE FP.TFP_CODIGO = CONTRATO_DOCENTE.TFP_CODIGO) TFP_DESCRIPCION,
+       (SELECT sum(HON_CANTIDAD*HON_VALOR) FROM  interfaseOcu."GESTIONDOCENTE"."RUBROS" RUBROS
+		 INNER JOIN interfaseOcu."GESTIONDOCENTE"."HONORARIOS" HONORARIOS ON RUBROS."RUB_CODIGO" = HONORARIOS."RUB_CODIGO"
+       WHERE RUBROS.RUB_CATEGORIA = 'V' and HONORARIOS.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO) TOTAL_VIATICOS
+  FROM ((interfaseOcu.GESTIONDOCENTE.CONTRATO_DOCENTE CONTRATO_DOCENTE
+         INNER JOIN interfaseOcu.dbo.V_GRUPO_ASIGNATURA_PROGRAMA V_GRUPO_ASIGNATURA_PROGRAMA
+            ON     (CONTRATO_DOCENTE.ASG_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.ASS_CODIGO)
+               AND (CONTRATO_DOCENTE.ARE_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.ARE_CODIGO)
+               AND (CONTRATO_DOCENTE.PRG_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.PRG_CODIGO)
+               AND (CONTRATO_DOCENTE.PRL_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.GRP_CODIGO)
+               AND (CONTRATO_DOCENTE.ASP_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.ACT_CODIGO))
+        	INNER JOIN interfaseOcu.dbo.PROFESOR PROFESOR ON (PROFESOR.CODIGO_PROFESOR = CONTRATO_DOCENTE.PRF_CODIGO))
+	LEFT OUTER JOIN interfaseOcu.GESTIONDOCENTE.V_TITULOS_DOCENTE ON (V_TITULOS_DOCENTE.PRS_CODNUM = PROFESOR.CODIGO_PROFESOR)
+ WHERE CONTRATO_DOCENTE.CDO_ANIO_ACAD =  CONVERT (BIGINT, SUBSTRING (V_GRUPO_ASIGNATURA_PROGRAMA.ANIO, 1, 4))
+ AND CONTRATO_DOCENTE.CDO_CODIGO = $P{nroSolicitud}]]>
+	</queryString>
+	<field name="NOMBRE_PROGRAMA" class="java.lang.String"/>
+	<field name="ARE_NOMBRE" class="java.lang.String"/>
+	<field name="ID_ASSIGNATURA" class="java.lang.String"/>
+	<field name="ASS_NOMBRE" class="java.lang.String"/>
+	<field name="GRP_NOMBRE" class="java.lang.String"/>
+	<field name="ACT_CODIGO" class="java.lang.Long"/>
+	<field name="ID_ACTIVIDAD" class="java.lang.String"/>
+	<field name="EJE_CODIGO" class="java.math.BigDecimal"/>
+	<field name="ANIO" class="java.lang.String"/>
+	<field name="COORDINADOR" class="java.lang.String"/>
+	<field name="CODIGO_PROFESOR" class="java.lang.Long"/>
+	<field name="CED_PAS_PROFESOR" class="java.lang.String"/>
+	<field name="NOMBRE_PROFESOR" class="java.lang.String"/>
+	<field name="FEC_NACIMIENTO" class="java.lang.String"/>
+	<field name="APELLIDO_PROFESOR" class="java.lang.String"/>
+	<field name="EMAIL_PROFESOR" class="java.lang.String"/>
+	<field name="EMAILSEC_PROFESOR" class="java.lang.String"/>
+	<field name="NR_MEMO" class="java.lang.String"/>
+	<field name="NACIONALIDAD" class="java.lang.String"/>
+	<field name="DOMICILIO" class="java.lang.String"/>
+	<field name="TELEF_DOM" class="java.lang.String"/>
+	<field name="PAIS_DOM" class="java.lang.String"/>
+	<field name="CIUDAD_DOM" class="java.lang.String"/>
+	<field name="SEXPRS" class="java.lang.String"/>
+	<field name="TIPODOC" class="java.lang.String"/>
+	<field name="CTABANCO" class="java.lang.String"/>
+	<field name="TIPOCTA" class="java.lang.String"/>
+	<field name="NOMBANCO" class="java.lang.String"/>
+	<field name="RUC" class="java.lang.String"/>
+	<field name="ASISTENTE_ACAD" class="java.math.BigDecimal"/>
+	<field name="FOTO" class="java.sql.Blob"/>
+	<field name="COD_AREA" class="java.math.BigDecimal"/>
+	<field name="area" class="java.lang.String"/>
+	<field name="cod_profesor_acadant" class="java.math.BigDecimal"/>
+	<field name="COD_FACULTAD_ACADANT" class="java.math.BigDecimal"/>
+	<field name="dedicacion" class="java.lang.String"/>
+	<field name="NOM_dedicacion" class="java.lang.String"/>
+	<field name="COD_TIPOCONTRATO" class="java.lang.Integer"/>
+	<field name="NOM_TIPOCONTRATO" class="java.lang.String"/>
+	<field name="NOM_escalafon" class="java.lang.String"/>
+	<field name="FECINICONT" class="java.sql.Timestamp"/>
+	<field name="FECFINCONT" class="java.sql.Timestamp"/>
+	<field name="ANIO_INICONTRATO" class="java.math.BigDecimal"/>
+	<field name="ANIO_FINCONTRATO" class="java.math.BigDecimal"/>
+	<field name="CDO_CODIGO" class="java.lang.Long"/>
+	<field name="CDO_ANIO_ACAD" class="java.lang.Long"/>
+	<field name="RDO_CODIGO" class="java.lang.String"/>
+	<field name="PRF_CODIGO" class="java.lang.Long"/>
+	<field name="PRG_CODIGO" class="java.lang.Long"/>
+	<field name="ARE_CODIGO" class="java.lang.Long"/>
+	<field name="ASG_CODIGO" class="java.lang.Long"/>
+	<field name="PRL_CODIGO" class="java.lang.Long"/>
+	<field name="ASP_CODIGO" class="java.lang.Long"/>
+	<field name="STA_CODIGO" class="java.lang.String"/>
+	<field name="CDO_NUMERO" class="java.lang.String"/>
+	<field name="CDO_FECHA_GEN_CONTR" class="java.sql.Timestamp"/>
+	<field name="CDO_FECINI" class="java.sql.Timestamp"/>
+	<field name="CDO_FECFIN" class="java.sql.Timestamp"/>
+	<field name="CDO_MONTO" class="java.math.BigDecimal"/>
+	<field name="CDO_CANT_UNIDAD" class="java.lang.Integer"/>
+	<field name="TFP_CODIGO" class="java.lang.Integer"/>
+	<field name="CDO_DSCTO_USO_RESID" class="java.lang.String"/>
+	<field name="CDO_OBSERVACIONES" class="java.lang.String"/>
+	<field name="CDO_REVISADO_POR" class="java.lang.String"/>
+	<field name="CDO_TEXTO" class="java.sql.Clob"/>
+	<field name="CDO_USU_CREA" class="java.lang.Long"/>
+	<field name="CDO_FECHA_CREA" class="java.sql.Timestamp"/>
+	<field name="CDO_USU_MODIF" class="java.lang.Long"/>
+	<field name="CDO_FECHA_MODIF" class="java.sql.Timestamp"/>
+	<field name="TITULO" class="java.lang.String"/>
+	<field name="UNIVERSIDAD_OBTENCION" class="java.lang.String"/>
+	<field name="PAIS_OBTENCION" class="java.lang.String"/>
+	<field name="REGISTRO_SENECYT" class="java.lang.String"/>
+	<field name="FIRMA_REVISADO_RRHH" class="java.lang.String"/>
+	<field name="FIRMA_REVISADO_FIN" class="java.lang.String"/>
+	<field name="FIRMA_AUTORIZADO_RECTORADO" class="java.lang.String"/>
+	<field name="REGISTRADO" class="java.lang.String"/>
+	<field name="RDO_DESCRIPCION" class="java.lang.String"/>
+	<field name="TFP_DESCRIPCION" class="java.lang.String"/>
+	<field name="TOTAL_VIATICOS" class="java.math.BigDecimal"/>
+	<variable name="valorUnitario" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[]]></variableExpression>
+		<initialValueExpression><![CDATA[$F{CDO_MONTO}.divide(new BigDecimal($F{CDO_CANT_UNIDAD}))]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="57" splitType="Stretch">
+			<image evaluationTime="Band">
+				<reportElement isPrintRepeatedValues="false" x="0" y="0" width="73" height="55" uuid="7e146641-c198-43ec-b159-80052bbd918e"/>
+				<imageExpression><![CDATA["Logo-UASB-E-centr.gif"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement mode="Transparent" x="89" y="29" width="403" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="bf890375-1193-42d9-ac5f-4887b7b8e614"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Año: "+$F{ANIO}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="55" width="535" height="1" uuid="48f9a897-ba59-46e6-8e64-a81e48f487f0"/>
+			</line>
+			<textField pattern="dd-MMM-yyyy">
+				<reportElement x="468" y="44" width="63" height="11" uuid="d9381144-334b-4feb-8f82-af35dc22d496"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="410" y="44" width="58" height="11" uuid="5b7c548d-fefb-4d36-be22-adbd8c3500a0"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Impresión:]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Transparent" x="89" y="0" width="403" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="a70ea440-cd69-46bd-9dee-5c164eeeb9b3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["SOLICITUD DE CONTRATO DE "+$F{RDO_DESCRIPCION}.toUpperCase()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="224" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="2" width="99" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="95b5e633-4417-4717-9f3b-8e7386cdd712"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Fecha de Solicitud:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="14" width="99" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="07522c8c-688d-4af3-897c-cdb5d2b3b12f"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Área:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="69" width="99" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="97d04423-2c17-4bb4-b5d0-a67ddabd0824"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Título Académico:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="98" width="99" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="2a18dc1d-71d0-4cf9-a801-336fec1a9f01"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Nacionalidad:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="41" width="99" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="9755b849-6ba5-43f5-be7f-b9b2ed1227dd"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Apellidos y Nombres:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="118" width="99" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="cf924253-a138-4dc0-8654-71928ca4b10a"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Dirección:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="108" width="99" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="5756d5c6-196a-4c21-9fe1-848e93ae86ef"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[RUC:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="228" y="2" width="65" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="74533855-d26d-489f-959e-6a91e7a7af8c"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Monto:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="293" y="14" width="48" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="c9196f81-0d07-4414-b756-6cfd3212dca5"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Programa:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="298" y="41" width="95" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="f3ad1d72-b8ef-4638-8180-048666118a40"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Cédula/Pasaporte:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="298" y="51" width="54" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="6cde02c7-6ffe-42d3-9d81-58668e8ee33e"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Email:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="209" y="98" width="48" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="ef5395c6-3357-44e4-a79f-94ef7644d954"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Teléfono:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="209" y="108" width="48" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="cac1be0f-436a-4418-8777-a75268de0bef"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Banco:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="363" y="98" width="95" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="88171946-f071-46a7-878d-763f53477b3a"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Número de Cuenta:]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy">
+				<reportElement mode="Transparent" x="102" y="2" width="71" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="450ee149-9abf-4a35-af7d-2e22df817e96"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_FECHA_CREA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="102" y="14" width="189" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="57b9136f-f0c1-43ac-9988-7bfdd4c9cdcf"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ARE_NOMBRE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="341" y="14" width="194" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="b4e15bd4-ff6f-40db-9751-1cb49f51ccd8"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single" leftIndent="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NOMBRE_PROGRAMA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="304" y="2" width="70" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="af6bf983-f565-404c-a2fe-e5cdcce05cd4"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_MONTO}+($F{TOTAL_VIATICOS}.equals(null)?new BigDecimal("0"):$F{TOTAL_VIATICOS})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="102" y="41" width="189" height="10" uuid="bc7c9f5e-89c1-42bf-a431-28d6aae3437c"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{APELLIDO_PROFESOR}+" "+$F{NOMBRE_PROFESOR}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="393" y="41" width="98" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="6b07a0c7-a777-4916-b103-64bf935c2b4a"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CED_PAS_PROFESOR}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="102" y="118" width="429" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="3dc70057-0f9f-4101-9548-9d5d0a94c5cf"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DOMICILIO}.equals(null)?"NO REGISTRADA":$F{DOMICILIO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="352" y="51" width="177" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="41e84b95-8e0f-4dd4-8201-d9ff81af6705"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EMAIL_PROFESOR}.toLowerCase().concat($F{EMAILSEC_PROFESOR}.equals(null)?"":";"+$F{EMAILSEC_PROFESOR}.toLowerCase())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="134" width="118" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="ae284828-7f59-4502-a141-bee0116ee9ef"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[ACTIVIDAD ACADÉMICA:]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="144" y="134" width="119" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="58a24c3b-d30c-440e-9fc6-e70224624331"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="html">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RDO_DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="25" y="146" width="96" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="7157d5bf-6cca-4763-a8a0-2091721d013e"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Asignatura/Módulo:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="131" y="146" width="400" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="d40ef162-c76e-4345-8605-27b7938420c3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ASS_NOMBRE}.toUpperCase()+" - "+$F{GRP_NOMBRE}.toUpperCase()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="25" y="164" width="96" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="5d4b03d2-10b2-4e83-830c-f76909f629c2"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Número de Clases:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="177" y="164" width="45" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="69562754-faa7-4ba5-a158-8dea62e38e84"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Desde:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="307" y="164" width="45" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="899faf98-486b-4372-b03a-e3cc2c8aabf6"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Hasta:]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="232" y="164" width="55" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="cce7fc45-0f88-4c1c-9fc1-7cce0ad01096"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_FECINI}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="362" y="164" width="55" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="3e5c9db9-dd88-4e5e-976f-2f72d0138d9a"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_FECFIN}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="4" y="176" width="69" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="ba3c4e87-d44b-44f2-af44-733ca07f3f4b"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[HONORARIOS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="363" y="186" width="71" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="1e0bd728-5364-4c1f-8806-0289435fa8e4"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[V. TOTAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="186" width="184" height="12" uuid="1ef27cd9-524d-4a18-bf33-55df3670fb27"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONCEPTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="257" y="186" width="41" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="592ed250-a685-4f93-bbe8-858dab97734a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[N°]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="298" y="186" width="65" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="95d72077-5d47-4010-8761-de73e389930f"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[V. UNITARIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="198" width="184" height="10" uuid="0a887428-4f3d-43ff-bea4-42e0252f4308"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8"/>
+					<paragraph leftIndent="5"/>
+				</textElement>
+				<text><![CDATA[Clases Dictadas]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="131" y="164" width="20" height="10" uuid="e2d61a40-650d-491f-a388-e06c88b346f4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_CANT_UNIDAD}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="257" y="198" width="41" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="fd6de6ae-aeef-4178-a88e-e8720b9f9389"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_CANT_UNIDAD}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="298" y="198" width="65" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="59c1b57b-3be2-46a0-adcc-50f6626a0df6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{valorUnitario}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="363" y="198" width="71" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="48e92f19-5e32-4f17-85f6-808e0b22a246"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_MONTO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="31" y="212" width="85" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="1451a11f-c058-40b5-833f-1f7a5147ef24"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Forma de Pago:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="138" y="212" width="379" height="10" uuid="af513019-405d-4335-9176-389e574cf8e2"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TFP_DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="RealSize">
+				<reportElement x="131" y="134" width="13" height="11" uuid="655b75c2-0692-42bb-8241-3b1c9041f9a7"/>
+				<imageExpression><![CDATA["//checkbox_full.png"]]></imageExpression>
+			</image>
+			<image scaleImage="RealSize">
+				<reportElement x="123" y="211" width="13" height="11" uuid="6f9b047e-c411-4b96-8e08-6d7492828283"/>
+				<imageExpression><![CDATA["//checkbox_full.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement mode="Transparent" x="393" y="2" width="68" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="b46b28d2-0f0d-4596-8c9a-5001f8773940"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[N° Solicitud:]]></text>
+			</staticText>
+			<textField pattern="">
+				<reportElement x="464" y="2" width="53" height="10" uuid="b4ea3130-b618-4af9-ba29-461dfd4f6467"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_CODIGO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="257" y="98" width="105" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="92ee066e-2c36-4683-b847-0a21a1613e06"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TELEF_DOM}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="98" width="100" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="64cd6a46-1e32-40f2-9e12-cb77507b6f6f"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NACIONALIDAD}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="257" y="108" width="274" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="2d6e7a84-a39b-41f4-99c2-5928ed2c177f"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NOMBANCO}.equals(null)?"NO REGISTRADO":$F{NOMBANCO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="458" y="98" width="73" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="7ac7bab1-890f-4a7f-9f53-ee7ab265f588"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CTABANCO}.equals(null)?"NO REGISTRADA":$F{CTABANCO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="102" y="108" width="100" height="10" forecolor="#000000" backcolor="#FFFFFF" uuid="d8123fef-a0a1-45ca-95c0-0ed6545b26d0"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RUC}.equals(null)?"NO REGISTRADO":$F{RUC}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="69" width="429" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="e990eeda-6107-4d9c-90f1-4a0efe027062"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TITULO}
+.concat(($F{UNIVERSIDAD_OBTENCION}.equals(null)?"":", "+$F{UNIVERSIDAD_OBTENCION}))
+.concat(($F{PAIS_OBTENCION}.equals(null)?"":", "+$F{PAIS_OBTENCION}))
+.concat($F{REGISTRO_SENECYT}.equals(null)?"":", No. de registro: "+$F{REGISTRO_SENECYT})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="3" y="87" width="99" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="7af97497-2806-4794-8d68-07b22ca7dde7"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[No. de registro:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="87" width="120" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="9f30b651-d996-4d2f-b457-24a72ac88ebc"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{REGISTRO_SENECYT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="152" splitType="Stretch">
+			<subreport>
+				<reportElement x="7" y="5" width="430" height="38" uuid="520f34e2-ec62-4dc0-8cab-6943ae28f3cc"/>
+				<subreportParameter name="nroContrato">
+					<subreportParameterExpression><![CDATA[$F{CDO_CODIGO}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["pasaje.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="7" y="43" width="430" height="38" uuid="d9876f96-1113-47fd-afcb-1122c6bbe20c"/>
+				<subreportParameter name="descResidencia">
+					<subreportParameterExpression><![CDATA[$F{CDO_DSCTO_USO_RESID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="nroContrato">
+					<subreportParameterExpression><![CDATA[$F{CDO_CODIGO}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["viaticos.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="7" y="81" width="430" height="37" uuid="c2579bc6-c4d0-4749-b2d5-88cdeb6d9d6b"/>
+				<subreportParameter name="nroContrato">
+					<subreportParameterExpression><![CDATA[$F{CDO_CODIGO}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["residencia.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement positionType="Float" x="9" y="132" width="100" height="11" uuid="acb73502-de1a-47e8-b544-8b60bc2ad26c"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Observaciones:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="25" y="142" width="403" height="10" uuid="29fc7d30-1fff-4402-999f-3b509cacf55a"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CDO_OBSERVACIONES}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="13">
+			<textField pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="445" y="0" width="53" height="13" forecolor="#000000" backcolor="#FFFFFF" uuid="b283a0d0-e2b3-47fb-86b8-78503f0fe5d7"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="498" y="0" width="31" height="13" forecolor="#000000" backcolor="#FFFFFF" uuid="5d99d73a-25c8-49a7-80d5-e76054fbf7cb"/>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="8" y="2" width="220" height="9" forecolor="#000000" backcolor="#FFFFFF" uuid="5be21db5-d265-41f1-822a-1704d4e0b657"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Registrado por: "+$F{REGISTRADO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="160">
+			<staticText>
+				<reportElement x="62" y="31" width="111" height="11" uuid="17f03d11-1d8c-4e1a-8b15-d450becbbaea"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Solicitado Por:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="364" y="31" width="111" height="11" uuid="43e37fab-31b9-4f75-bf84-15a8e29459ac"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Revisado Recursos Humanos]]></text>
+			</staticText>
+			<line>
+				<reportElement x="73" y="67" width="100" height="1" uuid="a2e68b67-ca6d-43d4-9d44-86952d99204b"/>
+			</line>
+			<staticText>
+				<reportElement x="62" y="62" width="100" height="10" uuid="6f6193b0-ce81-4fe0-b36b-4cacc61ed527"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[(f)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="362" y="63" width="102" height="10" uuid="cb35ceb1-9d79-4431-86e0-cd077bb1c3ae"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[(f)]]></text>
+			</staticText>
+			<line>
+				<reportElement x="375" y="68" width="100" height="1" uuid="a39ca395-20b7-47b4-be60-ce6b00db2cbe"/>
+			</line>
+			<staticText>
+				<reportElement mode="Transparent" x="62" y="81" width="100" height="6" forecolor="#000000" backcolor="#FFFFFF" uuid="73799563-94c8-445d-9f21-e2b049eb2f9f"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="5" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="365" y="81" width="100" height="6" forecolor="#000000" backcolor="#FFFFFF" uuid="df64b924-935c-4f88-8298-fed79ec3dd92"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="5" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="364" y="134" width="100" height="10" uuid="bb863131-0317-4464-b06c-8fdbb4e867fa"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[(f)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="365" y="153" width="100" height="6" forecolor="#000000" backcolor="#FFFFFF" uuid="a958f892-acee-4bef-ba6c-fe5e85d51828"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="5" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="364" y="108" width="111" height="11" uuid="45edb5e4-b8d7-4a5e-a240-d304f75db57d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Autorizado Rectorado]]></text>
+			</staticText>
+			<line>
+				<reportElement x="375" y="139" width="100" height="1" uuid="304bf06e-00a4-48d6-b0b7-b54a9c22f93c"/>
+			</line>
+			<staticText>
+				<reportElement x="62" y="108" width="137" height="11" uuid="f84d60f0-1ee0-46d7-9b9d-a0d0b9cdfd37"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Revisado Dirección Administrativa y Financiera]]></text>
+			</staticText>
+			<line>
+				<reportElement x="73" y="139" width="100" height="1" uuid="e6b0c2a4-a353-4740-b6c4-c7bb1ac25f98"/>
+			</line>
+			<staticText>
+				<reportElement mode="Transparent" x="63" y="153" width="100" height="6" forecolor="#000000" backcolor="#FFFFFF" uuid="2a973898-e88b-4abc-b8ab-30023a513221"/>
+				<textElement verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="5" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="62" y="134" width="100" height="10" uuid="6ec713f2-0a5a-40ed-9191-cef1bd0b260f"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[(f)]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="33" y="72" width="168" height="9" forecolor="#000000" backcolor="#FFFFFF" uuid="f8e90665-6ae5-42d5-8ac3-5167d6f9cd96"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DIRECTOR/COORDINADOR"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="47" y="144" width="152" height="9" forecolor="#000000" backcolor="#FFFFFF" uuid="e557de2d-e123-459f-957b-7b0dd96e3aaa"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FIRMA_REVISADO_FIN}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="341" y="72" width="150" height="9" forecolor="#000000" backcolor="#FFFFFF" uuid="cf2f6502-7dd9-47fe-9ee8-1148f62eca87"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FIRMA_REVISADO_RRHH}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="341" y="144" width="150" height="9" forecolor="#000000" backcolor="#FFFFFF" uuid="43678221-902a-4f61-b2f2-c3bffdaec7ef"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FIRMA_AUTORIZADO_RECTORADO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scene Scope="Project" version="2">
+    <Scope Scope="Faces Configuration Only"/>
+    <Scope Scope="Project">
+        <Node id="pages/reportes/silabo.xhtml" x="900" y="300" zoom="true"/>
+        <Node id="pages/opcion/regAprobContratoBecaInvest.xhtml" x="900" y="750" zoom="true"/>
+        <Node id="pages/opcion/EditConceptoFin.xhtml" x="400" y="600" zoom="true"/>
+        <Node id="pages/admin/formasPago.xhtml" x="150" y="300" zoom="true"/>
+        <Node id="pages/opcion/evaluacionTutoria/recupUsuPass.xhtml" x="1400" y="450" zoom="true"/>
+        <Node id="pages/reportes/consultaContratos.xhtml" x="900" y="600" zoom="true"/>
+        <Node id="pages/admin/rubros.xhtml" x="650" y="450" zoom="true"/>
+        <Node id="pages/admin/parametros.xhtml" x="400" y="150" zoom="true"/>
+        <Node id="pages/opcion/aprobContrato.xhtml" x="1150" y="300" zoom="true"/>
+        <Node id="pages/opcion/regSolicContrato.xhtml" x="150" y="450" zoom="true"/>
+        <Node id="pages/opcion/revisImprContrato.xhtml" x="150" y="600" zoom="true"/>
+        <Node id="pages/opcion/evaluacionTutoria/reaperturaEvalEstATutor.xhtml" x="1400" y="300" zoom="true"/>
+        <Node id="pages/opcion/verHistorico.xhtml" x="1900" y="150" zoom="true"/>
+        <Node id="pages/miCuenta.xhtml" x="1650" y="150" zoom="true"/>
+        <Node id="pages/opcion/evaluacionTutoria/pagEstampillaAsignatura.xhtml" x="150" y="1050" zoom="true"/>
+        <Node id="index.xhtml" x="400" y="300" zoom="true"/>
+        <Node id="delay.xhtml" x="150" y="750" zoom="true"/>
+        <Node id="general/contenido.xhtml" x="900" y="150" zoom="true"/>
+        <Node id="general/bienvenida.xhtml" x="400" y="900" zoom="true"/>
+        <Node id="pages/opcion/regAprobContrato.xhtml" x="400" y="750" zoom="true"/>
+        <Node id="pages/admin/estados.xhtml" x="650" y="750" zoom="true"/>
+        <Node id="pages/admin/regAutoridad.xhtml" x="650" y="600" zoom="true"/>
+        <Node id="sessionExpired.xhtml" x="1150" y="150" zoom="true"/>
+        <Node id="pages/opcion/soliciContrato.xhtml" x="150" y="900" zoom="true"/>
+        <Node id="pages/opcion/regSolicContrato_selecRadio.xhtml" x="1400" y="150" zoom="true"/>
+        <Node id="pages/opcion/regMongrafiaTesis.xhtml" x="900" y="450" zoom="true"/>
+        <Node id="general/enConstruccion.xhtml" x="650" y="300" zoom="true"/>
+        <Node id="pages/admin/autoridades.xhtml" x="150" y="150" zoom="true"/>
+        <Node id="principal.xhtml" x="400" y="450" zoom="true"/>
+        <Node id="pages/reportes/repEvalDoc.xhtml" x="1150" y="600" zoom="true"/>
+        <Node id="pages/opcion/regImprContrato.xhtml" x="650" y="150" zoom="true"/>
+        <Node id="pages/opcion/regConcepto.xhtml" x="1650" y="300" zoom="true"/>
+        <Node id="pages/admin/roles.xhtml" x="1150" y="450" zoom="true"/>
+    </Scope>
+    <Scope Scope="All Faces Configurations"/>
+</Scene>

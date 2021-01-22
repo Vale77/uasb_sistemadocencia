@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="viaticos" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a796d9f8-6ebf-4ec7-b031-0fd255eb5375">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="nroContrato" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="descResidencia" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     HONORARIOS."CDO_CODIGO" AS HONORARIOS_CDO_CODIGO,
+     HONORARIOS."RUB_CODIGO" AS HONORARIOS_RUB_CODIGO,
+     HONORARIOS."HON_CANTIDAD" AS HONORARIOS_HON_CANTIDAD,
+     HONORARIOS."HON_VALOR" AS HONORARIOS_HON_VALOR,
+     RUBROS."RUB_DESCRIPCION" AS RUBROS_RUB_DESCRIPCION,
+     RUBROS."RUB_VALOR_MAES" AS RUBROS_RUB_VALOR_MAES,
+     RUBROS."RUB_CATEGORIA" AS RUBROS_RUB_CATEGORIA,
+     RUBROS."RUB_UNIMEDIDA" AS RUBROS_RUB_UNIMEDIDA
+FROM
+     interfaseOcu."GESTIONDOCENTE"."RUBROS" RUBROS INNER JOIN interfaseOcu."GESTIONDOCENTE"."HONORARIOS" HONORARIOS ON RUBROS."RUB_CODIGO" = HONORARIOS."RUB_CODIGO"
+WHERE RUBROS."RUB_CATEGORIA" = 'V' and HONORARIOS."CDO_CODIGO" = $P{nroContrato}]]>
+	</queryString>
+	<field name="HONORARIOS_CDO_CODIGO" class="java.lang.Long"/>
+	<field name="HONORARIOS_RUB_CODIGO" class="java.lang.Long"/>
+	<field name="HONORARIOS_HON_CANTIDAD" class="java.math.BigDecimal"/>
+	<field name="HONORARIOS_HON_VALOR" class="java.math.BigDecimal"/>
+	<field name="RUBROS_RUB_DESCRIPCION" class="java.lang.String"/>
+	<field name="RUBROS_RUB_VALOR_MAES" class="java.math.BigDecimal"/>
+	<field name="RUBROS_RUB_CATEGORIA" class="java.lang.String"/>
+	<field name="RUBROS_RUB_UNIMEDIDA" class="java.lang.String"/>
+	<sortField name="RUBROS_RUB_DESCRIPCION" order="Descending"/>
+	<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{HONORARIOS_HON_CANTIDAD}.multiply($F{HONORARIOS_HON_VALOR})]]></variableExpression>
+	</variable>
+	<variable name="usoResidencia" class="java.lang.String">
+		<variableExpression><![CDATA[$P{descResidencia}.equals("S")?"Descuento uso de Residencia":""]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="47" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="2" y="11" width="177" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="68978ae1-7d29-469e-8ec5-77800aeac4cb"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[VIATICOS/SUBSISTENCIAS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="26" y="36" width="263" height="11" uuid="a32ef64d-f38a-4777-8749-30e00372909e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONCEPTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="289" y="36" width="55" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="f554084f-381a-4f41-ad99-41c681b61e31"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Nº DIAS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="344" y="36" width="83" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="4b883b4c-9fa1-413b-a52e-b8e0bc99e595"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[V. UNITARIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="427" y="36" width="72" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="aae2eabe-0c20-4cb5-aefb-197e127f4bf6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="DejaVu Serif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[V.TOTAL]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField>
+				<reportElement x="26" y="0" width="263" height="11" uuid="c377003c-3645-409b-88e9-e7512241822d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8"/>
+					<paragraph leftIndent="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RUBROS_RUB_DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="289" y="0" width="55" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="5ab67600-674a-4c09-b8ee-67f0ced5fb70"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{HONORARIOS_HON_CANTIDAD}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="344" y="0" width="83" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="254ea7c9-5add-4115-88d9-4d1ce6ee9043"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{HONORARIOS_HON_VALOR}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="427" y="0" width="72" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="f37cc0da-c44a-40c1-a24d-d83cc744e305"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single" rightIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{HONORARIOS_HON_CANTIDAD}.multiply($F{HONORARIOS_HON_VALOR})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="153" y="0" width="136" height="11" uuid="6fe18fe0-9c22-4504-bb4a-9b06a2c9b32a">
+					<printWhenExpression><![CDATA[$F{HONORARIOS_RUB_CODIGO}.equals( new Long(13) )]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+					<paragraph leftIndent="15"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Descuento uso de Residencia"]]></textFieldExpression>
+			</textField>
+			<image scaleImage="RealSize">
+				<reportElement x="153" y="-1" width="13" height="11" uuid="dc2b8c35-e99a-4272-b141-fd786dcaeaea">
+					<printWhenExpression><![CDATA[$F{HONORARIOS_RUB_CODIGO}.equals( new Long(13) )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{descResidencia}.equals("S")?"//checkbox_full.png":"//checkbox_empty.png"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<summary>
+		<band height="12" splitType="Stretch">
+			<textField pattern="$ #,##0.00">
+				<reportElement x="427" y="0" width="72" height="11" uuid="544d2085-c557-4ea1-8e00-1c1a2d227d51"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+					<paragraph rightIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="344" y="0" width="83" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="c0b3a6ca-116d-4cd9-8958-c413acd3cd9a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[TOTAL:]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

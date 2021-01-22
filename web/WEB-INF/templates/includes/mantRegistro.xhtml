@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core"
+                 xmlns:c="http://java.sun.com/jsp/jstl/core">
+    
+<!--poner este codigo de ser necesario en principal.xhtml-->
+        <!--ui:include src="/WEB-INF/templates/includes/mantRegistro.xhtml">
+            <ui:param name="backingMantBean" value="#{navigationMgmtBean.baseJSFManagedBean}"/>
+        </ui:include-->
+        
+        
+    <p:dialog id="mantDialog" header="Registro de #{navigationMgmtBean.nombreOpcion}" widgetVar="mantWidget"  modal="true" resizable="false" 
+              style="font-size: 9pt;left:170px;" width="auto" height="auto" draggable="false" showEffect="explode" hideEffect="explode">
+        <!--p:growl id="growl" globalOnly="true" life="2000"/--> 
+        <c:if test="#{navigationMgmtBean.baseJSFManagedBean ne null}">
+            <ui:include src="#{navigationMgmtBean.paginaMant}.xhtml"/>
+            <f:facet name="footer">
+                <div align="right" style="font-size: 8pt;">
+                    <p:commandButton  value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  update=":mantDialog :growl"
+                                      actionListener="#{backingMantBean.guardarButton_processAction(ae)}"  onclick="mantWidget.hide();"/>
+                    <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro"  onclick="mantWidget.hide();" update=":mantDialog"/>
+                </div>
+            </f:facet>
+        </c:if>
+    </p:dialog>   
+
+</ui:composition>
+

@@ -1,0 +1,240 @@
+/* 
+    Document   : newuasb
+    Created on : 20/02/2013, 10:39:31 AM
+    Author     : victor.barba
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+/* Header */
+#header {
+    padding: 4px 0px;
+    position: relative;
+}
+#footer {
+    font-size: 8pt;
+    height: 35px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+#footerLeft{
+    position: absolute;
+    top:2px;
+    right:15px;
+    overflow: hidden;
+    font-size: 8pt;
+    font-weight: bold;
+}
+#logo {
+    text-align: left;
+}
+/* Control Header */
+#control {
+    position: absolute;
+    top:50px;
+    right:15px;
+    padding: 0;
+    overflow: hidden;
+}
+
+#tituloSistema{
+    position: absolute;
+    top:20px;
+    right:15px;
+    padding: 0;
+    overflow: hidden;
+    font-size: 16pt;
+    text-align: right;
+    font-style: oblique;
+    font-family: Times New Roman;
+}
+#reloj{
+    font-size: 9pt;
+    /*background: -moz-linear-gradient(center top , transparent, rgba(255, 255, 255, 0)) repeat scroll 0 0 transparent;*/
+    background: repeat scroll 0 0 transparent;
+}
+.ui-clock{
+    color: #4F4F4F;
+    padding: 4px 0;
+    border:none;
+}
+
+.ui-panelControl,.ui-panelControl td {
+    font-size: 9pt;
+}
+.ui-panelControl td {
+    border-color: inherit;
+    border-style: dotted;
+    border-width: 1px;
+    padding: 3px 5px;
+}
+.ui-panelControl tr,.ui-panelControlLeft tr {
+    border-style:  hidden;
+    background-color: inherit;
+}
+.ui-panelControlLeft {
+    position: relative;
+    top:2px;
+}
+.ui-panelControlLeft td {
+    border-color: inherit;
+    border-style: none;
+    border-width: 1px;
+    padding: 2px 2px;
+    font-size: 9pt; 
+    font-style: oblique;
+    font-family: Times New Roman;    
+    color: darkcyan;
+}
+
+.ui-menuitem-text{
+    padding-left: 10px;
+    font-size: 9pt;
+}
+/* Navegacion */
+.ui-panelGridNav, .ui-panelGridNav td{
+    border-collapse: separate;
+    font-size: 1.0em;
+}     
+.ui-panelGridNav td {
+    border-width: 0px;
+    padding: 0px 5px;
+
+
+}  
+
+/* Mensaje de tabla sin registros*/
+.ui-datatable-empty-message{
+    font-size: 13pt;
+    font-weight: bold;
+    color: red;
+}
+
+.iconApplicationGo {
+    background: url('../../resources/images/cocktail.png') no-repeat !important;
+    /** To prevent radius settings from ui-icon class that has circle cutout. Aristo theme has rounded corners on all icons **/
+    border-radius: 0px !important;
+}
+
+.ui-icon.ui-icon-sendMail {background-image: url("#{resource['images/sendmail.png']}") !important; width: 24px; height: 24px;}
+
+.ui-state-default .ui-icon-sendMail{
+    background-image: url("#{resource['/images/sendmail.png']}") !important;
+    width: 35px;
+    height: 25px;
+    left: 0%;
+    top: 30%;
+    margin-left:0px;    
+}
+
+.ui-state-default .ui-icon-receiveDocs{
+    background-image: url("#{resource['/images/docs-receive.png']}") !important;
+    width: 25px;
+    height: 25px;
+    left: 0%;
+    top: 25%;
+    margin-left:0px;    
+}
+
+.ui-state-default .ui-icon-edit-validated{
+    background-image: url("#{resource['/images/edit-validated.png']}") !important;
+    width: 25px;
+    height: 25px;
+    left: 0%;
+    top: 30%;
+    margin-left:0px;    
+}
+
+/* color filas en datatable*/
+.noAprobado{
+    color:red;
+}
+.mod-box {
+    text-align: center;
+    font-size: 12pt;
+    background: none repeat scroll 0 0 #F7F7F9;
+    border: 2px solid #FFFFFF;
+    border-radius: 7px 7px 7px 7px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 2, 0.1), 0 1px 0 rgba(0, 0, 2, 0.15), 0 1px 1px rgba(0, 0, 2, 0.1);
+    padding: 11px;
+    text-shadow: 0 1px 0 #FDFDFF;
+}
+
+/*  PANEL DE CADA HOJA DE CONTENIDO*/
+.myPanelHoja .ui-panel-titlebar {
+    text-transform: uppercase;font-size: 11pt;color:cornflowerblue;
+}
+.myPanelHoja .ui-panel-content{
+    background-color: aliceblue;font-size: 8pt;
+}
+
+/*  TIP de acceso a imagenes */
+.NOBORRAR {
+    background:transparent url("#{resource['/images/aserisk.gif']}") no-repeat left top;
+    color: transparent;
+    width: 64px;
+    height: 64px;
+}
+
+.ui-outputlabel-rfi{
+    margin-left:0.4em;
+}
+.opacRequired{
+    opacity:1.0; filter:alpha(opacity=30); height: 8px; width: 8px;
+}
+
+#pnlWest,#pnlTop,#pnlFoot {
+    background: none repeat scroll 0 0 aliceblue;
+}
+.ui-layout-unit .ui-layout-unit-content {
+    padding: 0.1em 0;
+    background-color: beige;
+}
+.ui-growl-item-container{
+    background-color: steelblue;
+}
+
+.ui-notificationbarTop {
+    background: url("#{resource['/images/bottomBack.png']}") repeat-x scroll 0 0 transparent;
+    font-size: 24px;
+    font-style: italic;
+    font-weight: bold;
+    padding: 30px 0 0 50px;
+    opacity: 0.8;
+    color: #FFCC00; 
+    height: 75px;
+}
+
+.rotate {
+    -moz-transform: rotate(-90.0deg);  /* FF3.5+ */
+    -o-transform: rotate(-90.0deg);  /* Opera 10.5 */
+    -webkit-transform: rotate(-90.0deg);  /* Saf3.1+, Chrome */
+    filter:  progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083);  /* IE6,IE7 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083)"; /* IE8 */
+}     
+
+/*propiedades en selectonemenu  */
+/*.ui-selectonemenu.with-placeholder .ui-selectonemenu-label {
+    color: red;
+}
+.ui-selectonemenu-panel.hide-disabled .ui-selectonemenu-list-item.ui-state-disabled {
+    display: none;
+}
+
+onchange="menu.jq.removeClass('with-placeholder')"
+                     panelStyleClass="hide-disabled" styleClass="with-placeholder" widgetVar="menu"
+*/
+.relogArena.ui-dialog .ui-dialog-content{
+    background-color: transparent;
+}
+
+.ui-dialog.ui-widget.ui-widget-content.relogArena {
+    background: none repeat scroll 0 0 transparent;
+    color: black;
+    box-shadow: none;
+    border-color: transparent;
+}

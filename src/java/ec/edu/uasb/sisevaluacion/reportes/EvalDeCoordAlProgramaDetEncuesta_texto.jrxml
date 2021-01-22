@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EvalDeCoordAlProgramaDetEncuesta_texto" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a4b1f08d-394a-4273-8f7b-e2f78dbf858e">
+	<property name="ireport.zoom" value="5.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="codEncu" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="anio" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="codEsp" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[WITH PREGUNTA_CTE  ( CODIGO_PREGUNTA,CODIGO_ENCUESTA,PREGUNTA_PADRE, DESCRIPCION,TIPO)AS(
+SELECT CODIGO_PREGUNTA,CODIGO_ENCUESTA,isnull(PREGUNTA_PADRE,CODIGO_PREGUNTA),  DESCRIPCION,TIPO
+FROM interfaseOcu.EVALUACION.PREGUNTA WITH(NOLOCK)
+WHERE CODIGO_ENCUESTA = $P{codEncu}
+and PREGUNTA_PADRE IS NULL
+UNION ALL
+SELECT e.CODIGO_PREGUNTA,e.CODIGO_ENCUESTA,e.PREGUNTA_PADRE, e.DESCRIPCION,e.TIPO
+FROM interfaseOcu.EVALUACION.PREGUNTA e WITH(NOLOCK)INNER JOIN PREGUNTA_CTE pcte
+ON  e.PREGUNTA_PADRE =  pcte.CODIGO_PREGUNTA
+WHERE e.CODIGO_ENCUESTA = $P{codEncu})
+SELECT PREGUNTA_CTE.CODIGO_PREGUNTA,DESCRIPCION,TIPO,
+interfaseOcu.EVALUACION.f_agrupa_observacion_evaluacion_comite_programa(RESPUESTA.anio,RESPUESTA.CODIGO_encuesta,RESPUESTA.CODIGO_ESP,RESPUESTA.CODIGO_PREGUNTA)
+respuesta
+FROM PREGUNTA_CTE  LEFT OUTER JOIN interfaseOcu.EVALUACION.VISTA_RESPUESTA RESPUESTA WITH(NOLOCK)
+ON PREGUNTA_CTE.CODIGO_PREGUNTA = RESPUESTA.CODIGO_PREGUNTA
+AND PREGUNTA_CTE.CODIGO_ENCUESTA = RESPUESTA.CODIGO_ENCUESTA
+AND  RESPUESTA.anio = $P{anio}
+AND RESPUESTA.CODIGO_ESP = $P{codEsp}
+WHERE  PREGUNTA_CTE.tipo IN(2)
+order by PREGUNTA_CTE.CODIGO_PREGUNTA]]>
+	</queryString>
+	<field name="CODIGO_PREGUNTA" class="java.math.BigDecimal"/>
+	<field name="DESCRIPCION" class="java.lang.String"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="respuesta" class="java.lang.String"/>
+	<group name="tipo">
+		<groupExpression><![CDATA[$F{TIPO}]]></groupExpression>
+		<groupHeader>
+			<band height="9">
+				<textField>
+					<reportElement x="0" y="0" width="363" height="9" uuid="a4645198-ab24-4920-806c-d940a4130a38"/>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+						<paragraph leftIndent="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA["5   CRITERIOS Y RECOMENDACIONES"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="2">
+				<line>
+					<reportElement x="4" y="1" width="540" height="1" printWhenGroupChanges="tipo" uuid="cef62265-19d0-4479-b5d1-665156d9b19e">
+						<printWhenExpression><![CDATA[!$F{TIPO}.equals("4")]]></printWhenExpression>
+					</reportElement>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="21" y="0" width="280" height="10" isRemoveLineWhenBlank="true" uuid="7f9352ac-dc51-4c36-8ad1-86210bc2cd92"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TIPO}.equals("4")?"":$F{DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="9" y="0" width="12" height="10" isRemoveLineWhenBlank="true" uuid="c44399a3-1ddc-4d0b-8d60-729be939045e"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TIPO}.equals("4")?"":$F{CODIGO_PREGUNTA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="301" y="0" width="243" height="10" uuid="4832a7b9-b1f5-4e78-a569-2cafa8cc65cf"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{respuesta}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

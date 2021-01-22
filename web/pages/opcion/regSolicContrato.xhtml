@@ -1,0 +1,420 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <style>
+        .ui-datatable-viaticos .ui-datatable-empty-message{font-size: 8pt}
+        .ui-datatable.ui-datatable-viaticos {font-size: 7pt;}
+        .ui-datatable-viaticos .ui-datatable-header {padding: 2px 5px;}
+        .ui-datatable-viaticos .ui-datatable-footer {padding: 2px 5px;}
+        .concepto{ color:blue;font-weight: bold;}
+        .headerViatico {border-style: hidden;}
+        .headerViatico tbody td {border-color: transparent;padding: 0px;}
+        .colHeadViatico1{width: 70%;text-align: left;}
+        .colHeadViatico2{width: 30%;text-align: right;}
+        .colFooterViatico1{width: 82%;text-align: right;}
+        .colFooterViatico2{width: 17%;text-align: right;}
+        .colViatico1{width: 70px;} .colViatico2{width: 40px;} .colViatico3{width: 650px;} 
+        .colMono{width: 850px;}
+        .colUnoSolic{width: 125px;}
+        .calendarioFin .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .cantidad-disabled .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;opacity: 1.0}
+        .colorCounter{color: brown;font-weight: bold;font-size: 8pt}
+        .ui-separator.ui-state-default{border-color: brown}
+        .ui-dialog .ui-dialog-buttonpane{text-align: center;margin: 0 0;background-color: #F5F5DC;}
+        .ui-dialog .ui-dialog-titlebar{color: brown;}
+        .ui-radiobutton{margin: 0}
+        .estiloSelectOneMenu .ui-selectonemenu-label{font-size: 8pt;}
+        .estiloSelectOneMenu.ui-state-disabled .ui-selectonemenu-label{font-size: 9pt;}
+        .estiloSelectOneMenu.ui-state-disabled {opacity: 1 ;border: none}
+        .estiloSelectOneMenu.ui-state-disabled .ui-inputfield{background-color: #F5F5DC;box-shadow: none;padding: 0px 0px;font-weight: bold}
+        .estiloSelectOneMenu.ui-state-disabled .ui-state-default{visibility: hidden; width: 0px;border: none}    
+        .ui-chkboxSolic .ui-state-disabled{opacity: 0.80}
+        .estiloPanelelectOneMenuDocentes .ui-selectonemenu-item{font-size: 7pt}
+    </style>
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 850px;"  >
+        <h:panelGrid id="pnlSolicFecha" columns="5" cellpadding="0" cellspacing="2" columnClasses="colUnoSolic">
+            <p:outputLabel  id="outputLabeFechaSolic" value="Fecha Solicitud: " style="font-weight: bold;color: navy" for="inputMaskFechaSolic"/>
+            <p:inputMask id="inputMaskFechaSolic" value="#{solicContratoBean.contratoEdit.cdoFechaCrea}" mask="99/99/9999" size="10"  title="fecha de publicación"
+                         required="true" requiredMessage="Fecha de Solicitud requerida" autocomplete="off"  style="opacity: 1.0"
+                         readonly="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' or solicContratoBean.contratoEdit.estadoContrato ne 'D'}">
+                <f:convertDateTime pattern="dd/MM/yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                <p:ajax update="pnlSolicFecha"/>
+                <p:watermark for="inputMaskFechaSolic" value="dd/MM/yyyy" />
+            </p:inputMask>
+            <p:message id="messageFechaSolic" for="inputMaskFechaSolic" display="icon" />  
+            <p:outputLabel  id="outputLabeMonto" value="Monto Total: " style="font-weight: bold;color: navy;padding-left: 375px" />
+            <h:outputText id="outputTextMonto" style="font-weight: bold;color: brown;padding-left: 10px"
+                          value="#{solicContratoBean.contratoEdit.cdoMonto + solicContratoBean.totalViaticos}">
+                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+            </h:outputText>
+        </h:panelGrid>
+        <h:panelGrid id="pnlSolic" columns="4" cellpadding="2" cellspacing="0"  columnClasses="colUnoSolic">
+            <p:outputLabel  id="outputLabeRol" value="Activ. académica: " style="font-weight: bold;color: navy" for="selectOneFunc"/>
+            <p:selectOneMenu id="selectOneFunc" value="#{solicContratoBean.rolDocente}"  converter="rolDocenteConverter"
+                             disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' or solicContratoBean.rolesDoc.size() eq 1}"
+                             requiredMessage="Seleccione una función del contratado" required="true" panelStyleClass="estiloPanelelectOneMenu" 
+                             styleClass="estiloSelectOneMenu" style="text-transform: uppercase">  
+                <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                <f:selectItems value="#{solicContratoBean.rolesDoc}"  var="rol" itemValue="#{rol}"
+                               itemLabel="#{rol.rdoDescripcion}" itemDescription="#{rol.rdoDescripcion}"/>
+                <p:ajax update="pnlSolic pnlSolicAsig pnlHonorarios pnlSolicFecha pnlFormaPago pnlTesis"  listener="#{solicContratoBean.handleCandidatoChange('funcion')}"/>                 
+            </p:selectOneMenu> 
+            <p:message id="messageFunc" for="selectOneFunc" display="icon" />  
+            <h:panelGroup id="panelEye">
+                <h:outputText value="#{solicContratoBean.contratoEdit.estadoContrato eq 'X' ? 'Anulada': solicContratoBean.contratoEdit.siguienteProceso}" 
+                              style="font-weight: bold;text-transform: uppercase; color:red"/>  
+                <h:graphicImage id="eye" name="Eye.png" library="images" width="24" height="24" style="cursor:pointer;padding-left: 10px;" 
+                                rendered="#{solicContratoBean.contratoEdit.estadoContrato eq 'D'}"/> 
+            </h:panelGroup>
+            <p:outputLabel  id="outputLabeDocente" value="Docente: " style="font-weight: bold;color: navy" for="selectOneDocentes"/>
+            <p:selectOneMenu id="selectOneDocentes" value="#{solicContratoBean.candidatoDocente}"  filter="true" var="doc" widgetVar="widgetCandidatos"
+                             converter="candidatoConverter"  panelStyleClass="estiloPanelSelectOneMenu estiloPanelelectOneMenuDocentes"  styleClass="estiloSelectOneMenu" 
+                             disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}"
+                             requiredMessage="Seleccione un docente" required="true" style="width: 575px;">  
+                <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." />                        
+                <f:selectItems value="#{solicContratoBean.candidatos}"  var="candi" itemValue="#{candi}" 
+                               itemLabel="#{candi.nombresApellidos} - #{candi.dniprs} - #{candi.titulo eq null?'NO REGISTRA TITULO':candi.titulo}"/>
+                <p:column >
+                    <h:outputText value="#{doc.nombresApellidos}" />
+                </p:column>
+                <p:column >
+                    <h:outputText value="#{doc.dniprs}" style="text-align: center;"/>
+                </p:column>                
+                <p:column >
+                    <h:outputText value="#{doc.dniprs eq null ? '':doc.titulo eq null?'NO REGISTRA TITULO':doc.titulo}" style="color: #{doc.titulo eq null?'red':'#000000'}"/>
+                </p:column> 
+                <p:ajax update="pnlSolic pnlSolicAsig outputTextMonto pnlHonorarios :formLogin:growlLogin messageDocentes commandButtonEnviar commandButtonGrabar tesMon" listener="#{solicContratoBean.handleCandidatoChange('docente')}"/>   
+            </p:selectOneMenu> 
+            <p:message id="messageDocentes" for="selectOneDocentes" display="icon" />    
+        </h:panelGrid>
+        <h:panelGrid id="pnlSolicAsig" columns="3"  columnClasses="colUnoSolic">
+            <p:outputLabel  id="outputLabeAsig" value="Asignatura:"  rendered="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}"
+                            style="font-weight: bold;color: navy" for="selectOneAsig"/>
+            <p:selectOneMenu id="selectOneAsig" value="#{solicContratoBean.codAsig}"  style="width: 575px;"
+                             rendered="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}" 
+                             disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}"
+                             requiredMessage="Seleccione una asignatura" required="true" panelStyleClass="estiloPanelelectOneMenu" styleClass="estiloSelectOneMenu" >  
+                <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                <f:selectItems value="#{solicContratoBean.asignaturas}"  var="asig" 
+                               itemValue="#{asig.asignaturaPK.actCodigo}-#{asig.asignaturaPK.grpCodigo}-#{asig.asignaturaPK.assCodigo}"
+                               itemLabel="#{asig.idAsignatura} - #{asig.assNombre} - #{asig.grpNombre}"
+                               itemDescription="#{asig.idAsignatura} - #{asig.assNombre} - #{asig.grpNombre}"/>
+                <p:ajax update="pnlSolicAsig outputTextMonto pnlHonorarios inputTextCierre" listener="#{solicContratoBean.handleAsignaturaChange()}"/>                 
+            </p:selectOneMenu> 
+            <p:message id="messageAsig" for="selectOneAsig" display="icon" rendered="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D'}"/>  
+            <p:outputLabel  id="outputLabeCantidad" value="Nº de #{solicContratoBean.unidadMedida}: " style="font-weight: bold;color: navy;" for="inputMaskCantidad"
+                            rendered="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D' or solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'C'}"/>
+            <h:panelGrid id="pnlRango" columns="8"  style="width: 605px;" cellpadding="0" cellspacing="0" 
+                         rendered="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D' or solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'C'}">
+                <pe:inputNumber id="inputMaskCantidad" value="#{solicContratoBean.contratoEdit.cdoCantUnidad}" maxlength="2" style="width: 20px;opacity: 1.0"
+                                onclick="document.getElementById('formMant:inputMaskCantidad_input').select();"  autocomplete="off"  
+                                disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}" 
+                                required="true" requiredMessage="Ingrese el Nro. de #{solicContratoBean.unidadMedida}" decimalPlaces="0"
+                                validatorMessage="El Nro. #{solicContratoBean.unidadMedida} puede ser mínimo #{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D' ? 2:1} hasta #{solicContratoBean.maxHoras}">  
+                    <p:ajax event="keyup" update="outputTextMonto pnlHonorarios inputTextCierre" listener="#{solicContratoBean.genPeriodo('MES')}"/>  
+                    <f:validateLongRange minimum="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'D' ? 2:1}" maximum="#{solicContratoBean.maxHoras}"/>  
+                    <p:watermark for="inputMaskCantidad" value="##" />
+                </pe:inputNumber>  
+                <p:message id="messageCantidad" for="inputMaskCantidad" display="icon" />  
+                <p:outputLabel id="lblInicio" value="Desde: " style="font-weight: bold;color: navy"  for="inputTextInicio"/>
+                <p:calendar id="inputTextInicio" value="#{solicContratoBean.contratoEdit.cdoFecini}" pattern="dd-MMMM-yyyy" 
+                            locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="15"  styleClass="calendario" 
+                            disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I'  and solicContratoBean.contratoEdit.estadoContrato ne 'D'}"
+                            required="true" requiredMessage="Fecha de inicio requerida" showOn="button" autocomplete="off">
+                    <p:ajax event="dateSelect" update="pnlRango" listener="#{solicContratoBean.genPeriodo('MES')}"/>
+                </p:calendar>
+                <p:message for="inputTextInicio"  display="icon" />  
+                <p:outputLabel id="lblCierre" value="Hasta: " style="font-weight: bold;color: navy"   for="inputTextCierre"/>
+                <p:calendar id="inputTextCierre" value="#{solicContratoBean.contratoEdit.cdoFecfin}" pattern="dd-MMMM-yyyy"
+                            disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}" 
+                            locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="16"  
+                            styleClass="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq 'C' or solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq null ?'calendario calendarioFin':'calendario'}"  
+                            required="true" requiredMessage="Fecha de Fin requerida" showOn="button" autocomplete="off"
+                            validator="#{solicContratoBean.validateFechas}">
+                    <f:attribute name="fechaInicio" value="#{solicContratoBean.contratoEdit.cdoFecini}" />
+                    <p:ajax event="dateSelect" update="pnlRango :formLogin:growlLogin" />
+                </p:calendar>
+                <p:message for="inputTextCierre"   display="icon" />  
+            </h:panelGrid> 
+        </h:panelGrid>
+        <h:panelGrid  id="pnlTesis" width="825" cellpadding="0" cellspacing="0" columnClasses="colMono">
+            <p:dataTable id="tesMon" value="#{solicContratoBean.tutorias}" rowIndexVar="rowIndex" var="tutoria" styleClass="ui-datatable-viaticos" 
+                         selection="#{solicContratoBean.tutMonSelected}" emptyMessage="Tesis/Monografía no registradas" selectionMode="single"
+                         rendered="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo ne 'D' and solicContratoBean.contratoEdit.rolDocente.rdoCodigo ne null}"
+                         rowKey="#{tutoria.aluCodigo}" widgetVar="datatableTutoriasWidget" scrollable="true" scrollHeight="50"  >
+                <f:facet name="header">
+                    <h:panelGrid  id="headerTesis" columns="2"  styleClass="headerViatico" columnClasses="colHeadViatico1,colHeadViatico2">
+                        <p:message id="messageMon" for=":formMant:tesMon" showSummary="true" showDetail="false" />  
+                        <p:commandLink value="Añadir alumno" title="Añadir alumno (tesis o monografía)" id="commandLinkNuevoAl" style="color:blue" 
+                                       immediate="true" partialSubmit="true" update=":formTema :formMant:tesMon"  
+                                       actionListener="#{solicContratoBean.nuevoAlumnoButton_processAction}" onstart="datatableTutoriasWidget.unselectAllRows();" 
+                                       disabled="#{ solicContratoBean.contratoEdit.estadoContrato ne 'I' or solicContratoBean.candidatoDocente.prfCodigo eq null}" />
+                    </h:panelGrid>
+                </f:facet>
+                <p:ajax event="rowSelect" update=":formMant:tesMon"/>                      
+                <p:ajax event="rowUnselect"  update=":formMant:tesMon"/>                   
+                <p:column  style="text-align: center;width: 3%" >
+                    <p:commandLink value="Eliminar" title="Eliminar registro" update=":formMant:tesMon :formMant:outputTextMonto" immediate="true" id="commandLinkElimAl" styleClass="ui-icon ui-icon-trash" 
+                                   partialSubmit="true" action="#{solicContratoBean.eliminarAlumnoButton_processAction}" style="color:blue;" onstart="datatableTutoriasWidget.unselectAllRows();" 
+                                   rendered="#{solicContratoBean.tutMonSelected.aluCodigo eq tutoria.aluCodigo and solicContratoBean.contratoEdit.estadoContrato eq 'I' }">
+                        <f:setPropertyActionListener value="#{tutoria}" target="#{solicContratoBean.tutMonSelected}" />  
+                    </p:commandLink>                    
+                </p:column>                 
+                <p:column headerText="Alumno"  style="width: 25%">
+                    <h:outputText value="#{tutoria.nombres}" />
+                </p:column>
+                <p:column headerText="Tesis/Monografía" style="width: 55%">
+                    <h:outputText value="#{tutoria.ttmTitulo}" />
+                </p:column>
+                <p:column headerText="Inicio" style="text-align: center;width: 6%"  >
+                    <h:outputText value="#{tutoria.ttmFechaIniprog}">
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </h:outputText>                              
+                </p:column>                
+                <p:column headerText="Fin" style="text-align: center;width: 6%" >
+                    <h:outputText value="#{tutoria.ttmFechaFinprog}">
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </h:outputText>                              
+                </p:column>
+                <p:column  style="text-align: center;width: 3%">
+                    <p:commandLink value="Editar" title="Editar registro" immediate="true" id="commandLinkEditAlumn" styleClass="ui-icon ui-icon-pencil" 
+                                   partialSubmit="true" action="#{solicContratoBean.editarAlumnoButton_processAction}" 
+                                   rendered="#{solicContratoBean.contratoEdit.estadoContrato eq 'I' }"
+                                   update=":formTema :formMant:tesMon" onclick="datatableTutoriasWidget.selectRow(#{rowIndex})">
+                        <f:setPropertyActionListener value="#{tutoria}" target="#{solicContratoBean.tutMonSelected}" />  
+                    </p:commandLink>   
+                </p:column>   
+            </p:dataTable>
+        </h:panelGrid>
+        <p:separator/>
+        <h:panelGrid columns="2" cellpadding="0" cellspacing="0">
+            <h:panelGrid id="pnlHonorarios" columns="3"  columnClasses="colUnoSolic">
+                <p:outputLabel  id="outputLabeValorHora" style="padding-right: 25px;font-weight: bold;color: navy" for="inputMaskHonorarios"
+                                value="Honorarios: "/>
+                <pe:inputNumber id="inputMaskHonorarios" style="width: 70px;" disabled="true" required="true" requiredMessage="Ingrese los honorarios" 
+                                value="#{solicContratoBean.contratoEdit.cdoMonto}"
+                                symbol=" $ " symbolPosition="p"  onclick="document.getElementById('formMant:inputMaskHonorarios_input').select();" 
+                                decimalSeparator="," thousandSeparator="." autocomplete="off"
+                                styleClass="cantidad-disabled"
+                                validatorMessage="El Honorario puede ser mínimo 100.00 hasta 100000.00">  
+                    <p:ajax event="keyup" update="outputTextMonto" />  
+                    <f:validateDoubleRange minimum="100" maximum="100000"/>  
+                </pe:inputNumber>  
+                <p:message id="messageHonorarios" for="inputMaskHonorarios"   display="icon" />              
+            </h:panelGrid>
+            <h:panelGrid id="pnlFormaPago" columns="3" >
+                <p:outputLabel  id="outputLabeFPago" value="Forma de pago:"  style="font-weight: bold;color: navy" for="selectOneFPago"/>
+                <p:selectOneMenu id="selectOneFPago" value="#{solicContratoBean.contratoEdit.tiposFormaPago.tfpCodigo}"  style="width: 400px;text-transform: uppercase;"
+                                 disabled="#{solicContratoBean.contratoEdit.rolDocente.rdoCodigo eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I'  and solicContratoBean.contratoEdit.estadoContrato ne 'D' )}"
+                                 requiredMessage="Seleccione una Forma de Pago" required="true" panelStyleClass="estiloPanelelectOneMenu" styleClass="estiloSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{solicContratoBean.formaPagos}"  var="fp"  itemValue="#{fp.tfpCodigo}"  itemLabel="#{fp.tfpDescripcion}" itemDescription="#{fp.tfpDescripcion}"/>
+                    <p:ajax update="pnlFormaPago" />                 
+                </p:selectOneMenu> 
+                <p:message id="messageFPago" for="selectOneFPago" display="icon" />  
+            </h:panelGrid>
+        </h:panelGrid>
+        <h:panelGrid id="pnlPasajes" columns="3" >
+            <h:panelGrid columns="2" >
+                <p:outputLabel  id="outputLabePasaje" value="Pasaje:"  style="font-weight: bold;color: navy;padding-right: 10px" for="selectOnePasaje"/>
+                <p:selectOneMenu id="selectOnePasaje" value="#{solicContratoBean.datosViaje.dviTipoPasaje}"  styleClass="estiloSelectOneMenu"
+                                 disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}"
+                                 style="text-transform: uppercase;" panelStyleClass="estiloPanelelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Sin pasaje" noSelectionOption="true" />                        
+                    <f:selectItem itemValue="N"  itemLabel="Nacional"/>
+                    <f:selectItem itemValue="I"  itemLabel="Internacional"/>
+                    <p:ajax update="pnlRuta pnlRutaFecha" listener="#{solicContratoBean.genPasage()}"/>                 
+                </p:selectOneMenu> 
+                <!--p:outputLabel  id="outputLabeSoloViatic" value="Solo Viáticos:"  style="font-weight: bold;color: brown" for="selectBooleanCheckboxSoloViaticos" />
+                <p:selectBooleanCheckbox value="#{solicContratoBean.soloViatico}" id="selectBooleanCheckboxSoloViaticos" styleClass="ui-chkboxSolic"
+                                         disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}">
+                </p:selectBooleanCheckbox-->
+            </h:panelGrid>
+            <h:panelGrid id="pnlRuta" columns="4"   cellpadding="0" cellspacing="2">
+                <p:outputLabel  id="outputLabeRuta" value="Ruta:"  style="font-weight: bold;color: navy;padding-left: 10px;" for="inputTextRuta"/>
+                <p:inputTextarea id="inputTextRuta" value="#{solicContratoBean.datosViaje.dviRutaPasaje}" cols="110" counter="counterTit" maxlength="255"  
+                                 style="width: 225px;height: 3.75em;opacity: 1.0"
+                                 disabled="#{solicContratoBean.datosViaje.dviTipoPasaje eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D')}" 
+                                 counterTemplate="{0} caracteres disponibles." autoResize="true"  
+                                 required="#{solicContratoBean.datosViaje.dviTipoPasaje ne null}" requiredMessage="Información de ruta requerida requerida" >
+                    <p:ajax update="inputTextRuta outputLabeRuta messageRuta" />        
+                </p:inputTextarea>
+                <p:message id="messageRuta" for="inputTextRuta" display="icon" />  
+                <h:panelGrid id="pnlRutaFecha" columns="3" >
+                    <p:outputLabel  id="outputLabeLLega" value="Llegada:"  style="font-weight: bold;color: navy;" for="inputTextLLega"/>
+                    <p:calendar id="inputTextLLega" value="#{solicContratoBean.datosViaje.dviFechaDesde}" pattern="dd-MMMM-yyyy" 
+                                disabled="#{solicContratoBean.datosViaje.dviTipoPasaje eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I'  and solicContratoBean.contratoEdit.estadoContrato ne 'D')}"
+                                locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="15"  styleClass="calendario" 
+                                required="#{solicContratoBean.datosViaje.dviTipoPasaje ne null}" requiredMessage="Fecha de llegada requerida" showOn="button" autocomplete="off">
+                        <p:ajax event="dateSelect" update="pnlRutaFecha"/>
+                    </p:calendar>
+                    <p:message for="inputTextLLega"  display="icon" />                  
+                    <p:outputLabel  id="outputLabeSalida" value="Salida:"  style="font-weight: bold;color: navy;" for="inputTextSalida"/>
+                    <p:calendar id="inputTextSalida" value="#{solicContratoBean.datosViaje.dviFechaHasta}" pattern="dd-MMMM-yyyy" 
+                                disabled="#{solicContratoBean.datosViaje.dviTipoPasaje eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I'  and solicContratoBean.contratoEdit.estadoContrato ne 'D')}" 
+                                validator="#{solicContratoBean.validateFechas}"
+                                locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="15"  styleClass="calendario" 
+                                required="#{solicContratoBean.datosViaje.dviTipoPasaje ne null}" requiredMessage="Fecha de salida requerida" showOn="button" autocomplete="off">
+                        <f:attribute name="fechaInicio" value="#{solicContratoBean.datosViaje.dviFechaDesde}" />
+                        <p:ajax event="dateSelect" update="pnlRutaFecha :formLogin:growlLogin"/>
+                    </p:calendar>
+                    <p:message for="inputTextSalida"  display="icon" />   
+                </h:panelGrid>
+                <p:outputLabel/> 
+                <h:outputText id="counterTit" styleClass="colorCounter"/>
+            </h:panelGrid>
+
+        </h:panelGrid>
+        <h:panelGrid id="pnlObs" columns="3" >
+            <p:outputLabel  id="outputLabeObs" value="Observaciones:"  style="font-weight: bold;color: navy;padding-right: 10px" for="inputTextObs" />
+            <p:inputTextarea id="inputTextObs" value="#{solicContratoBean.contratoEdit.cdoObservaciones}" style="width: 550px;height: 2.50em;opacity: 1.0" maxlength="1024" 
+                             disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}" counterTemplate="{0} caracteres disponibles."  counter="counterObs"/>
+            <h:outputText id="counterObs" styleClass="colorCounter"/>
+        </h:panelGrid>
+        <p:separator/>      
+        <p:remoteCommand name="refreshHeader" update=":formMant:viaticos :formMant:viaticos:headerViaticos"/>
+        <p:remoteCommand name="refreshFooter" update=":formMant:viaticos:footerViaticos"/>            
+        <h:panelGrid columns="7" columnClasses="colViatico1,colViatico2,colViatico3" width="790px"   cellpadding="0" cellspacing="0">
+            <p:outputLabel  id="outputLabeViaticos" value="Viáticos:"  style="font-weight: bold;color: navy" for="selectBooleanCheckboxViaticos"/>
+            <p:selectBooleanCheckbox value="#{solicContratoBean.tieneViatico}" id="selectBooleanCheckboxViaticos" styleClass="ui-chkboxSolic"
+                                     disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}">
+                <p:ajax oncomplete="refreshHeader();" listener="#{solicContratoBean.candelEditViaticosConcepto}"/>
+            </p:selectBooleanCheckbox>
+            <p:dataTable id="viaticos" var="vtico" value="#{solicContratoBean.viaticos}" rowIndexVar="rowIndex" styleClass="ui-datatable-viaticos" 
+                         selection="#{solicContratoBean.viaticoSelected}" rowKey="#{vtico.honorariosPK.rubCodigo}" scrollable="true" scrollHeight="75" 
+                         selectionMode="single"  widgetVar="datatableViaticosWidget"
+                         emptyMessage="#{solicContratoBean.tieneViatico ?'Viáticos no definidos. Añada algún concepto !':''}">
+                <f:facet name="header">
+                    <h:panelGrid columns="2" id="headerViaticos"  styleClass="headerViatico" columnClasses="colHeadViatico1,colHeadViatico2">
+                        <p:message id="messageViaticos" for=":formMant:selectBooleanCheckboxViaticos" showSummary="true" showDetail="false" />  
+                        <p:commandLink value="Añadir concepto" disabled="#{!solicContratoBean.tieneViatico or solicContratoBean.disableAddViatico or ( solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D')}" 
+                                       id="commandLinkNuevo" style="color:blue" immediate="true" partialSubmit="true" update=":formTema :formMant:viaticos"
+                                       onstart="datatableViaticosWidget.unselectAllRows();"  actionListener="#{solicContratoBean.nuevoConceptoButton_processAction}" />
+                    </h:panelGrid>
+                </f:facet>
+                <f:facet name="footer">
+                    <h:panelGrid columns="2" id="footerViaticos" styleClass="headerViatico" style="color: brown;" columnClasses="colFooterViatico1,colFooterViatico2">
+                        <p:outputLabel value="TOTAL VIATICOS: "  style="visibility: #{solicContratoBean.tieneViatico ? 'visible':'hidden'}" />
+                        <h:outputText id="outputTotal" value="#{solicContratoBean.totalViaticos}"  style=" padding-right: 20px;visibility: #{solicContratoBean.tieneViatico ? 'visible':'hidden'}" >
+                            <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                        </h:outputText>
+                    </h:panelGrid>
+                </f:facet>
+                <p:ajax event="rowSelect" update=":formMant:viaticos"/>                      
+                <p:ajax event="rowUnselect"  update=":formMant:viaticos"/>   
+                <p:column  style="text-align: center" width="3%">
+                    <p:commandLink value="Eliminar" title="Eliminar registro" update=":formMant:viaticos" immediate="true" id="commandLinkElimCon" styleClass="ui-icon ui-icon-trash" 
+                                   partialSubmit="true" action="#{solicContratoBean.eliminarConceptoButton_processAction}" 
+                                   onstart="datatableViaticosWidget.unselectAllRows();" oncomplete="refreshFooter();"
+                                   rendered="#{solicContratoBean.viaticoSelected.honorariosPK.rubCodigo eq vtico.honorariosPK.rubCodigo and (solicContratoBean.contratoEdit.estadoContrato eq 'I' or solicContratoBean.contratoEdit.estadoContrato eq 'D')}">
+                        <f:setPropertyActionListener value="#{vtico}" target="#{solicContratoBean.viaticoSelected}" />  
+                    </p:commandLink>                    
+                </p:column>                     
+                <p:column headerText="Concepto"  style="text-align: left" width="51%">
+                    <h:outputText  style="text-transform: uppercase" value="#{vtico.descripRubro}"/>
+                </p:column>
+                <p:column headerText="Nro. Días" style="text-align: center" width="12%">
+                    <h:outputText value="#{vtico.honCantidad}">
+                        <f:convertNumber pattern="#0"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor Unit." style="text-align: center" width="12%" >
+                    <h:outputText value="#{vtico.honValor}">
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Total" style="text-align: right" width="12%" >
+                    <h:outputText value="#{vtico.honCantidad*vtico.honValor}" id="outputTextVT" transient="true" >
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>
+                </p:column>       
+                <p:column  style="text-align: center" width="3%">
+                    <p:commandLink value="Editar" title="Editar registro" immediate="true" id="commandLinkEditCon" styleClass="ui-icon ui-icon-pencil" 
+                                   partialSubmit="true" action="#{solicContratoBean.editarConceptoButton_processAction}" 
+                                   rendered="#{solicContratoBean.contratoEdit.estadoContrato eq 'I' or solicContratoBean.contratoEdit.estadoContrato eq 'D'}"
+                                   update=":formTema :formMant:viaticos" onclick="datatableViaticosWidget.selectRow(#{rowIndex})">
+                        <f:setPropertyActionListener value="#{vtico}" target="#{solicContratoBean.viaticoSelected}" />  
+                    </p:commandLink>                    
+                </p:column>                   
+            </p:dataTable>
+        </h:panelGrid>
+        <h:panelGrid id="pnlResidencia" columns="3" >
+            <p:outputLabel  id="outputLabeRes" value="Residencia:"  style="font-weight: bold;color: navy;padding-right: 20px;" for="selectOneRes"/>
+            <p:selectOneMenu id="selectOneRes" value="#{solicContratoBean.rubroResid}"  styleClass="estiloSelectOneMenu" panelStyleClass="estiloPanelelectOneMenu" 
+                             disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D'}">  
+                <f:selectItem itemValue="" itemLabel="Ninguna" noSelectionOption="true" />      
+                <f:selectItems value="#{solicContratoBean.rubrosResid}"  var="res"  itemValue="#{res.rubCodigo}"  itemLabel="#{res.rubDescripcion}"/>
+                <p:ajax update="pnlFechaResid pnlValorResid" listener="#{solicContratoBean.genPeriodo('DIAS')}" />                 
+            </p:selectOneMenu> 
+            <h:panelGrid id="pnlFechaResid" columns="6"  cellpadding="0" cellspacing="2">
+                <p:outputLabel  id="outputLabeIngresoRes" value="Ingreso:"  style="font-weight: bold;color: navy;padding-left: 10px;" for="inputTextIngresoRes"/>
+                <p:calendar id="inputTextIngresoRes" value="#{solicContratoBean.residencia.dviFechaDesde}" pattern="dd-MMMM-yyyy" 
+                            disabled="#{solicContratoBean.rubroResid eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D')}"
+                            locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="15"  styleClass="calendario" 
+                            required="#{solicContratoBean.rubroResid ne null}" requiredMessage="Fecha de Ingreso Residencia requerida" showOn="button" autocomplete="off">
+                    <p:ajax event="dateSelect" update="pnlFechaResid pnlValorResid" listener="#{solicContratoBean.genPeriodo('DIAS')}" /> 
+                </p:calendar>
+                <p:message for="inputTextIngresoRes"  display="icon" />                  
+                <p:outputLabel  id="outputLabeSalidaRes" value="Salida:"  style="font-weight: bold;color: navy" for="inputTextSalidaRes"/>
+                <p:calendar id="inputTextSalidaRes" value="#{solicContratoBean.residencia.dviFechaHasta}" pattern="dd-MMMM-yyyy" 
+                            disabled="#{solicContratoBean.rubroResid eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D')}" 
+                            validator="#{solicContratoBean.validateFechas}"
+                            locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="15"  styleClass="calendario" 
+                            required="#{solicContratoBean.rubroResid ne null}" requiredMessage="Fecha de Salida Residencia requerida" showOn="button" autocomplete="off">
+                    <f:attribute name="fechaInicio" value="#{solicContratoBean.residencia.dviFechaDesde}" />
+                    <p:ajax event="dateSelect" update="pnlFechaResid pnlValorResid :formLogin:growlLogin" listener="#{solicContratoBean.genPeriodo('DIAS')}"/>
+                </p:calendar>
+                <p:message for="inputTextSalidaRes"  display="icon" /> 
+            </h:panelGrid>
+        </h:panelGrid>
+        <h:panelGrid id="pnlValorResid" columns="7"  cellpadding="0" cellspacing="2">
+            <p:outputLabel  id="outputLabeTotalRes" value="Valor por Residencia:"  style="font-weight: bold;color: navy" for="inputMaskDiasResid"/>
+            <pe:inputNumber id="inputMaskDiasResid" value="#{solicContratoBean.residencia.dviCantidad}" maxlength="2" style="width: 20px;opacity: 1.0" 
+                            onclick="document.getElementById('formMant:inputMaskDiasResid_input').select();"  autocomplete="off" decimalPlaces="0"
+                            required="#{solicContratoBean.rubroResid ne null}" requiredMessage="Ingrese el Nro. de días de residencia" 
+                            disabled="#{solicContratoBean.residencia.dviFechaHasta eq null or solicContratoBean.residencia.dviFechaDesde eq null or 
+                                        solicContratoBean.rubroResid eq null or (solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D') }">  
+                <p:ajax event="keyup" update="outputTextDiasRes" />  
+                <p:watermark for="inputMaskDiasResid" value="##" />
+            </pe:inputNumber>  
+            <p:message for="inputMaskDiasResid"  display="icon" /> 
+            <h:outputFormat id="outputTextDiasRes" style="font-weight: bold;color: brown;padding-left: 25px;" 
+                            value="Día(s) x {0,Number,$ #,##0.00} = {1,Number,$ #,##0.00}">
+                <f:param value="#{solicContratoBean.residencia.dviValorDiario}"/>  
+                <f:param value="#{solicContratoBean.residencia.dviCantidad*solicContratoBean.residencia.dviValorDiario}"/>  
+            </h:outputFormat><p:spacer width="25"/>
+            <p:outputLabel value="Descuento uso de Residencia: "  style="font-weight: bold;color: navy" />
+            <p:selectBooleanCheckbox value="#{solicContratoBean.descPorResidencia}" styleClass="ui-chkboxSolic"
+                                     disabled="#{solicContratoBean.contratoEdit.estadoContrato ne 'I'  and solicContratoBean.contratoEdit.estadoContrato ne 'D'}"/>
+        </h:panelGrid>    
+    </p:panel>
+    <h:panelGroup>
+        <div align="right" style="margin-top: 5px;">
+            <p:commandButton  id="commandButtonEnviar" value="Guardar y enviar" icon="ui-icon-sendMail" title="Enviar Solicitud a RR.HH."  
+                              update=":formLogin:growlLogin @form :formMant:viaticos:messageViaticos" action="#{solicContratoBean.preSendMail()}"
+                              process="@form" 
+                              disabled="#{(solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D') or !solicContratoBean.tieneTitulo}"/>        
+            <span style="padding-right:  25px;"/>
+            <p:commandButton  id="commandButtonGrabar" value="Solo guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  
+                              disabled="#{(solicContratoBean.contratoEdit.estadoContrato ne 'I' and solicContratoBean.contratoEdit.estadoContrato ne 'D') or !solicContratoBean.tieneTitulo}" 
+                              update=":formLogin:growlLogin @form :formMant:viaticos:messageViaticos"
+                              actionListener="#{solicContratoBean.guardarButton_processAction}" process="@form" />
+            <span style="padding-right:  25px;"/>
+            <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" update=":formSolic:dataContrato formMant:panelMant"
+                              actionListener="#{solicContratoBean.cancelarButton_processAction}" immediate="true" partialSubmit="true"
+                              oncomplete="widgetContrato.unselectAllRows();mantWidget.hide();"/>
+        </div>
+    </h:panelGroup>
+    <p:tooltip for="formMant:eye" showEvent="click" >  
+        <p:panelGrid columns="1" style="opacity: 0.7;height: 150px;width: 400px;" >
+            <h:outputText value="#{solicContratoBean.contratoEdit.estadoSolicContrato.escObservacion}" escape="false"/>
+        </p:panelGrid>
+
+    </p:tooltip>  
+</ui:composition>
+

@@ -1,0 +1,37 @@
+/* 
+    Document   : loginStyle
+    Created on : 21/11/2012, 08:56:56 AM
+    Author     : victor.barba
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.ui-panelGridLogin, .ui-panelGridLogin td{
+    border-collapse: separate;
+    font-size: 10pt;
+}     
+.ui-panelGridLogin td {
+    border-width: 0px;
+    padding: 0px 5px;
+}  
+
+.ui-dialog .ui-dialog-content {
+    background-color:beige;
+}
+
+.buttons { 
+    text-align: right;
+    padding:10px 5px;
+    background: none repeat scroll 0 0 transparent;
+    font-size: 8pt;
+}
+
+.InstCont {
+    padding-top: 2px; text-align: center;
+    border-top: 1px solid #e0e0e0;
+    padding: 10px 20px 5px;
+}
+
+.ui-growl-title {
+    font-size: 9pt;
+}

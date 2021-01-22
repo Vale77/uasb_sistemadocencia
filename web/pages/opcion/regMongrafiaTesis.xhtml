@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core"  xmlns:pe="http://primefaces.org/ui/extensions" >
+
+    <p:focus context="panelTema" />
+    <style>
+        .estiloPanelSelectOneMenuTesis {left: 415px !important ;}
+        .estiloPanelSelectOneMenuTesis .ui-selectonemenu-item{font-size: 7pt}
+        .col1Tesis{width: 70px;font-weight: bold;color: blue}
+        .col2Tesis{width: 550px;font-weight: bold;text-align: justify}
+    </style>
+    <p:panel id="panelTema"  style="border-width: thin;background-color: transparent; " >
+        <h:panelGrid cellspacing="7" columns="2" columnClasses="col1Tesis,col2Tesis">
+            <p:outputLabel value="Alumno:" style="font-weight: bold;color: blue" for="selectOneMenuTutor"/>
+            <p:selectOneMenu id="selectOneMenuTutor" value="#{solicContratoBean.tesis}"  filter="true" var="tesis" panelStyle="width: 800px"
+                             converter="tesisConverter" panelStyleClass="estiloPanelSelectOneMenu estiloPanelSelectOneMenuTesis" styleClass="estiloSelectOneMenu" 
+                             required="true" style="font-size: 7pt;width: 400px;">
+                <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." />      
+                <f:selectItems value="#{solicContratoBean.listaTesis}"  var="alumno" itemValue="#{alumno}" 
+                               itemLabel="#{alumno.nombres} - #{alumno.aluDnialu}"/>
+                <p:column headerText="Alumno" styleClass="x" >
+                    <h:outputText value="#{tesis.nombres}" />
+                </p:column>
+                <p:column headerText="Cédula"  >
+                    <h:outputText value="#{tesis.aluDnialu}" />
+                </p:column>                
+                <p:column headerText="Tema"   >
+                    <h:outputText value="#{tesis.tema}" style="color: #{tesis.tema eq 'SIN PLAN APROBADO'? 'red':'inherit'};"/>
+                </p:column>
+                <!--p:column >
+                    <h:outputFormat value="#{tesis.fechaIni eq null? 'xx':'{0,Date,dd/MM/yyyy}'}">
+                        <f:param value="#{tesis.fechaIni}"/>  
+                    </h:outputFormat>
+                </p:column>                
+                <p:column >
+                    <h:outputFormat  value="#{tesis.fechaFin eq null? 'xx':'{0,Date,dd/MM/yyyy}'}">
+                        <f:param value="#{tesis.fechaFin}"/>  
+                    </h:outputFormat>                    
+                </p:column-->                 
+                <p:ajax update="outputTextTitulo outputTextFechaIni outputTextFechaFin aniadirButton outputLabelMensage" />
+            </p:selectOneMenu>    
+            <p:outputLabel value="Título:" />
+            <h:outputText value="#{solicContratoBean.tesis.tema}"  id="outputTextTitulo" transient="true" 
+                          style="color: #{solicContratoBean.tesis.tema eq 'SIN PLAN APROBADO'? 'red':'inherit'};">
+            </h:outputText>
+            <p:outputLabel id="outputLabeFechaIni" value="Fecha inicio: " />
+            <h:outputText value="#{solicContratoBean.tesis.fechaIni}"  id="outputTextFechaIni" transient="true" >
+                <f:convertDateTime pattern="dd' de 'MMMM' de 'yyyy" locale="es_EC" />
+            </h:outputText>
+            <p:outputLabel id="outputLabeFechaFin" value="Fecha fin: "/>
+            <h:outputText value="#{solicContratoBean.tesis.fechaFin}"  id="outputTextFechaFin" transient="true" >
+                <f:convertDateTime pattern="dd' de 'MMMM' de 'yyyy" locale="es_EC" />
+            </h:outputText>
+        </h:panelGrid>
+        <p:outputLabel id="outputLabelMensage" value="* Solo pueden ser añadidos las Monografías o Tesis con plan aprobado y fechas completas." 
+                       style="font-size: 8pt;color: red;padding-left: 10px;visibility: #{solicContratoBean.tesis.fechaIni ne null and solicContratoBean.tesis.fechaFin ne null ? 'hidden':'visible'} " />  
+    </p:panel>
+    <p:separator />
+    <div align="right" style="font-size: 8pt;">
+        <p:commandButton id="aniadirButton" value="Añadir" icon="ui-icon-disk" title="Añadir viático"
+                         update=":formLogin:growlLogin :formTema :formMant:pnlHonorarios :formMant:outputTextMonto :formMant:tesMon"
+                         actionListener="#{solicContratoBean.guardarTemaButton_processAction(ae)}"
+                         disabled="#{solicContratoBean.tesis.fechaFin eq null or solicContratoBean.tesis.fechaIni eq null}"/>
+        <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro"  onclick="mantWidgetTema.hide();" process="@this" >
+            <p:resetInput target=":formTema:panelTema"/>
+        </p:commandButton>
+    </div>
+
+</ui:composition>

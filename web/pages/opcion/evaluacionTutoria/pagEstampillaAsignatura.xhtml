@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                >
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{pagEstampEvalEstADoc.navigationJSFManagedBean.nombreOpcion}">      
+        <h:form id="fpagestampilla">
+            <p:growl id="messagedato"/> 
+            <h:panelGrid id="gfiltro" columns="7" style="font-family: Arial; font-size: 7pt"> 
+                <h:outputText  value="Ciclo Académico* :" style="font-weight: bold" />
+                <h:panelGrid columns="2" id="ganio">
+                    <p:selectOneMenu value="#{pagEstampEvalEstADoc.smciclo}" id="iciclo"
+                                     required="true" requiredMessage="Anio se requiere un valor">
+                        <f:selectItem  itemLabel="Escoja uno.." itemValue="" />
+                        <f:selectItems  value="#{pagEstampEvalEstADoc.ciclos}" var="lanio" itemLabel="#{lanio.nombreCiclo}" itemValue="#{lanio.anio}"/>                               
+                        <p:ajax update="ganio gdatest"/>
+                    </p:selectOneMenu> 
+                    <p:message for="iciclo" display="icon"/> 
+                </h:panelGrid>                
+                <h:outputText  value="Cédula* :" style="font-weight: bold"/>
+
+                <h:panelGrid columns="1" id="gdatest" >
+                    <h:inputText id="ienctitulo" value="#{pagEstampEvalEstADoc.smcedestudiante}" style=" width: 100px; text-transform: uppercase" required="true" requiredMessage="Cedula: se requiere un valor">
+                        <p:ajax update="gdatest" immediate="true"/>
+                    </h:inputText>                       
+                </h:panelGrid>
+                <p:commandButton   icon="ui-icon-refresh" title="Refrescar registros"   immediate="true" update="gdetalle" 
+                                   actionListener="#{pagEstampEvalEstADoc.trimestrevalueChangeListener}"
+                                   /> 
+            </h:panelGrid>                                 
+            <h:panelGrid id="gdetalle" >
+                <p:dataTable id="tcalendario" 
+                             value="#{pagEstampEvalEstADoc.listAsigPagEst}" 
+                             var="asigreapertura" 
+                             scrollable="true" scrollHeight="95%" 
+                             style=" font-family: Arial; font-size: 7pt;width: 100%"
+                             rowKey="#{asigreapertura[0]}" 
+                             resizableColumns="true"  
+                             selection="#{pagEstampEvalEstADoc.selectedasignatura}"                              
+                             emptyMessage="No existen datos"
+                             editable="true" 
+                             filteredValue="#{pagEstampEvalEstADoc.listAsigPagEstFiltro}">
+                    <f:facet name="header">
+                        <div align="right" >
+                            <p:commandButton  id="btnCAGuardar" value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"                                
+                                              update=":formLogin:growlLogin @form"
+                                              actionListener="#{pagEstampEvalEstADoc.guardarButton_processAction}" process="@form" />  
+                        </div>   
+                    </f:facet>               
+                    <p:column filterBy="#{asigreapertura[5]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Cédula" style="width: 15%">
+                        <h:outputText value="#{asigreapertura[5]}" style="text-transform: uppercase; text-align: left"  />          
+                    </p:column>  
+                    <p:column filterBy="#{asigreapertura[6]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Nombres" style="width: 30%">
+                        <h:outputText value="#{asigreapertura[6]}" style="text-transform: uppercase; text-align: left"  />          
+                    </p:column>
+                    <p:column filterBy="#{asigreapertura[3]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Programa" style="width: 40%">
+                        <h:outputText value="#{asigreapertura[3]}" style="text-transform: uppercase; text-align: left"  />          
+                    </p:column> 
+                    <p:column filterBy="#{asigreapertura[9]}" filterStyle="width: 98%" filterMatchMode="contains" headerText="Trimestre" style="width: 10%">
+                        <h:outputText value="#{asigreapertura[9]}" style="text-transform: uppercase; text-align: left"  />          
+                    </p:column>
+                    <p:column  headerText="Pagado" selectionMode="multiple" style="width:5%;text-align:center"/>
+                </p:dataTable>               
+            </h:panelGrid>
+        </h:form>
+    </p:panel>  
+</ui:composition>

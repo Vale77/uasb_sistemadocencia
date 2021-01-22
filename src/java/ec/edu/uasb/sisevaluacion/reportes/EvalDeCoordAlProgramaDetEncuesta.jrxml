@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EvalDeCoordAlProgramaDetEncuesta" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a4b1f08d-394a-4273-8f7b-e2f78dbf858e">
+	<property name="ireport.zoom" value="5.0"/>
+	<property name="ireport.x" value="358"/>
+	<property name="ireport.y" value="0"/>
+	<subDataset name="historico" uuid="2c88bce6-fe48-4f6a-b57c-c8482b4ebe73">
+		<parameter name="codEncuesta" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<parameter name="codEsp" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[SELECT RESPUESTA.ANIO, RESPUESTA.CICLO,  CONVERT(decimal(8, 2), AVG(RESPUESTA.VALOR)) AS VALOR
+FROM interfaseOcu.EVALUACION.VISTA_RESPUESTA RESPUESTA INNER JOIN interfaseOcu.EVALUACION.ENCUESTA_CALENDARIO
+ON RESPUESTA.ANIO = ENCUESTA_CALENDARIO.ANIO
+AND RESPUESTA.CICLO = ENCUESTA_CALENDARIO.CICLO
+AND RESPUESTA.CODIGO_MATERIA = ENCUESTA_CALENDARIO.CODIGO_MATERIA
+AND RESPUESTA.CODIGO_ENCUESTA = ENCUESTA_CALENDARIO.CODIGO_ENCUESTA
+AND RESPUESTA.CODIGO_PROFESOR = ENCUESTA_CALENDARIO.CODIGO_PROFESOR
+AND RESPUESTA.CODIGO_ESP = ENCUESTA_CALENDARIO.CODIGO_ESP
+AND RESPUESTA.CODIGO_NIVEL = ENCUESTA_CALENDARIO.CODIGO_NIVEL RIGHT OUTER JOIN interfaseOcu.EVALUACION.PREGUNTA
+ON RESPUESTA.CODIGO_PREGUNTA = PREGUNTA.CODIGO_PREGUNTA
+AND RESPUESTA.CODIGO_ENCUESTA = PREGUNTA.CODIGO_ENCUESTA
+WHERE ENCUESTA_CALENDARIO.TIPO_ENCUESTA = 'O'
+AND RESPUESTA.CODIGO_MATERIA = - 1
+AND RESPUESTA.CODIGO_PROFESOR = - 1
+AND RESPUESTA.CODIGO_NIVEL = - 1
+AND RESPUESTA.CODIGO_ESP = $P{codEsp}
+AND RESPUESTA.CODIGO_ENCUESTA = $P{codEncuesta}
+AND RESPUESTA.CODIGO_PREGUNTA > -1 AND TIPO <> 2
+ GROUP BY RESPUESTA.ANIO, RESPUESTA.CICLO]]>
+		</queryString>
+		<field name="ANIO" class="java.math.BigDecimal"/>
+		<field name="CICLO" class="java.math.BigDecimal"/>
+		<field name="VALOR" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="promedioPrograma" uuid="31099918-1670-4587-b062-5c1bc50b5812">
+		<parameter name="codEncuesta" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<parameter name="codEsp" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<parameter name="anio" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[SELECT 'Programa' as ORIGEN, RESPUESTA.ANIO,RESPUESTA.CICLO,  CONVERT(decimal(8, 2), AVG(RESPUESTA.VALOR)) AS VALOR
+FROM  interfaseOcu.EVALUACION.VISTA_RESPUESTA RESPUESTA INNER JOIN interfaseOcu.EVALUACION.ENCUESTA_CALENDARIO
+ON RESPUESTA.ANIO = ENCUESTA_CALENDARIO.ANIO
+AND RESPUESTA.CICLO = ENCUESTA_CALENDARIO.CICLO
+AND RESPUESTA.CODIGO_MATERIA = ENCUESTA_CALENDARIO.CODIGO_MATERIA
+AND RESPUESTA.CODIGO_ENCUESTA = ENCUESTA_CALENDARIO.CODIGO_ENCUESTA
+AND RESPUESTA.CODIGO_PROFESOR = ENCUESTA_CALENDARIO.CODIGO_PROFESOR
+AND RESPUESTA.CODIGO_ESP = ENCUESTA_CALENDARIO.CODIGO_ESP
+AND RESPUESTA.CODIGO_NIVEL = ENCUESTA_CALENDARIO.CODIGO_NIVEL RIGHT OUTER JOIN interfaseOcu.EVALUACION.PREGUNTA
+ON RESPUESTA.CODIGO_PREGUNTA = PREGUNTA.CODIGO_PREGUNTA
+AND RESPUESTA.CODIGO_ENCUESTA = PREGUNTA.CODIGO_ENCUESTA
+WHERE ENCUESTA_CALENDARIO.TIPO_ENCUESTA = 'O'
+AND RESPUESTA.CODIGO_MATERIA = - 1
+AND RESPUESTA.CODIGO_PROFESOR = - 1
+AND RESPUESTA.CODIGO_NIVEL = - 1
+AND RESPUESTA.ANIO = $P{anio}
+AND RESPUESTA.CODIGO_ESP =$P{codEsp}
+AND RESPUESTA.CODIGO_ENCUESTA = $P{codEncuesta}
+AND RESPUESTA.CODIGO_PREGUNTA > -1 AND TIPO <> 2
+GROUP BY  RESPUESTA.ANIO,RESPUESTA.CICLO
+UNION
+SELECT 'Otros' as ORIGEN, RESPUESTA.ANIO,RESPUESTA.CICLO,  CONVERT(decimal(8, 2), AVG(RESPUESTA.VALOR)) AS VALOR
+FROM interfaseOcu.EVALUACION.VISTA_RESPUESTA RESPUESTA INNER JOIN interfaseOcu.EVALUACION.ENCUESTA_CALENDARIO
+ON RESPUESTA.ANIO = ENCUESTA_CALENDARIO.ANIO
+AND RESPUESTA.CICLO = ENCUESTA_CALENDARIO.CICLO
+AND RESPUESTA.CODIGO_MATERIA = ENCUESTA_CALENDARIO.CODIGO_MATERIA
+AND RESPUESTA.CODIGO_ENCUESTA = ENCUESTA_CALENDARIO.CODIGO_ENCUESTA
+AND RESPUESTA.CODIGO_PROFESOR = ENCUESTA_CALENDARIO.CODIGO_PROFESOR
+AND RESPUESTA.CODIGO_ESP = ENCUESTA_CALENDARIO.CODIGO_ESP
+AND RESPUESTA.CODIGO_NIVEL = ENCUESTA_CALENDARIO.CODIGO_NIVEL RIGHT OUTER JOIN interfaseOcu.EVALUACION.PREGUNTA
+ON RESPUESTA.CODIGO_PREGUNTA = PREGUNTA.CODIGO_PREGUNTA
+AND RESPUESTA.CODIGO_ENCUESTA = PREGUNTA.CODIGO_ENCUESTA
+WHERE  ENCUESTA_CALENDARIO.TIPO_ENCUESTA = 'O'
+AND RESPUESTA.CODIGO_MATERIA = - 1
+AND RESPUESTA.CODIGO_PROFESOR = - 1
+AND RESPUESTA.CODIGO_NIVEL = - 1
+AND RESPUESTA.ANIO = $P{anio}
+AND RESPUESTA.CODIGO_ENCUESTA = $P{codEncuesta}
+AND RESPUESTA.CODIGO_ESP <> $P{codEsp}
+AND RESPUESTA.CODIGO_PREGUNTA > -1 AND TIPO <> 2
+GROUP BY  RESPUESTA.ANIO,RESPUESTA.CICLO]]>
+		</queryString>
+		<field name="ORIGEN" class="java.lang.String"/>
+		<field name="ANIO" class="java.math.BigDecimal"/>
+		<field name="CICLO" class="java.math.BigDecimal"/>
+		<field name="VALOR" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="codEncu" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="anio" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="codEsp" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[WITH PREGUNTA_CTE  ( CODIGO_PREGUNTA,CODIGO_ENCUESTA,PREGUNTA_PADRE, DESCRIPCION,TIPO)AS(
+SELECT CODIGO_PREGUNTA,CODIGO_ENCUESTA,isnull(PREGUNTA_PADRE,CODIGO_PREGUNTA),  DESCRIPCION,TIPO
+FROM interfaseOcu.EVALUACION.PREGUNTA WITH(NOLOCK)
+WHERE CODIGO_ENCUESTA = $P{codEncu} and PREGUNTA_PADRE IS NULL
+UNION ALL
+SELECT e.CODIGO_PREGUNTA,e.CODIGO_ENCUESTA,e.PREGUNTA_PADRE, e.DESCRIPCION,e.TIPO
+FROM interfaseOcu.EVALUACION.PREGUNTA e WITH(NOLOCK) INNER JOIN PREGUNTA_CTE pcte
+ON  e.PREGUNTA_PADRE =  pcte.CODIGO_PREGUNTA
+WHERE e.CODIGO_ENCUESTA = $P{codEncu})
+SELECT PREGUNTA_CTE.CODIGO_PREGUNTA,DESCRIPCION,TIPO, CONVERT(DECIMAL(8,2),AVG(VALOR)) PROMEDIO
+FROM PREGUNTA_CTE  LEFT OUTER JOIN interfaseOcu.EVALUACION.VISTA_RESPUESTA RESPUESTA WITH(NOLOCK)
+ON PREGUNTA_CTE.CODIGO_PREGUNTA = RESPUESTA.CODIGO_PREGUNTA
+AND PREGUNTA_CTE.CODIGO_ENCUESTA = RESPUESTA.CODIGO_ENCUESTA
+AND  RESPUESTA.anio = $P{anio}
+AND RESPUESTA.CODIGO_ESP = $P{codEsp}
+WHERE  PREGUNTA_CTE.tipo NOT IN(2,5)
+group by PREGUNTA_CTE.PREGUNTA_PADRE,PREGUNTA_CTE.CODIGO_PREGUNTA,DESCRIPCION,TIPO]]>
+	</queryString>
+	<field name="CODIGO_PREGUNTA" class="java.math.BigDecimal"/>
+	<field name="DESCRIPCION" class="java.lang.String"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="PROMEDIO" class="java.math.BigDecimal"/>
+	<variable name="PROM" class="java.math.BigDecimal" resetType="Group" resetGroup="tipo" calculation="Average">
+		<variableExpression><![CDATA[$F{PROMEDIO}]]></variableExpression>
+	</variable>
+	<variable name="PROM_TOTAL" class="java.math.BigDecimal" calculation="Average">
+		<variableExpression><![CDATA[$F{PROMEDIO}]]></variableExpression>
+	</variable>
+	<group name="tipo">
+		<groupExpression><![CDATA[$F{TIPO}]]></groupExpression>
+		<groupHeader>
+			<band height="11">
+				<textField>
+					<reportElement x="21" y="2" width="342" height="9" uuid="a4645198-ab24-4920-806c-d940a4130a38"/>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+						<paragraph leftIndent="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TIPO}.equals("4")?$F{DESCRIPCION}.equals("Criterios y Recomendaciones")?"":$F{DESCRIPCION}:""]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tipo" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement x="441" y="2" width="33" height="9" uuid="a1d26e84-d0e7-490e-98fb-d5019c5956cb">
+						<printWhenExpression><![CDATA[!($F{TIPO}.equals("4") || $F{TIPO}.equals("3"))]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{PROM}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="363" y="2" width="78" height="9" uuid="272bb286-47d7-4270-85e1-5b5f22d08bfc">
+						<printWhenExpression><![CDATA[!($F{TIPO}.equals("4") || $F{TIPO}.equals("3"))]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Promedio Fase:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="4" y="2" width="17" height="9" uuid="a9aa89f1-3826-4021-86f1-5ee62c86644a"/>
+					<textElement textAlignment="Center">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TIPO}.equals("4")?$F{DESCRIPCION}.equals("Criterios y Recomendaciones")?"":$F{CODIGO_PREGUNTA}:""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="2">
+				<line>
+					<reportElement x="4" y="1" width="540" height="1" printWhenGroupChanges="tipo" uuid="cef62265-19d0-4479-b5d1-665156d9b19e">
+						<printWhenExpression><![CDATA[!$F{TIPO}.equals("4")]]></printWhenExpression>
+					</reportElement>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="33" y="0" width="388" height="10" isRemoveLineWhenBlank="true" uuid="7f9352ac-dc51-4c36-8ad1-86210bc2cd92"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TIPO}.equals("4")?"":$F{DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="441" y="0" width="33" height="10" isRemoveLineWhenBlank="true" uuid="59d40d33-029a-407f-b47f-41e596e63a45"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PROMEDIO}]]></textFieldExpression>
+				<patternExpression><![CDATA[$F{TIPO}.equals("3")?"#,##0.00 %":"#,##0.00"]]></patternExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="4" y="0" width="17" height="10" isRemoveLineWhenBlank="true" uuid="c44399a3-1ddc-4d0b-8d60-729be939045e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TIPO}.equals("4")?"":$F{CODIGO_PREGUNTA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="217">
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="441" y="0" width="33" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="f254d402-6977-47ae-84ad-433295a4f2e1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PROM_TOTAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="314" y="0" width="127" height="11" uuid="26b9fc74-671c-47ac-aaa0-0e6cb13dccbc"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Promedio del Programa:]]></text>
+			</staticText>
+			<barChart>
+				<chart isShowLegend="false">
+					<reportElement mode="Transparent" x="207" y="42" width="156" height="174" forecolor="#000000" backcolor="#FFFFFF" uuid="7afee08b-9f36-4cf9-8b43-64a7cb0422bc"/>
+					<chartTitle/>
+					<chartSubtitle>
+						<font size="7" isBold="true"/>
+						<subtitleExpression><![CDATA["Promedio Historico del programa"]]></subtitleExpression>
+					</chartSubtitle>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<dataset>
+						<datasetRun subDataset="historico" uuid="0f80269f-c758-4bab-9291-bbd8d3713f14">
+							<datasetParameter name="codEncuesta">
+								<datasetParameterExpression><![CDATA[$P{codEncu}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="codEsp">
+								<datasetParameterExpression><![CDATA[$P{codEsp}]]></datasetParameterExpression>
+							</datasetParameter>
+						</datasetRun>
+					</dataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[""]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{ANIO}+"-"+$F{ANIO}.add(new BigDecimal("1") )]]></categoryExpression>
+						<valueExpression><![CDATA[$F{VALOR}]]></valueExpression>
+						<labelExpression><![CDATA[(new DecimalFormat("#.00")).format($F{VALOR})]]></labelExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot isShowLabels="true" isShowTickLabels="true" isShowTickMarks="true">
+					<plot labelRotation="45.0"/>
+					<itemLabel>
+						<font size="7" isBold="true"/>
+					</itemLabel>
+					<categoryAxisFormat labelRotation="45.0">
+						<axisFormat>
+							<tickLabelFont>
+								<font size="7" isBold="true"/>
+							</tickLabelFont>
+						</axisFormat>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat>
+							<labelFont>
+								<font size="7"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="7"/>
+							</tickLabelFont>
+						</axisFormat>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+			<staticText>
+				<reportElement x="4" y="17" width="540" height="11" uuid="f5f49f9f-f51b-445f-8bd4-a8f472d46778"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Escala por pregunta 1 a la 5: 1. Insatisfactorio, 2. Poco satisfactorio, 3. Mejorable, 4. Satisfactorio, 5. Muy Satisfactorio]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

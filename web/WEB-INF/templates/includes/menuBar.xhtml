@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui">
+    
+    <p:toolbar  id="pnlMenuBar" >
+        <p:toolbarGroup>
+            <p:commandButton value="Nuevo" icon="ui-icon-document" title="Nuevo registro" 
+                             actionListener="#{backingBean.nuevoButton_processAction(ae)}" update=":mantDialog"
+                             disabled="#{backingBean.disabledNuevo}" oncomplete="mantWidget.show();"/>
+            <p:commandButton value="Eliminar" icon="ui-icon-trash" title="Eliminar registro señalado" 
+                             actionListener="#{backingBean.eliminarButton_processAction(ae)}"
+                             disabled="#{backingBean.disabledEliminar}"/>  
+            <p:commandButton value="Editar" icon="ui-icon-pencil" title="Editar registro señalado" 
+                             actionListener="#{backingBean.editarButton_processAction(ae)}"
+                             disabled="#{backingBean.disabledEditar}"/>  
+            <p:commandButton value="Recargar" icon="ui-icon-refresh" title="regargar pagina" 
+                             disabled="#{backingBean.disabledRefrescar}"/>  
+            <p:commandButton value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"
+                             actionListener="#{backingBean.guardarButton_processAction(ae)}" 
+                             disabled="#{backingBean.disabledSalvar}"/>  
+            <p:separator />  
+            <p:commandButton value="Regresar" icon="ui-icon-home" actionListener="#{navigationMgmtBean.navigationPathChange(ae)}"
+                             title="Regresar a pantalla principal" update=":pnlContent"  immediate="true"
+                             disabled="#{backingBean.disabledRegresar}"/>  
+        </p:toolbarGroup>
+    </p:toolbar>          
+</ui:composition>
+

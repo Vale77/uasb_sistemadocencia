@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="tiempos1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7fbabe68-38a3-46ba-8b42-9562098a5550">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select ESTADO_S.CDO_CODIGO,ESTADO_S.STA_CODIGO, ESTADO_S.ESC_FECHA ,
+ ULT_ESTADO.ESC_FECHA ULTIMA_FECHA
+from GESTIONDOCENTE.getByEstado('S') ESTADO_S,GESTIONDOCENTE.getEstados() ULT_ESTADO
+WHERE ESTADO_S.CDO_CODIGO = ULT_ESTADO.CDO_CODIGO
+and ULT_ESTADO.STA_CODIGO not in('D','S') and  ULT_ESTADO.STA_CODIGO = ULT_ESTADO.STA_CODIGO
+ and month(ESTADO_S.ESC_FECHA) = 11
+]]>
+	</queryString>
+	<field name="CDO_CODIGO" class="java.lang.Long"/>
+	<field name="STA_CODIGO" class="java.lang.String"/>
+	<field name="ESC_FECHA" class="java.sql.Timestamp"/>
+	<field name="ULTIMA_FECHA" class="java.sql.Timestamp"/>
+	<variable name="variable1" class="java.util.Date">
+		<variableExpression><![CDATA[new GregorianCalendar(Integer.parseInt("2015"),Integer.parseInt("11")-1,Integer.parseInt("1")).getTime()]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="constante" class="java.lang.Long">
+		<variableExpression><![CDATA[24 * 60 * 60 * 1000]]></variableExpression>
+	</variable>
+	<variable name="promedio" class="java.math.BigDecimal" calculation="Average">
+		<variableExpression><![CDATA[($F{ULTIMA_FECHA}-$F{ESC_FECHA})]]></variableExpression>
+	</variable>
+	<summary>
+		<band height="238">
+			<areaChart>
+				<chart isShowLegend="true">
+					<reportElement x="0" y="0" width="555" height="234" isPrintWhenDetailOverflows="true" uuid="69f287a1-b60f-41ff-8c39-268af6d02a9d"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend position="Top"/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["Solicitadas"]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{CDO_CODIGO}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{ULTIMA_FECHA}-$F{ESC_FECHA}]]></valueExpression>
+						<labelExpression><![CDATA["cc"]]></labelExpression>
+					</categorySeries>
+					<categorySeries>
+						<seriesExpression><![CDATA["xx"]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{CDO_CODIGO}]]></categoryExpression>
+						<valueExpression><![CDATA[0]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<areaPlot>
+					<plot/>
+					<categoryAxisLabelExpression><![CDATA["Solicitud"]]></categoryAxisLabelExpression>
+					<categoryAxisFormat>
+						<axisFormat verticalTickLabels="false">
+							<labelFont>
+								<font size="8" isBold="true"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="8"/>
+							</tickLabelFont>
+						</axisFormat>
+					</categoryAxisFormat>
+					<valueAxisLabelExpression><![CDATA["Días"]]></valueAxisLabelExpression>
+					<valueAxisFormat>
+						<axisFormat tickLabelMask="0" verticalTickLabels="false">
+							<labelFont>
+								<font size="8" isBold="true"/>
+							</labelFont>
+							<tickLabelFont>
+								<font size="8" isBold="false"/>
+							</tickLabelFont>
+						</axisFormat>
+					</valueAxisFormat>
+				</areaPlot>
+			</areaChart>
+		</band>
+	</summary>
+</jasperReport>

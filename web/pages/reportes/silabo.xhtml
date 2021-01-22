@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{silaboBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .estiloPanelSelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 8pt;border-color: whitesmoke}
+            .estiloPanelSelectOneMenu .ui-selectonemenu-filter{text-transform: uppercase;width: 165%;font-size: 8pt;}
+            .estiloPanelSelectOneMenu .ui-selectonemenu-filter-container .ui-icon{right: -100px;}
+            .estiloSelectOneMenuAre.ui-state-disabled {opacity: 1 ;border:none;}
+            .tablaSilabo {font-size: 7pt }
+            .ui-state-default .ui-icon-refrescar {background-image: url("#{resource['/images/refresh.png'] }");background-size: 18px 18px;}            
+        </style>
+        <h:form id="formSilabo">
+            <h:panelGrid id="pnlArea" columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelArea" value="Área:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuArea" value="#{silaboBean.area}" style="width: 300px;" 
+                                 disabled="#{silaboBean.areas.size()==1}"
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{silaboBean.areas}"  var="area" itemValue="#{area.areCodigo}"
+                                   itemLabel="#{area.nombreArea}" itemDescription="#{area.areCodigo.toString()}"/>
+                    <p:ajax update="dataAsig selectOneMenuProg" listener="#{silaboBean.handleAreaAnioProgChange('areas')}" oncomplete="widgetSilabo.unselectAllRows();"/>                 
+                </p:selectOneMenu> 
+                <p:spacer width="10"/>
+                <p:outputLabel id="outputLabelAnio" value="Año académico:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuAnio" value="#{silaboBean.anio}" style="width: 100px;" 
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{silaboBean.academicos}"  var="anioAcad" itemValue="#{anioAcad.anio}"
+                                   itemLabel="#{anioAcad.nombreCiclo}" itemDescription="#{anioAcad.nombreCiclo}"/>
+                    <p:ajax update="dataAsig selectOneMenuProg"  listener="#{silaboBean.handleAreaAnioProgChange('anio')}"/>                 
+                </p:selectOneMenu> 
+            </h:panelGrid>
+            <h:panelGrid columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelProg" value="Programa:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuProg" value="#{silaboBean.progra}" style="width: 600px" converter="programaConverter"
+                                 disabled="#{silaboBean.programas.size()==1}"  styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{silaboBean.programas}"  var="prog" itemValue="#{prog}"
+                                   itemLabel="#{prog.nombrePrograma}" itemDescription="#{prog.programaPK.prgCodigo.toString()}"/>
+                    <p:ajax update="dataAsig btnBuscar"   listener="#{silaboBean.handleAreaAnioProgChange('silabos')}" />                 
+                </p:selectOneMenu>    
+                <p:commandButton  icon="ui-icon-refrescar" title="Buscar solicitudes" id="btnBuscar" 
+                                  disabled="#{silaboBean.area eq null or silaboBean.progra eq null or silaboBean.anio eq null}"
+                                  action="#{silaboBean.recupContratosAsignaturas()}" update=":formSilabo:dataAsig" oncomplete="widgetSilabo.unselectAllRows();"/>                   
+
+            </h:panelGrid>              
+            <p:dataTable id="dataAsig" var="asig" value="#{silaboBean.asignaturaSyllabuses}" editable="true"  
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle" rowStyleClass="tablaSilabo #{asig.estadoSyllabus eq 'A' ? 'black' : 'red'}"
+                         selection="#{silaboBean.asignaturaSelected}" widgetVar="widgetSilabo"
+                         rowKey="#{asig.asignaturaSyllabusPK.codigoProfesor}-#{asig.asignaturaSyllabusPK.codigoMateria}:#{asig.asignaturaSyllabusPK.codigoNivel};#{asig.asignaturaSyllabusPK.vacCodnum}=#{asig.asignaturaSyllabusPK.codParalelo}.#{asig.asignaturaSyllabusPK.codPrograma}"  
+                         emptyMessage="No existen asignaturas disponibles para esta área y programa">
+                <p:column headerText="Ord." style="text-align: center;" width="3%">  
+                    <span style="font-weight: bold">#{rowIndex+1}</span>
+                </p:column>             
+                <p:column headerText="Asignatura" filterBy="#{asig.nombreMateria}" filterStyle="width:250px;" filterMatchMode="contains">   
+                    #{asig.nombreMateria} - #{asig.identifMateria}
+                </p:column>    
+                
+                <p:column headerText="Paralelo" filterBy="#{asig.nombreParalelo}" filterStyle="width:70px;" filterMatchMode="contains">  
+                 #{asig.nombreParalelo}
+                </p:column>  
+                
+                <p:column headerText="Trime"  width="25%" style="text-transform: uppercase">   
+                    #{asig.asignaturaSyllabusPK.codigoNivel}
+                </p:column>                  
+                <p:column headerText="Docente"  width="25%" style="text-transform: uppercase">   
+                    #{asig.apellidoProfesor} #{asig.nombreProfesor}
+                </p:column>   
+                <p:column headerText="Estado Sílabo"  style="text-align: center"  width="10%">
+                    <h:outputText value="#{asig.estadoSyllabus eq 'A' and asig.aprobadoPor ne null ?'Aprobado':
+                                           asig.estadoSyllabus eq 'P' and asig.estadoEnvio eq 'P' ? asig.observacionCoordinador ne null ?'Con Observaciones':
+                                           'No enviado al coordinador':asig.estadoSyllabus eq null and asig.estadoEnvio eq null? 'Pendiente de Ingreso':'Enviado al Coordinador'}" 
+                                  style="text-transform: uppercase; 
+                                  color:#{asig.estadoSyllabus eq 'A' and asig.aprobadoPor ne null ?'limegreen':
+                                           asig.estadoSyllabus eq 'P' and asig.estadoEnvio eq 'P' ? asig.observacionCoordinador ne null ?'red':
+                                           'blue':asig.estadoSyllabus eq null and asig.estadoEnvio eq null? 'blue':'blue'};
+                                  font-weight:#{asig.estadoEnvio eq 'P' or asig.estadoEnvio eq null ?'normal':'bold'}"/>                      
+                    <!--h:outputText value="#{asig.estadoSyllabus eq 'A'?'Aprobado': asig.estadoEnvio eq 'P'?'No enviado al coord.':'No registrado'}" 
+                                  style="color:#{asig.estadoSyllabus eq 'A'?'limegreen':'red'};
+                                  font-weight: #{asig.estadoSyllabus eq 'A'?'bold':'normal'};text-transform: uppercase"/-->  
+                </p:column>                 
+                <p:column headerText="PDF Sílabo"  style="text-align: center"  width="4%">  
+                    <p:commandButton id="selectButton"  icon="ui-icon-search" title="Ver Sílabo"  update="@form :pdfDialog"
+                                     style="visibility: #{asig.estadoSyllabus eq 'A'? 'visible' :'hidden'}" 
+                                     action="#{silaboBean.imprimirButton_processAction(ae)}" 
+                                     onstart="widgetSilabo.selectRow(#{rowIndex});" oncomplete="pdfWidget.show();">  
+                        <f:setPropertyActionListener value="#{asig}" target="#{silaboBean.asignaturaSelected}" />  
+                    </p:commandButton>
+                </p:column>      
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

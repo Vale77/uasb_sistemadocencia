@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{autoridadBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .estiloPanelelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 9pt;border-color: transparent}
+            .autoridadTable{ width: 800px;}
+            .ui-icon.ui-icon-pencil {background-image: url("#{resource['images/Edit.png']}") !important;  background-repeat:inherit;}
+        </style>
+        <h:form id="formAutoridad">
+            <p:dataTable id="dataAutoridad" var="auto" value="#{autoridadBean.autoridades}" widgetVar="datatableAutoridadWidget"
+                         rowKey="#{auto.autCodigo}"  sortBy="#{autoridad.autNombres}" 
+                         rowIndexVar="rowIndex" styleClass="evalFormStyle autoridadTable" >
+                <p:ajax event="rowSelect" />                      
+                <p:ajax event="rowUnselect"  />        
+                <p:column headerText="Código"  width="4%" style="text-align: center" >   
+                    #{auto.autCodigo}
+                </p:column>                  
+                <p:column headerText="Cargo"  width="30%" >   
+                    <h:outputText value="#{auto.cargos.carNombre}" style="color: blue"/>
+                </p:column> 
+                <p:column headerText="Apelativo"  width="3%" >   
+                    <h:outputText value="#{auto.autApelativo}" />
+                </p:column>                    
+                <p:column headerText="Nombres y Apellidos para documentos legales"  width="56%" >   
+                    <h:outputText value="#{auto.autNombres}" />
+                </p:column>    
+                <p:column  style="text-align: center" width="7%">
+                    <f:facet name="header">
+                        <p:commandLink value="Añadir" title="Añadir una autoridad"  style="color:blue;" 
+                                       immediate="true" partialSubmit="true" actionListener="#{autoridadBean.nuevoButton_processAction}"
+                                       onstart="datatableAutoridadWidget.unselectAllRows()"  oncomplete="mantWidget.show();" 
+                                       update=":mantDialog :formAutoridad:dataAutoridad"  />
+                    </f:facet>                   
+                    <div align="center">
+                        <p:commandLink value="Editar" title="Editar registro"   styleClass="ui-icon ui-icon-pencil" 
+                                       action="#{autoridadBean.editarButton_processAction(ae)}" style="color:blue;"
+                                       onstart="datatableAutoridadWidget.unselectAllRows();datatableAutoridadWidget.selectRow(#{rowIndex});"  
+                                       oncomplete="mantWidget.show();" update=":mantDialog">
+                            <f:setPropertyActionListener value="#{auto}" target="#{autoridadBean.autoridadSelected}" />  
+                        </p:commandLink>  
+                    </div>
+                </p:column>  
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

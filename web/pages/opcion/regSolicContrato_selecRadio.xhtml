@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+    <style>
+        .ui-datatable-viaticos .ui-datatable-empty-message{font-size: 8pt}
+        .ui-datatable.ui-datatable-viaticos {font-size: 7pt;}
+        .ui-datatable-viaticos .ui-datatable-header {padding: 2px 5px;}
+        .ui-datatable-viaticos .ui-datatable-footer {padding: 2px 5px;}
+        .concepto{ color:blue;font-weight: bold;}
+        .headerViatico {border-style: hidden;}
+        .headerViatico tbody td {border-color: transparent;padding: 0px;}
+        .colHeadViatico1{width: 70%;text-align: left;}
+        .colHeadViatico2{width: 30%;text-align: right;}
+        .colFooterViatico1{width: 72%;text-align: right;}
+        .colFooterViatico2{width: 10%;}
+        .colFooterViatico3{width: 17%;text-align: left;}
+        .colViatico1{width: 60px;} .colViatico2{width: 35px;} .colViatico3{width: 700px;}
+        .colUnoSolic{width: 125px;}
+        .calendarioFin .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .cantidad-disabled .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;}
+        .colorCounter{color: brown;font-weight: bold;font-size: 8pt}
+        .ui-separator.ui-state-default{border-color: brown}
+        .ui-dialog .ui-dialog-buttonpane{text-align: center;margin: 0 0;background-color: #F5F5DC;}
+        .ui-dialog .ui-dialog-titlebar{color: brown;}
+        .ui-confirm-dialog .ui-dialog-content p span { background-image: url("#{resource['primefaces:editor/images/toolbar.gif']}") no-repeat}
+        .ui-radiobutton{margin: 0}
+    </style>
+
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 815px;"  >
+        <h:panelGrid columns="7" columnClasses=",,,,colViatico1,colViatico2,colViatico3" width="800px"   cellpadding="0" cellspacing="0">
+            <p:remoteCommand name="refreshHeader" update=":formMant:viaticos:headerViaticos"/>
+            <p:remoteCommand name="refreshFooter" update=":formMant:viaticos:footerViaticos"/>            
+            <p:remoteCommand name="refreshEditIniCon" update=":formMant:viaticos:headerViaticos :formMant:commandButtonGrabar"/>                         
+            <p:remoteCommand name="refreshEditCancelCon" update=":formMant:viaticos :formMant:commandButtonGrabar"  onstart="datatableViaticosWidget.unselectAllRows();"/>  
+            <p:outputLabel  id="outputLabeViaticos" value="Viáticos:"  style="font-weight: bold;color: navy" for="selectBooleanCheckboxViaticos"/>
+            <p:selectBooleanCheckbox value="#{solicContratoBean.tieneViatico}" id="selectBooleanCheckboxViaticos">
+                <p:ajax oncomplete="refreshHeader();refreshFooter();refreshEditCancelCon();" listener="#{solicContratoBean.candelEditViaticosConcepto}"/>
+            </p:selectBooleanCheckbox>
+            <p:dataTable id="viaticos" var="vtico" value="#{solicContratoBean.viaticos}" editable="true" rowIndexVar="rowIndex" styleClass="ui-datatable-viaticos" 
+                         selection="#{solicContratoBean.viaticoSelected}" rowKey="#{vtico.fila}" scrollable="true" scrollHeight="75" 
+                         emptyMessage="#{solicContratoBean.tieneViatico ?'Viáticos no definidos. Añada algún concepto !':''}" widgetVar="datatableViaticosWidget">
+                <f:facet name="header">
+                    <h:panelGrid columns="2" id="headerViaticos"  styleClass="headerViatico" columnClasses="colHeadViatico1,colHeadViatico2">
+                        <p:message id="messageViaticos" for=":formMant:selectBooleanCheckboxViaticos" showSummary="true" showDetail="false" />  
+                        <p:commandLink value="Añadir concepto" disabled="#{!solicContratoBean.tieneViatico or solicContratoBean.disableAddViatico}" 
+                                       id="commandLinkNuevo" style="color:blue" update=":formMant:viaticos" immediate="true" partialSubmit="true"
+                                       actionListener="#{solicContratoBean.nuevoConceptoButton_processAction}"
+                                       />
+                    </h:panelGrid>
+                </f:facet>
+                <f:facet name="footer">
+                    <h:panelGrid columns="3" id="footerViaticos" styleClass="headerViatico" style="color: brown;" columnClasses="colFooterViatico1,colFooterViatico2,colFooterViatico3">
+                        <p:outputLabel value="TOTAL VIATICOS: "  style="visibility: #{solicContratoBean.tieneViatico ? 'visible':'hidden'}" /><p:spacer />
+                        <h:outputText id="outputTotal" value="#{solicContratoBean.totalViaticos}"  style="visibility: #{solicContratoBean.tieneViatico ? 'visible':'hidden'}" >
+                            <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                        </h:outputText>
+                    </h:panelGrid>
+                </f:facet>
+                <!--p:ajax event="rowSelectRadio" update=":formMant:viaticos :formMant:commandButtonGrabar"  listener="#{solicContratoBean.onRowSelectConcepto}"/>
+                <p:ajax event="rowEditInit" oncomplete="refreshEditIniCon();" listener="#{solicContratoBean.onRowEditInitConcepto}"/>
+                <p:ajax event="rowEdit" update=":formLogin:growlLogin" onstart="refreshEditIniCon();" listener="#{solicContratoBean.onRowEditConcepto}" partialSubmit="true"/>
+                <p:ajax event="rowEditCancel"  oncomplete="refreshEditCancelCon();" listener="#{solicContratoBean.onRowCancelConcepto}" /-->   
+                <!--p:ajax event="rowEditInit" oncomplete="unSelectRow2();" partialSubmit="true" immediate="true"/-->
+                <p:ajax event="rowEditInit"  oncomplete="unSelectRow();"/>
+                <p:ajax event="rowEdit" listener="#{solicContratoBean.onRowEditConcepto}"/>
+                <p:ajax event="rowEditCancel" listener="#{solicContratoBean.onRowCancelConcepto}" />
+                <!--p:column selectionMode="single" width="3%" disabledSelection="#{not empty solicContratoBean.viaticoSelected and solicContratoBean.viaticoSelected.fila eq vtico.fila}" /-->
+                <p:column  style="text-align: center" width="3%">
+                    <p:commandLink value="Eliminar" title="Eliminar registro" update=":formMant:viaticos" immediate="true" id="commandLinkElimCon" styleClass="ui-icon ui-icon-trash" 
+                                   partialSubmit="true" action="#{solicContratoBean.eliminarConceptoButton_processAction}" style="color:blue;"
+                                   onstart="datatableViaticosWidget.unselectAllRows();" oncomplete="refreshFooter();"
+                                   rendered="#{not empty solicContratoBean.viaticoSelected and solicContratoBean.viaticoSelected.fila eq vtico.fila}" 
+                                   disabled="#{solicContratoBean.disabledSalvar}">
+                        <f:setPropertyActionListener value="#{vtico}" target="#{solicContratoBean.viaticoSelected}" />  
+                    </p:commandLink>                    
+                </p:column>                     
+                <p:column headerText="Concepto"  style="text-align: left" width="51%">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText  style="text-transform: uppercase" 
+                                           value="#{vtico.honorariosPK.rubCodigo ne null ? solicContratoBean.rubrosViatic.get(solicContratoBean.rubrosViatic.indexOf(vtico.rubros)).rubDescripcion : null}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <h:selectOneMenu value="#{vtico.rubros.rubCodigo}" style="width:100%" 
+                                             required="true"  requiredMessage="Seleccione un concepto">
+                                <f:selectItem itemValue="" itemLabel="Seleccione un Concepto ..." noSelectionOption="true"  />  
+                                <f:selectItems value="#{solicContratoBean.rubrosViatic}" var="vt" itemLabel="#{vt.rubDescripcion}" itemValue="#{vt.rubCodigo}" />
+                                <!--p:ajax  update="inputMaskCan inputMaskVU outputTextVT"  oncomplete="refreshFooter();" listener="#{solicContratoBean.changeConcepto(vtico)}"/-->
+                            </h:selectOneMenu>                        
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <!--p:column headerText="Nro. Días" style="text-align: center" width="12%">
+                    <p:cellEditor>
+                        <f:facet name="output">#{vtico.honCantidad}</f:facet>
+                        <f:facet name="input">
+                            <pe:inputNumber id="inputMaskCan" value="#{vtico.honCantidad}"  style="width: 25px;text-align: center" required="true"   label="Nro de días" 
+                                            disabled="#{vtico.rubros.rubCodigo eq null}"  autocomplete="off" decimalPlaces="0" 
+                                            requiredMessage="Ingrese los días de #{vtico.rubros.rubCodigo ne null?solicContratoBean.rubrosViatic.get(solicContratoBean.rubrosViatic.indexOf(vtico.rubros)).rubDescripcion : null}"
+                                            onclick="document.getElementById('formMant:viaticos:' +#{rowIndex} + ':inputMaskCan_input').select();"
+                                            validatorMessage="Los días permitidos estan entre 1 y 120">  
+                                <f:validateLongRange minimum="1" maximum="120"/>  
+                                <p:ajax event="keyup" update="outputTextVT"  oncomplete="refreshFooter();" listener="#{solicContratoBean.sumViaticos}"/>  
+                            </pe:inputNumber>                             
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Valor Unit." style="text-align: center" width="12%" >
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{vtico.honValor}">
+                                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                            </h:outputText>
+                        </f:facet>
+                        <f:facet name="input">
+                            <pe:inputNumber id="inputMaskVU" style="width: 70px;text-align: center" required="true"   label="Valor unitario"
+                                            requiredMessage="Ingrese el Valor Unit. de #{vtico.rubros.rubCodigo ne null?solicContratoBean.rubrosViatic.get(solicContratoBean.rubrosViatic.indexOf(vtico.rubros)).rubDescripcion : null}"
+                                            value="#{vtico.honValor}" symbol=" $ " symbolPosition="p"  decimalSeparator="," thousandSeparator="."
+                                            autocomplete="off" >  
+                                <p:ajax event="keyup" update="outputTextVT" oncomplete="refreshFooter();" listener="#{solicContratoBean.sumViaticos}"/>  
+                            </pe:inputNumber>                             
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Valor Total." style="text-align: right" width="12%">
+                    <h:outputText value="#{vtico.honCantidad*vtico.honValor}" id="outputTextVT" transient="true" style="padding-right: 10px;">
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>
+                </p:column-->            
+                <p:column  width="7%" >
+
+                    <p:rowEditor id="rowEdit" />
+
+<!--p:rowEditor id="rowEdit" rendered="#{ empty solicContratoBean.viaticoSelected or solicContratoBean.viaticoSelected.fila eq vtico.fila}"/-->
+                </p:column>   
+            </p:dataTable>
+        </h:panelGrid>
+    </p:panel>
+    <h:panelGroup>
+    <div align="right" style="margin-top: 1px;">
+        <p:commandButton  id="commandButtonGrabar" value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  
+                          disabled="#{solicContratoBean.disabledSalvar}"
+                          update=":formLogin:growlLogin @form :formMant:viaticos:messageViaticos"
+                          actionListener="#{solicContratoBean.guardarButton_processAction(ae)}" process="@form" />
+        <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" update=":confirmDialogGrabar formMant:panelMant"
+                          actionListener="#{solicContratoBean.cancelarButton_processAction(ae)}" onclick="mantWidget.hide();"/>
+    </div>
+    </h:panelGroup>
+
+</ui:composition>
+

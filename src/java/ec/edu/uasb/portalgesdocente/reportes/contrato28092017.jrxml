@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="contrato" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="120" bottomMargin="60" scriptletClass="ec.edu.uasb.strings.RotateTextScriptlet" uuid="4f14d64f-a958-42c3-8cdc-5842cbcef29e">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="nroSolic" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT TEXTOCOPIA, CONTRATO_DOCENTE.*,       PROFESOR.*,
+       V_GRUPO_ASIGNATURA_PROGRAMA.NOMBRE_PROGRAMA, V_GRUPO_ASIGNATURA_PROGRAMA.ARE_NOMBRE,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ID_ASSIGNATURA, V_GRUPO_ASIGNATURA_PROGRAMA.ASS_NOMBRE,
+       V_GRUPO_ASIGNATURA_PROGRAMA.GRP_NOMBRE,
+       V_GRUPO_ASIGNATURA_PROGRAMA.ACT_CODIGO, V_GRUPO_ASIGNATURA_PROGRAMA.ID_ACTIVIDAD,
+       V_GRUPO_ASIGNATURA_PROGRAMA.EJE_CODIGO, V_GRUPO_ASIGNATURA_PROGRAMA.ANIO,
+       substring(ID_ASSIGNATURA,1,2) INDENTIF, TITULO, UNIVERSIDAD_OBTENCION, PAIS_OBTENCION ,
+( SELECT count(*) FROM interfaseOcu.GESTIONDOCENTE.ESTADO_SOLIC_CONTRATO WHERE ESTADO_SOLIC_CONTRATO.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO and ESTADO_SOLIC_CONTRATO.STA_CODIGO = 'X') ESTADO_ANULADO,
+       (SELECT  R.RDO_DESCRIPCION FROM  interfaseOcu.GESTIONDOCENTE.ROL_DOCENTE R WHERE convert(varchar(1),R.RDO_CODIGO) = convert(varchar(1),CONTRATO_DOCENTE.RDO_CODIGO))  RDO_DESCRIPCION,
+       (SELECT FP.TFP_DESCRIPCION FROM  interfaseOcu.GESTIONDOCENTE.TIPOS_FORMA_PAGO FP WHERE FP.TFP_CODIGO = CONTRATO_DOCENTE.TFP_CODIGO) TFP_DESCRIPCION,
+(SELECT AUTORIDAD.AUT_NOMBRES +'<br/>'+ PARAMETROS.PRM_ETIQUETA_RECTOR FROM interfaseOcu.GESTIONADMIN.PARAMETROS PARAMETROS
+       INNER JOIN interfaseOcu.GESTIONADMIN.AUTORIDAD AUTORIDAD ON (PARAMETROS.PRM_COD_RECTOR = AUTORIDAD.AUT_CODIGO) WHERE PARAMETROS.PRM_CODIGO = 1) FIRMARECTOR,
+ (SELECT ' USD '+convert(varchar,h.HON_VALOR) +isnull(r.RUB_UNIMEDIDA,'')+' por concepto de '+ lower(r.RUB_DESCRIPCION) +' '+ (IIF(h.RUB_CODIGO = 13,'('+convert(varchar,convert(int,h.HON_CANTIDAD))+' días)',''))
+FROM interfaseOcu.GESTIONDOCENTE.HONORARIOS h,interfaseOcu.GESTIONDOCENTE.RUBROS r
+WHERE h.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO and h.RUB_CODIGO = r.RUB_CODIGO AND r.RUB_CATEGORIA = 'V' and r.RUB_CODIGO = 13) VIATICOS,
+ (SELECT sum(HON_CANTIDAD*HON_VALOR) FROM  interfaseOcu.GESTIONDOCENTE.RUBROS RUBROS
+	INNER JOIN interfaseOcu.GESTIONDOCENTE.HONORARIOS HONORARIOS ON RUBROS.RUB_CODIGO = HONORARIOS.RUB_CODIGO
+       WHERE RUBROS.RUB_CATEGORIA = 'V' and HONORARIOS.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO) TOTAL_VIATICOS,
+  (SELECT ' USD '+convert(varchar,h.HON_VALOR*h.HON_CANTIDAD) +' por '+ lower(r.RUB_DESCRIPCION)
+FROM interfaseOcu.GESTIONDOCENTE.HONORARIOS h,interfaseOcu.GESTIONDOCENTE.RUBROS r
+WHERE h.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO and h.RUB_CODIGO = r.RUB_CODIGO AND r.RUB_CATEGORIA = 'V' and r.RUB_CODIGO = 12) SUBSISTENCIAS,
+
+ (SELECT ' USD '+convert(varchar,h.HON_VALOR*h.HON_CANTIDAD) +' por '+ lower(r.RUB_DESCRIPCION)
+FROM interfaseOcu.GESTIONDOCENTE.HONORARIOS h,interfaseOcu.GESTIONDOCENTE.RUBROS r
+WHERE h.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO and h.RUB_CODIGO = r.RUB_CODIGO AND r.RUB_CATEGORIA = 'V' and r.RUB_CODIGO = 11) GASTOS,
+(SELECT ' USD '+convert(varchar,h.HON_VALOR) +' por '+ lower(r.RUB_DESCRIPCION)
+FROM interfaseOcu.GESTIONDOCENTE.HONORARIOS h,interfaseOcu.GESTIONDOCENTE.RUBROS r
+WHERE h.CDO_CODIGO =CONTRATO_DOCENTE.CDO_CODIGO and h.RUB_CODIGO = r.RUB_CODIGO AND r.RUB_CATEGORIA = 'V' and r.RUB_CODIGO = 10) ALOJAM_SV,
+(SELECT DV.DVI_TIPO_PASAJE+'@'+DV.DVI_RUTA_PASAJE FROM interfaseOcu.GESTIONDOCENTE.DATOS_VIAJERO DV  WHERE DV.CDO_CODIGO = CONTRATO_DOCENTE.CDO_CODIGO AND DV.DVI_TIPO_REGISTRO = 'P') RUTA
+  FROM ((interfaseOcu.GESTIONDOCENTE.CONTRATO_DOCENTE CONTRATO_DOCENTE
+         INNER JOIN interfaseOcu.dbo.V_GRUPO_ASIGNATURA_PROGRAMA V_GRUPO_ASIGNATURA_PROGRAMA
+            ON     (CONTRATO_DOCENTE.ASG_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.ASS_CODIGO)
+               AND (CONTRATO_DOCENTE.ARE_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.ARE_CODIGO) AND (CONTRATO_DOCENTE.PRG_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.PRG_CODIGO)
+               AND (CONTRATO_DOCENTE.PRL_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.GRP_CODIGO) AND (CONTRATO_DOCENTE.ASP_CODIGO = V_GRUPO_ASIGNATURA_PROGRAMA.ACT_CODIGO))
+        INNER JOIN interfaseOcu.dbo.PROFESOR PROFESOR ON (PROFESOR.CODIGO_PROFESOR = CONTRATO_DOCENTE.PRF_CODIGO))
+	LEFT OUTER JOIN interfaseOcu.GESTIONDOCENTE.V_TITULOS_DOCENTE ON (V_TITULOS_DOCENTE.PRS_CODNUM = PROFESOR.CODIGO_PROFESOR)
+CROSS JOIN (SELECT 'Contratado' as TEXTOCOPIA, 1 copiaNro UNION SELECT 'Jef-Pagos', 2  UNION SELECT 'Recursos Humanos', 4 UNION SELECT 'Procuraduría' , 4     ) COPIAS
+ WHERE CONTRATO_DOCENTE.CDO_ANIO_ACAD =  CONVERT (BIGINT, SUBSTRING (V_GRUPO_ASIGNATURA_PROGRAMA.ANIO, 1, 4))
+AND (CASE when CONTRATO_DOCENTE.CDO_NUMERO is null then  COPIAS.copiaNro else 1 END ) = (CASE when CONTRATO_DOCENTE.CDO_NUMERO is null then 1 else 1 END )
+AND CONTRATO_DOCENTE.CDO_CODIGO = $P{nroSolic}]]>
+	</queryString>
+	<field name="TEXTOCOPIA" class="java.lang.String"/>
+	<field name="CDO_CODIGO" class="java.lang.Long"/>
+	<field name="CDO_ANIO_ACAD" class="java.lang.Long"/>
+	<field name="RDO_CODIGO" class="java.lang.String"/>
+	<field name="PRF_CODIGO" class="java.lang.Long"/>
+	<field name="PRG_CODIGO" class="java.lang.Long"/>
+	<field name="ARE_CODIGO" class="java.lang.Long"/>
+	<field name="ASG_CODIGO" class="java.lang.Long"/>
+	<field name="PRL_CODIGO" class="java.lang.Long"/>
+	<field name="ASP_CODIGO" class="java.lang.Long"/>
+	<field name="STA_CODIGO" class="java.lang.String"/>
+	<field name="CDO_NUMERO" class="java.lang.String"/>
+	<field name="CDO_FECHA_GEN_CONTR" class="java.sql.Timestamp"/>
+	<field name="CDO_FECINI" class="java.sql.Timestamp"/>
+	<field name="CDO_FECFIN" class="java.sql.Timestamp"/>
+	<field name="CDO_MONTO" class="java.math.BigDecimal"/>
+	<field name="CDO_CANT_UNIDAD" class="java.lang.Integer"/>
+	<field name="TFP_CODIGO" class="java.lang.Integer"/>
+	<field name="CDO_DSCTO_USO_RESID" class="java.lang.String"/>
+	<field name="CDO_OBSERVACIONES" class="java.lang.String"/>
+	<field name="CDO_REVISADO_POR" class="java.lang.String"/>
+	<field name="CDO_TEXTO" class="java.sql.Clob"/>
+	<field name="CDO_USU_CREA" class="java.lang.Long"/>
+	<field name="CDO_FECHA_CREA" class="java.sql.Timestamp"/>
+	<field name="CDO_USU_MODIF" class="java.lang.Long"/>
+	<field name="CDO_FECHA_MODIF" class="java.sql.Timestamp"/>
+	<field name="CODIGO_PROFESOR" class="java.lang.Long"/>
+	<field name="CED_PAS_PROFESOR" class="java.lang.String"/>
+	<field name="NOMBRE_PROFESOR" class="java.lang.String"/>
+	<field name="APELLIDO_PROFESOR" class="java.lang.String"/>
+	<field name="EMAIL_PROFESOR" class="java.lang.String"/>
+	<field name="EMAILSEC_PROFESOR" class="java.lang.String"/>
+	<field name="NR_MEMO" class="java.lang.String"/>
+	<field name="NACIONALIDAD" class="java.lang.String"/>
+	<field name="DOMICILIO" class="java.lang.String"/>
+	<field name="TELEF_DOM" class="java.lang.String"/>
+	<field name="PAIS_DOM" class="java.lang.String"/>
+	<field name="CIUDAD_DOM" class="java.lang.String"/>
+	<field name="SEXPRS" class="java.lang.String"/>
+	<field name="TIPODOC" class="java.lang.String"/>
+	<field name="CTABANCO" class="java.lang.String"/>
+	<field name="TIPOCTA" class="java.lang.String"/>
+	<field name="NOMBANCO" class="java.lang.String"/>
+	<field name="RUC" class="java.lang.String"/>
+	<field name="ASISTENTE_ACAD" class="java.math.BigDecimal"/>
+	<field name="NOMBRE_PROGRAMA" class="java.lang.String"/>
+	<field name="ARE_NOMBRE" class="java.lang.String"/>
+	<field name="ID_ASSIGNATURA" class="java.lang.String"/>
+	<field name="ASS_NOMBRE" class="java.lang.String"/>
+	<field name="GRP_NOMBRE" class="java.lang.String"/>
+	<field name="ACT_CODIGO" class="java.lang.Long"/>
+	<field name="ID_ACTIVIDAD" class="java.lang.String"/>
+	<field name="EJE_CODIGO" class="java.math.BigDecimal"/>
+	<field name="ANIO" class="java.lang.String"/>
+	<field name="INDENTIF" class="java.lang.String"/>
+	<field name="TITULO" class="java.lang.String"/>
+	<field name="UNIVERSIDAD_OBTENCION" class="java.lang.String"/>
+	<field name="PAIS_OBTENCION" class="java.lang.String"/>
+	<field name="ESTADO_ANULADO" class="java.lang.Integer"/>
+	<field name="RDO_DESCRIPCION" class="java.lang.String"/>
+	<field name="TFP_DESCRIPCION" class="java.lang.String"/>
+	<field name="FIRMARECTOR" class="java.lang.String"/>
+	<field name="VIATICOS" class="java.lang.String"/>
+	<field name="TOTAL_VIATICOS" class="java.math.BigDecimal"/>
+	<field name="SUBSISTENCIAS" class="java.lang.String"/>
+	<field name="GASTOS" class="java.lang.String"/>
+	<field name="ALOJAM_SV" class="java.lang.String"/>
+	<field name="RUTA" class="java.lang.String"/>
+	<variable name="funcionCoordinador" class="java.lang.String">
+		<variableExpression><![CDATA["trabajara por "+$F{CDO_CANT_UNIDAD} +" meses como "+$F{RDO_DESCRIPCION}+", entre el "+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECINI})+ " y el "+
+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECFIN})]]></variableExpression>
+	</variable>
+	<variable name="funcionDocente" class="java.lang.String">
+		<variableExpression><![CDATA[$F{CDO_CANT_UNIDAD}.toString().concat(" clases de docencia sobre: ").concat($F{ASS_NOMBRE}+" - ").concat($F{GRP_NOMBRE}).toUpperCase().concat(
+$F{CDO_FECINI}.getTime().equals($F{CDO_FECFIN}.getTime()) ? ", el " +new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECINI}):
+", entre el ".concat(
+$F{CDO_FECINI}.getMonth().toString().concat($F{CDO_FECINI}.getYear().toString()).equals($F{CDO_FECFIN}.getMonth().toString().concat($F{CDO_FECFIN}.getYear().toString()))?
+new SimpleDateFormat("dd").format($F{CDO_FECINI})+" y el "+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECFIN}):
+$F{CDO_FECINI}.getYear().equals($F{CDO_FECFIN}.getYear()) ?
+new SimpleDateFormat("dd 'de' MMMM ").format($F{CDO_FECINI})+" y el "+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECFIN}):
+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECINI})+" y el "+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECFIN})
+)
+)]]></variableExpression>
+	</variable>
+	<variable name="varViaticos" class="java.lang.String">
+		<variableExpression><![CDATA[$F{VIATICOS}.equals(null)?"":
+(", "+$F{VIATICOS}+($F{CDO_DSCTO_USO_RESID}.equals("S")?"; de este valor se descontará el costo por uso de residencia":""))
+.concat($F{SUBSISTENCIAS}.equals(null)?" ":", "+$F{SUBSISTENCIAS})
+.concat($F{GASTOS}.equals(null)?" ":" y "+$F{GASTOS}.concat(", este último cubre gastos tales como tasas e impuestos de aeropuerto, taxis y otros; "))
+.concat($V{varPasajeInter}?"la Universidad no se obliga a cubrir los gastos por concepto de comisiones o impuestos por cobros de cheques que se causen en el extranjero. ":"")]]></variableExpression>
+	</variable>
+	<variable name="varRuta" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA[$F{RUTA}.equals(null)?"":
+"<br/><br/>La Universidad correrá con los gastos de viaje vía aérea: "
+.concat($F{RUTA}.substring($F{RUTA}.indexOf("@")+1))
+.concat(" clase económica. Cualquier costo adicional será sufragado por ")
+.concat(($F{SEXPRS}.equals("H")? "el ":"la ")).concat(" docente.")]]></variableExpression>
+	</variable>
+	<variable name="varConvenio" class="java.lang.String">
+		<variableExpression><![CDATA[(!$F{PAIS_DOM}.equals("ECUADOR")?"<br/><br/>"
+.concat("Conforme al Convenio de Privilegios e Inmunidades suscrito con el gobierno del Ecuador, Capítulo II, funcionarios, Art. 7, literal a")
+.concat(")").concat(" los funcionarios internacionales que no sean ecuatorianos: '")
+.concat("Estarán exentos de impuestos sobre los sueldos y emolumentos percibidos de la Universidad Andina Simón Bolívar'."):"")]]></variableExpression>
+	</variable>
+	<variable name="tercera" class="java.lang.String">
+		<variableExpression><![CDATA[$F{CDO_FECHA_GEN_CONTR}.equals(null)?
+"<span style='font-weight:bold;'>".concat("TERCERA.- ").concat("</span>").concat("Los servicios se prestarán sin relación de dependencia. Las partes fijan su domicilio en la ciudad de Quito y se someten al arbitraje del Tribunal Andino de Justicia.")
+:($F{CDO_FECHA_GEN_CONTR}.compareTo($F{CDO_FECFIN}) <= new Integer("0")?
+"<span style='font-weight:bold;'>".concat("TERCERA.- ").concat("</span>").concat("Los servicios se prestarán sin relación de dependencia. Las partes fijan su domicilio en la ciudad de Quito y se someten al arbitraje del Tribunal Andino de Justicia.")
+:"Las partes fijan su domicilio en la ciudad de Quito y se someten al arbitraje del Tribunal Andino de Justicia.")]]></variableExpression>
+	</variable>
+	<variable name="varConstancia" class="java.lang.String">
+		<variableExpression><![CDATA["Para constancia, firman en cuatro ejemplares en Quito, "
+.concat(!$F{CDO_FECHA_GEN_CONTR}.equals(null)? new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{CDO_FECHA_GEN_CONTR}):"SIN FECHA (Contrato borrador)")]]></variableExpression>
+	</variable>
+	<variable name="firmaRector" class="java.lang.String">
+		<variableExpression><![CDATA[$F{FIRMARECTOR}+
+"<br/>Universidad Andina Simón Bolívar "+
+"<br/>Sede Ecuador"]]></variableExpression>
+	</variable>
+	<variable name="firmaDocente" class="java.lang.String">
+		<variableExpression><![CDATA[$F{NOMBRE_PROFESOR}+" "+$F{APELLIDO_PROFESOR}+"<br/>Docente"]]></variableExpression>
+	</variable>
+	<variable name="varDomicilio" class="java.lang.String">
+		<variableExpression><![CDATA[($F{DOMICILIO}.equals(null) ? " NO REGISTRA DOMICILIO" : $F{DOMICILIO})
+.concat(($F{TELEF_DOM}.equals(null)?" NO REGISTRA TELEFONO":", teléfono: "+$F{TELEF_DOM}+", "))
+.concat($F{CIUDAD_DOM}.equals(null)?"":$F{CIUDAD_DOM}+" "+($F{PAIS_DOM}.equals(null)?"":" "+$F{PAIS_DOM}))]]></variableExpression>
+	</variable>
+	<variable name="varCtaBanco" class="java.lang.String">
+		<variableExpression><![CDATA[($F{TIPODOC}.equals("C")?
+    ($F{CTABANCO}.equals(null)?"":"<br/><br/>El valor acordado será pagado mediante transferencia bancaria a la cuenta N° "+$F{CTABANCO}+" del "+$F{NOMBANCO}+"."):"")]]></variableExpression>
+	</variable>
+	<variable name="primera" class="java.lang.String">
+		<variableExpression><![CDATA["<span style='font-weight:bold;'>".concat("PRIMERA.- ").concat("</span>")
+.concat($F{CDO_FECHA_GEN_CONTR}.equals(null)? ($F{SEXPRS}.equals("M")? "La ":"El ")+"docente, dictará ":
+($F{CDO_FECHA_GEN_CONTR}.compareTo($F{CDO_FECFIN}) <= new Integer("0")?($F{SEXPRS}.equals("M")? "La ":"El ")+"docente, dictará " :
+ "La Universidad y el docente celebraron un contrato de servicios docentes que no llegó a reducirse a escrito, en virtud del cual "+($F{SEXPRS}.equals("M")? "ésta última":"éste último") + " dictó "))
+.concat(($F{RDO_CODIGO}.equals("D")? $V{funcionDocente}: $V{funcionCoordinador}))
+.concat("; "+$F{NOMBRE_PROGRAMA})
+.concat("; año académico "+$F{ANIO})
+.concat(((!$F{CDO_FECHA_GEN_CONTR}.equals(null) && $F{CDO_FECHA_GEN_CONTR}.compareTo($F{CDO_FECFIN}) > new Integer("0"))? "":
+", proporcionará material de lectura para los cursantes y presentará el respectivo informe."))]]></variableExpression>
+	</variable>
+	<variable name="segunda" class="java.lang.String">
+		<variableExpression><![CDATA["<span style='font-weight:bold;'>".concat("SEGUNDA.- ").concat("</span>")
+.concat((!$F{CDO_FECHA_GEN_CONTR}.equals(null) && $F{CDO_FECHA_GEN_CONTR}.compareTo($F{CDO_FECFIN}) > new Integer("0"))?
+"Por haberse cumplido a satisfacción de la Universidad, ésta pagará ":
+"Por este servicio la Universidad pagará ")
+.concat(($F{SEXPRS}.equals("H")? "al ":"a la ")).concat("docente ")
+.concat("USD "+new java.text.DecimalFormat("#,##0.00").format($F{CDO_MONTO}.divide(new BigDecimal($F{CDO_CANT_UNIDAD}))))
+.concat($F{RDO_CODIGO}.equals("D")?" por clase dictada.":" por mes.")
+.concat($F{VIATICOS}.equals(null)?"":$V{varViaticos}.concat($V{varValorAPagar}))
+.concat($V{varRenta}.concat($V{varTipoFormaPago}))
+.concat($V{varRuta})
+.concat($V{varConvenio})
+.concat($V{varConvenioInter})
+.concat($V{varCtaBanco})]]></variableExpression>
+	</variable>
+	<variable name="esConstancia" class="java.lang.Boolean">
+		<variableExpression><![CDATA[$F{CDO_FECHA_GEN_CONTR}.equals(null)? false: ($F{CDO_FECHA_GEN_CONTR}.compareTo($F{CDO_FECFIN}) <= new Integer("0")? false : true)]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="varConvenioInter" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA[($V{varPasajeNac}.equals(false) && $V{varPasajeInter}.equals(false)?
+(!$F{PAIS_DOM}.equals("ECUADOR")?""
+.concat("Conforme al Convenio de Privilegios e Inmunidades suscrito con el gobierno del Ecuador, Capítulo II, funcionarios, Art. 7, literal a")
+.concat(")").concat(" los funcionarios internacionales que no sean ecuatorianos: '")
+.concat("Estarán exentos de impuestos sobre los sueldos y emolumentos percibidos de la Universidad Andina Simón Bolívar'."):""):"")]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="varPasajeNac" class="java.lang.Boolean" resetType="None">
+		<variableExpression><![CDATA[($F{RUTA}.equals(null)? false:($F{RUTA}.substring(0, $F{RUTA}.indexOf("@"))).equals("N"))]]></variableExpression>
+	</variable>
+	<variable name="varPasajeInter" class="java.lang.Boolean" resetType="None">
+		<variableExpression><![CDATA[($F{RUTA}.equals(null)? false:($F{RUTA}.substring(0, $F{RUTA}.indexOf("@"))).equals("I"))]]></variableExpression>
+	</variable>
+	<variable name="varRenta" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA[$F{PAIS_DOM}.equals("ECUADOR")?
+", menos la retención en la fuente de conformidad con las disposiciones legales y reglamentarias pertinentes. ":" "]]></variableExpression>
+	</variable>
+	<variable name="varTipoFormaPago" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA["Este valor se cancelará "
+.concat($F{CDO_FECHA_GEN_CONTR}.equals(null)? $F{TFP_DESCRIPCION}+".":
+($F{CDO_FECHA_GEN_CONTR}.compareTo($F{CDO_FECFIN}) <= new Integer("0")? $F{TFP_DESCRIPCION}+"." :" una vez instrumentada esta constancia y contra entrega de notas y/o informes."))]]></variableExpression>
+	</variable>
+	<variable name="varValorAPagar" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA[" El valor a pagar se cancelará de la siguiente manera: "
+.concat($F{GASTOS}.equals(null)?"":"gastos de viaje y ")
+.concat(" viáticos a la firma de contrato y honorarios por clase al final del curso.")]]></variableExpression>
+	</variable>
+	<group name="copia" isStartNewPage="true" isResetPageNumber="true">
+		<groupExpression><![CDATA[$F{TEXTOCOPIA}]]></groupExpression>
+		<groupHeader>
+			<band height="50">
+				<textField isStretchWithOverflow="true">
+					<reportElement mode="Transparent" x="49" y="31" width="453" height="12" forecolor="#000000" backcolor="#FFFFFF" uuid="7ffd134a-776b-4155-af16-db84101f6fd5"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Comic Sans MS" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA["N°: " + ($F{CDO_NUMERO}.equals(null)?"SIN NUMERO":$F{CDO_NUMERO}+"-"+$F{INDENTIF} +"-" +  (1900+$F{CDO_FECHA_GEN_CONTR}.getYear()))]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="49" y="0" width="453" height="17" uuid="8e908cc8-a0c9-4236-9511-165236318be2"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Comic Sans MS" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<text><![CDATA[CONTRATO DE SERVICIOS DOCENTES]]></text>
+				</staticText>
+				<textField evaluationTime="Report" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="49" y="16" width="453" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="bff640ed-54c3-4e1f-bc00-86f3fe83d925"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="Comic Sans MS" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{esConstancia}.equals(true)?"CONSTANCIA":""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="83">
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="39" y="69" width="144" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="28e244c0-0f1c-46de-a64d-842f540203f4"/>
+					<textElement verticalAlignment="Top" rotation="None" markup="html">
+						<font fontName="Comic Sans MS" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{firmaRector}+"<BR/><BR/>"+$F{CDO_REVISADO_POR}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="299" y="69" width="241" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="26c8b0db-8f1e-41df-a63f-0d610e44c156"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="html">
+						<font fontName="Comic Sans MS" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{firmaDocente}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="500">
+			<image scaleImage="FillFrame">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="67" y="6" width="395" height="485" forecolor="#000000" uuid="912dd655-f3bf-40f8-a84f-ef168cec54f0">
+					<printWhenExpression><![CDATA[!$F{ESTADO_ANULADO}.equals(new Integer("0"))]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{REPORT_SCRIPTLET}.rotateText("ANULADO",new java.awt.Font("Sans Serif",1,100),800, 400, 315, new java.awt.Color(192,192,192))]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<detail>
+		<band height="42" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="39" y="27" width="485" height="13" forecolor="#000000" backcolor="#FFFFFF" uuid="7bb23683-eb10-4f52-93e0-fa5d1fcc727f"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top" rotation="None" markup="html">
+					<font fontName="Comic Sans MS" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["La Universidad Andina Simón Bolívar, Sede Ecuador y ".concat($F{NOMBRE_PROFESOR}).concat(" ").concat($F{APELLIDO_PROFESOR}).concat(", ").concat($F{TITULO})
+.concat(", ").concat($F{SEXPRS}.equals("M")? "graduada ":"graduado ").concat(" en la ").concat($F{UNIVERSIDAD_OBTENCION}.equals(null)? " NO REGISTRA ":$F{UNIVERSIDAD_OBTENCION})
+.concat(", ").concat($F{PAIS_OBTENCION}).concat(", RUC/Pasaporte:  ").concat($F{CED_PAS_PROFESOR})
+.concat(", domicilio ").concat($V{varDomicilio})
+.concat($V{esConstancia}.equals(true)?", dejan constancia de":", acuerdan lo siguiente").concat(":<br/><br/>")
+.concat($V{primera}).concat("<br/><br/>")
+.concat($V{segunda}).concat("<br/><br/>")
+.concat($V{tercera}).concat("<br/><br/><br/>")
+.concat($V{varConstancia})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="22" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="357" y="1" width="183" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="3a2fff8c-f713-4c88-b834-798f4aa34935"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="Franklin Gothic Heavy" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TEXTOCOPIA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

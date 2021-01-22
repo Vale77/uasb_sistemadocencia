@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core"
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{revisImprBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;}
+            .estiloPanelelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 9pt;border-color: transparent;text-transform: uppercase}
+            .estiloSelectOneMenu {font-size: 9pt;text-transform: uppercase;}
+            .ui-icon.ui-icon-pencil {background-image: url("#{resource['images/User-Ok.png']}") !important;  background-repeat:inherit;}
+            .ui-state-default .ui-icon-refrescar {background-image: url("#{resource['/images/refresh.png'] }");background-size: 18px 18px;}
+        </style>
+        <h:form id="formSolic">
+            <h:panelGrid id="pnlRango" columns="2" cellpadding="5" cellspacing="0">
+                <p:selectOneRadio id="hola" value="#{revisImprBean.tipoListado}" style="font-weight: bold;color: red" >
+                    <f:selectItem itemValue="O"  itemLabel="Docencia, Tutoría, Tesis, Monografía"/>
+                    <f:selectItem itemValue="I"  itemLabel="Becas de Investigación"/>
+                    <p:ajax event="click" update=":formSolic:dataContrato"  listener="#{revisImprBean.buscarButton_processAction}"
+                            oncomplete="widgetContrato.unselectAllRows();"/>   
+                </p:selectOneRadio>
+                <h:panelGrid columns="13" cellpadding="3" cellspacing="0">
+                    <p:outputLabel id="outputLabelDesde" value="Desde:" style="font-weight: bold;color: blue" for="inputTextDesde"/>
+                    <p:calendar id="inputTextDesde" value="#{revisImprBean.desde}" pattern="dd-MMMM-yyyy" 
+                                locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="16"  styleClass="calendario" 
+                                required="true" requiredMessage="Fecha Desde requerida" showOn="button" autocomplete="off"
+                                validator="#{revisImprBean.validateFechas}">
+                        <p:ajax event="dateSelect" update="pnlRango"  listener="#{revisImprBean.resetCampo('fecha')}"/>
+                    </p:calendar>
+                    <p:message for="inputTextDesde"  display="icon" />  
+                    <p:spacer width="10"/>
+                    <p:outputLabel id="outputLabelHasta" value="Hasta:" style="font-weight: bold;color: blue" for="inputTextHasta"/>
+                    <p:calendar id="inputTextHasta" value="#{revisImprBean.hasta}" pattern="dd-MMMM-yyyy" 
+                                locale="es" timeZone="America/Guayaquil" readonlyInput="true" size="16"  styleClass="calendario" 
+                                required="true" requiredMessage="Fecha Hasta requerida" showOn="button" autocomplete="off"
+                                validator="#{revisImprBean.validateFechas}">
+                        <f:attribute name="fechaInicio" value="#{revisImprBean.desde}" />
+                        <p:ajax event="dateSelect" update="pnlRango :formLogin:growlLogin"/>
+                    </p:calendar>
+                    <p:message for="inputTextHasta"   display="icon" />  
+                    <p:spacer width="10"/>
+                    <p:selectOneMenu id="selectOneSolic" value="#{revisImprBean.estado}"  styleClass="estiloSelectOneMenu"
+                                     panelStyleClass="estiloPanelelectOneMenu" style=" width: 175px;">  
+                        <f:selectItem itemValue="T"  itemLabel="Todas las solicitudes"/>
+                        <f:selectItem itemValue="X"  itemLabel="Anuladas"/>
+                        <f:selectItem itemValue="#{revisImprBean.estadoPerfil}"  itemLabel="Pendientes"/>
+                        <f:selectItem itemValue="#{revisImprBean.estadoAprob}"  itemLabel="Tramitadas"/>
+                        <p:ajax update=":formSolic:dataContrato"  listener="#{revisImprBean.buscarButton_processAction}" oncomplete="widgetContrato.unselectAllRows();"/>    
+                    </p:selectOneMenu>   
+                    <p:spacer width="10"/>
+                    <p:outputLabel  value="Nro:" style="font-weight: bold;color: blue" />
+                    <p:inputMask id ="inputTextSolic" value="#{revisImprBean.nroSolic}" mask="?99999" size="4"/>
+                    <p:commandButton value="Buscar" icon="ui-icon-refrescar" title="Buscar solicitudes" id="btnBuscar" disabled="#{revisImprBean.disabledBuscar}"
+                                     action="#{revisImprBean.buscarButton_processAction}" update=":formSolic:dataContrato :formSolic:inputTextSolic" 
+                                     oncomplete="widgetContrato.unselectAllRows();"/>
+                </h:panelGrid>   
+            </h:panelGrid>
+            <p:dataTable id="dataContrato" var="contratos" value="#{revisImprBean.contratosDocentes}" 
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle"  widgetVar="widgetContrato"
+                         selection="#{revisImprBean.contratoSelected}" rowKey="#{contrato.fila}"  
+                         emptyMessage="No existen solicitudes #{revisImprBean.estado eq 'X'? 'Anuladas':
+                                                                revisImprBean.estado eq revisImprBean.estadoAprob ?'Tramitadas':
+                                                                revisImprBean.estado eq revisImprBean.estadoPerfil ?'Pendientes':''} en este período.">
+                <p:columnGroup type="header">  
+                    <p:row>  
+                        <p:column headerText="Nro." width="6%" />
+                        <p:column headerText="Programa"  width="19%" />  
+                        <p:column headerText="Nombres y Apellidos"  width="21%" />  
+                        <p:column headerText="Activ. Acad."  width="6%"/>  
+                        <p:column headerText="Solicitud"  width="9%"/>  
+                        <p:column headerText="Desde"  width="9%"/>      
+                        <p:column headerText="Hasta"  width="9%"/> 
+                        <p:column headerText="Monto"  width="8%"/> 
+                        <p:column headerText="Contratar"  width="3%"/>
+                        <p:column headerText="Nro. Contrato"  width="3%"/>
+                        <p:column headerText="Proceso"  width="7%"/>
+                    </p:row>  
+                </p:columnGroup>    
+                <p:subTable id="contratoTable" value="#{contratos.listaContratos}" var="contrato"  >
+                    <f:facet name="header">  
+                        <h:outputText value="#{contratos.area}" style="color: brown;font-size: 9pt;"/>
+                    </f:facet>    
+                    <!--p:column headerText="Ord." style="text-align: center;" >  
+                        <span style="font-weight: bold">#{contratos.listaContratos.indexOf(contrato)+1}</span>
+                    </p:column-->  
+                    <p:column headerText="Nro."  style="text-align: center" >  
+                        <span style="font-weight: bold">#{contrato.cdoCodigo}</span>
+                    </p:column>                      
+                    <p:column headerText="Programa" >   
+                        #{contrato.programaContrato} 
+                    </p:column>  
+                    <p:column headerText="Nombres y Apellidos" >   
+                        #{contrato.contratado.nombresApellidos}
+                    </p:column>    
+                    <p:column headerText="Activ. Acad." style="text-align: center" >   
+                        #{contrato.rolDocente.rdoDescripcion}
+                    </p:column>     
+                    <p:column headerText="Solicitud" style="text-align: center" >   
+                        <h:outputText value="#{contrato.cdoFechaCrea}" style="color: darkblue" >
+                            <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                        </h:outputText>                       
+                    </p:column>   
+                    <p:column headerText="Desde" style="text-align: center" >   
+                        <h:outputText value="#{contrato.cdoFecini}" >
+                            <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                        </h:outputText>                       
+                    </p:column>    
+                    <p:column headerText="Hasta" style="text-align: center" >   
+                        <h:outputText value="#{contrato.cdoFecfin}" >
+                            <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                        </h:outputText>                       
+                    </p:column>                      
+                    <p:column headerText="Monto" style="text-align: center" >   
+                        <h:outputText value="#{contrato.cdoMonto}" >
+                            <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                        </h:outputText>                    
+                    </p:column>                 
+                    <p:column headerText="Contratar"  style="text-align: center" >  
+                        <div align="center">
+                            <p:commandLink value="Contratar" title="Imprimir contrato" immediate="true"  styleClass="ui-icon ui-icon-pencil" 
+                                           partialSubmit="true" action="#{revisImprBean.editarButton_processAction}" style="color:blue;"
+                                           onstart="widgetContrato.unselectAllRows();"   oncomplete="mantWidget.show();"
+                                           update=":mantDialog" rendered="#{(contrato.estadoContrato eq 'R' or contrato.estadoContrato eq 'P') 
+                                                                            and not fn:containsIgnoreCase(sessionScope.perfiles,'SGENERAL')}">
+                                <f:setPropertyActionListener value="#{contrato}" target="#{revisImprBean.contratoSelected}" />  
+                            </p:commandLink>                
+                        </div>
+                    </p:column> 
+                    <p:column headerText="Nro. Contrato"  style="text-align: center" >
+                        #{contrato.cdoNumero} 
+                    </p:column>
+                    <p:column headerText="Proceso"  style="text-align: center" >
+                        <p:commandLink id="linkImpr" value="#{contrato.estadoContrato eq revisImprBean.estadoPerfil ? 'Pendiente':
+                                                              contrato.estadoContrato eq revisImprBean.estadoAprob ? contrato.siguienteProceso :
+                                                              contrato.estadoContrato eq 'X' ? 'Anulado': contrato.siguienteProceso }" 
+                                       style="font-weight:#{contrato.estadoContrato eq revisImprBean.estadoPerfil or contrato.estadoContrato eq 'X' ? 'bold':'normal'};
+                                       color:#{contrato.estadoContrato eq revisImprBean.estadoAprob ? 'green':contrato.estadoContrato eq revisImprBean.estadoPerfil or contrato.estadoContrato eq 'X' ? 'red':'blue'};"
+                                       immediate="true"   partialSubmit="true"  actionListener="#{verHistoricoBean.verButton_processAction}" 
+                                       onstart="widgetContrato.unselectAllRows();"  
+                                       oncomplete="mantWidget.show();"  update=":mantDialog" title="Ver histórico">
+                            <f:attribute value="#{contrato}" name="contrato" />  
+                        </p:commandLink>  
+                        <!--p:tooltip id="toolTipFade" for="proceso" rendered="#{contrato.estadoContrato eq 'X'}" transient="true" >
+                            <h:outputText value="#{contrato.estadoSolicContratoCollection.get(contrato.estadoSolicContratoCollection.size()-1).escFecha}">
+                                <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil" />
+                            </h:outputText>
+                            <br/>
+                            <h:outputText value="Motivo: #{contrato.estadoSolicContratoCollection.get(contrato.estadoSolicContratoCollection.size()-1).escObservacion}" escape="true" />
+                        </p:tooltip-->
+                    </p:column>                 
+                </p:subTable>
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <style>
+        .colUnoSolic{width: 115px;font-weight: bold;color: navy}
+        .colUnoFecha{width: 55px;font-weight: bold;color: navy}
+        .calendarioFin .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .cantidad-disabled .ui-inputfield{font-weight: bold;opacity: 0.7}
+        .calendario .ui-inputfield {font-size: 8pt;text-transform: uppercase;text-align: center;opacity: 1.0}
+        .colorCounter{color: brown;font-weight: bold;font-size: 8pt}
+        .ui-separator.ui-state-default{border-color: brown}
+        .ui-dialog .ui-dialog-buttonpane{text-align: center;margin: 0 0;background-color: #F5F5DC;}
+        .ui-dialog .ui-dialog-titlebar{color: brown;}
+        .ui-chkbox-boxReadOnly .ui-state-disabled{opacity: 1.0}
+        .colUnoRuta{font-weight: bold;color: navy;} .colDosRuta{width: 300px;}
+        .estiloPanelelectOneMenuAprob .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 9pt;border-color: transparent;text-transform: uppercase}
+        .estiloOneMenuAprob .ui-selectonemenu-label{font-size: 8pt;text-transform: uppercase;}
+    </style>
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 815px;"  >
+        <h:panelGrid id="pnlSolicFecha" columns="4" cellpadding="3" cellspacing="2" columnClasses="colUnoSolic">
+            <p:outputLabel  id="outputLabeFechaSolic" value="Fecha Solicitud: " />
+            <h:outputText value="#{aprobContrBean.contratoEdit.cdoFechaCrea}" style="text-transform: uppercase">
+                <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+            </h:outputText>
+            <p:outputLabel  id="outputLabeMonto" value="Monto Total: " style="padding-left: 375px" styleClass="colUnoSolic" />
+            <h:outputText id="outputTextMonto" style="font-weight: bold;color: brown;padding-left: 10px"
+                          value="#{aprobContrBean.contratoEdit.cdoMonto}">
+                <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+            </h:outputText>
+        </h:panelGrid>
+        <h:panelGrid id="pnlSolic" columns="6" cellpadding="3" cellspacing="2" width="100%" columnClasses="colUnoSolic,,colUnoSolic,,colUnoSolic">
+            <p:outputLabel  value="Activ. académica: "  />
+            <h:outputText value="#{aprobContrBean.contratoEdit.rolDocente.rdoDescripcion}" style="text-transform: uppercase"/>
+            <p:outputLabel  value="Proceso: "  />
+            <h:outputText value="#{aprobContrBean.contratoEdit.siguienteProceso}" style="font-weight: bold;text-transform: uppercase; color:red;"/>  
+            <p:outputLabel  value="Estado Solicititud: "  rendered="#{aprobContrBean.contratoEdit.estadoContrato eq aprobContrBean.estadoPerfil}"/>
+            <p:selectOneMenu value="#{aprobContrBean.esc.estadoSolicContratoPK.staCodigo}"  panelStyleClass="estiloPanelelectOneMenuAprob" styleClass="estiloOneMenuAprob"
+                             style="width: 150px;" rendered="#{aprobContrBean.contratoEdit.estadoContrato eq aprobContrBean.estadoPerfil}" >  
+                <f:selectItem itemValue=" " itemLabel="Seleccione opción..." noSelectionOption="true"/>                        
+                <f:selectItem itemValue="#{aprobContrBean.estadoAprob}"  
+                              itemLabel="#{fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO') ? 'Autorizado':'Revisado'}"/>
+                <!--f:selectItem itemValue="D"  itemLabel="Devolver" /-->
+                <f:selectItem itemValue="X"  itemLabel="Anular" itemDisabled="#{!fn:containsIgnoreCase(sessionScope.perfiles,'SECRECTO')}"/>                
+                <p:ajax update="commandButtonGrabar pnlDocente" />  
+            </p:selectOneMenu>             
+        </h:panelGrid>
+        <h:panelGrid id="pnlDocente" columns="2" cellpadding="3" cellspacing="2" width="100%" columnClasses="colUnoSolic">
+            <p:outputLabel  value="Investigador: " style=""/>
+            <h:outputText value="#{aprobContrBean.contratoEdit.contratado.nombresApellidos}"/>
+            <p:outputLabel value="Título investigación:" />
+            <h:outputText value="#{aprobContrBean.contratoEdit.tituloInvest}" style="font-weight: bold;color: brown"/>      
+            <p:outputLabel value="Tipo de fondo:" style="font-weight: bold;color: navy"/>
+            <h:outputText value="#{aprobContrBean.contratoEdit.categInvest}" style="font-weight: bold;color: brown"/>   
+            <p:outputLabel value="Dedicación:" style="font-weight: bold;color: navy"/>
+            <h:outputText value="Tiempo Parcial" style="font-weight: bold;color: brown"/>                
+        </h:panelGrid>       
+        <h:panelGrid  columns="2" cellpadding="3" cellspacing="2"  >
+            <p:outputLabel value="Investigación aprobada por el Comité de Investigaciones el:" style="font-weight: bold;color: navy"/>          
+            <h:outputText value="#{aprobContrBean.contratoEdit.fechaAprobInvest}" style="text-transform: uppercase">
+                <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+            </h:outputText>   
+
+        </h:panelGrid>
+        <h:panelGrid  columns="2" cellpadding="3" cellspacing="2" columnClasses="colUnoSolic" width="100%" >
+            <p:outputLabel/>
+            <h:panelGrid id="pnlRango" columns="4"  cellpadding="3" cellspacing="2" columnClasses="colUnoFecha,,colUnoFecha">
+                <p:outputLabel id="lblInicio" value="Inicio: " />
+                <h:outputText value="#{aprobContrBean.contratoEdit.cdoFecini}" style="text-transform: uppercase">
+                    <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>         
+                <p:outputLabel id="lblCierre" value="Fin: " style="padding-left:  25px;"/>
+                <h:outputText value="#{aprobContrBean.contratoEdit.cdoFecfin}" style="text-transform: uppercase">
+                    <f:convertDateTime pattern="dd-MMMM-yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                </h:outputText>                  
+            </h:panelGrid> 
+
+        </h:panelGrid>
+        <p:separator/>
+        <h:panelGrid id="pnlHonorarios" columns="2"  columnClasses="colUnoSolic" cellpadding="5" cellspacing="5" width="100%">
+            <p:outputLabel  id="outputLabeFPago" value="Forma de pago:"   />
+            <h:outputText value="#{aprobContrBean.contratoEdit.tiposFormaPago.tfpDescripcion}" />
+            <p:outputLabel  value="Observaciones:"  />
+            <h:outputText  value="#{aprobContrBean.contratoEdit.cdoObservaciones}" style="color:red"/>
+        </h:panelGrid>
+        <p:separator/>      
+    </p:panel>
+    <h:panelGroup>
+        <div align="right" style="margin-top: 5px;">
+            <p:commandButton  id="commandButtonGrabar" value="Guardar" icon="ui-icon-disk" title="Guardar datos ingresados"  
+                              disabled="#{aprobContrBean.esc eq null or aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq null 
+                                          or aprobContrBean.esc.estadoSolicContratoPK.staCodigo eq ' ' or (aprobContrBean.contratoEdit.estadoContrato ne aprobContrBean.estadoPerfil)}" 
+                              update=":formLogin:growlLogin @form" actionListener="#{aprobContrBean.guardarButton_processAction}" process="@form" />
+            <span style="padding-right: 10px;"/>
+            <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" update="formMant:panelMant"
+                              actionListener="#{aprobContrBean.cancelarButton_processAction(ae)}" onclick="mantWidget.hide();widgetContrato.unselectAllRows();"/>
+        </div>
+    </h:panelGroup>
+
+</ui:composition>
+

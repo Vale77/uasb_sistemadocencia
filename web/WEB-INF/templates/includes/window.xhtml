@@ -1,0 +1,18 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui">
+
+    <!--p:ajaxStatus >
+        <f:facet name="start">
+                   <p:graphicImage library="images" name="loading.gif" height="44" width="44"
+                        style="position: absolute;left: 50%; top: 50%;"/>
+        </f:facet>
+        <f:facet name="complete">
+            <h:outputText value="" />
+        </f:facet>
+    </p:ajaxStatus-->
+    <p:ajaxStatus onstart="statusDialog.show();" onsuccess="statusDialog.hide();"/>
+
+    <ui:insert name="page-content"/>
+
+</ui:composition>

@@ -1,0 +1,13 @@
+/* 
+    Document   : navigator
+    Created on : 12/04/2013, 12:52:43 PM
+    Author     : victor.barba
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.iconPermiso {
+   background: url('../../resources/images/cocktail.png') no-repeat !important;
+   /** To prevent radius settings from ui-icon class that has circle cutout. Aristo theme has rounded corners on all icons **/
+border-radius: 0px !important;
+}

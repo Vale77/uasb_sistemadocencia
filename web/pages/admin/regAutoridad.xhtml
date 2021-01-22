@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core" xmlns:pe="http://primefaces.org/ui/extensions" 
+                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <style>
+        .colUno{width: 150px;}
+        .colDos{width: 350px;}
+        .colTres{width: 50px;}
+        .estiloSelectOneCargo .ui-selectonemenu-label{font-size: 10pt;font-weight: bold;color: brown}
+        .estiloSelectOneCargoNull.ui-state-disabled {opacity: 1 ;border:none;}
+        .estiloSelectOneCargoNull.ui-state-disabled .ui-inputfield{background-color: #F5F5DC;box-shadow: none;padding: 0px 0px;}  
+        .estiloSelectOneCargoNull.ui-state-disabled .ui-state-default{visibility: hidden; width: 0px;border: none}
+        .estiloSelectOneCargo.ui-state-disabled {opacity: 1 ;border:none;}
+        .estiloSelectOneCargo.ui-state-disabled .ui-inputfield{background-color: #F5F5DC;box-shadow: none;padding: 0px 0px;}
+        .estiloSelectOneCargo.ui-state-disabled .ui-state-default{visibility: hidden; width: 0px;border: none}   
+        .estiloPanelelectOneMenu .ui-selectonemenu-filter{text-transform: uppercase;width: 165%;font-size: 8pt;}
+        .estiloPanelelectOneMenu .ui-selectonemenu-filter-container .ui-icon{right: -100px;}
+    </style>
+    <p:panel id="panelMant"  style="border-width: thin;background-color: transparent;width: 700px;"  >
+        <h:panelGrid cellspacing="7" style="font-size: 9pt;width:100%" columns="3" columnClasses="colUno,colDos,colTres">
+            <p:outputLabel value="Cargo:" style="font-weight: bold;color: blue" for="selectOneMenuCargos"/>
+            <p:selectOneMenu id="selectOneMenuCargos" value="#{autoridadBean.autoridadEdit.cargos.carCodigo}"
+                             panelStyleClass="estiloPanelelectOneMenu" 
+                             styleClass="#{autoridadBean.autoridadEdit.autCodigo eq null ?'estiloSelectOneCargoNull':'estiloSelectOneCargo'}"
+                             required="true"  requiredMessage="Seleccione un cargo" 
+                             disabled="#{autoridadBean.autoridadEdit.autCodigo ne null}">
+                <f:selectItem itemValue="" itemLabel="Seleccione un cargo..." noSelectionOption="false" />   
+                <f:selectItems value="#{autoridadBean.listaCargos}"  var="cargo" itemValue="#{cargo.carCodigo}"
+                               itemLabel="#{cargo.carNombre}" itemDescription="#{cargo.carNombre}"/>
+            </p:selectOneMenu>   
+            <p:outputLabel />
+            <p:outputLabel value="Funcionario:" style="font-weight: bold;color: blue" for="inputTextPersonal"/>
+            <p:selectOneMenu id="inputTextPersonal"  value="#{autoridadBean.autoridadEdit.autCodPersonal}"
+                             panelStyleClass="estiloPanelelectOneMenu" filter="true">
+                <f:selectItem itemValue="#{null}" itemLabel="Seleccione un funcionario ..." noSelectionOption="true" /> 
+                <f:selectItems value="#{autoridadBean.listaPersonal}" var="personal" itemValue="#{personal.codNum}" itemLabel="#{personal.apellidos} #{personal.nombres} "/>
+                <p:ajax update="inputTextNombres" listener="#{autoridadBean.asignarNombres}"/> 
+            </p:selectOneMenu>
+            <p:outputLabel />
+            <p:outputLabel value="Apelativo:" style="font-weight: bold;color: blue" for="selectOneMenuApel"/>
+            <p:selectOneMenu id="selectOneMenuApel" value="#{autoridadBean.autoridadEdit.autApelativo}" panelStyleClass="estiloPanelelectOneMenu" 
+                             style="font-size: 8pt;" >
+                <f:selectItem itemValue="" itemLabel="..." noSelectionOption="true" />                        
+                <f:selectItem itemValue="Dr."  itemLabel="Dr."/>
+                <f:selectItem itemValue="Dra."  itemLabel="Dra."/>
+                <f:selectItem itemValue="Lcdo."  itemLabel="Lcdo."/>
+                <f:selectItem itemValue="Lcda."  itemLabel="Lcda."/> 
+                <f:selectItem itemValue="Econ."  itemLabel="Econ."/> 
+                <f:selectItem itemValue="Abgdo."  itemLabel="Abgdo."/> 
+                <f:selectItem itemValue="Abgda."  itemLabel="Abgdo."/> 
+            </p:selectOneMenu>  
+            <p:message for="selectOneMenuApel" display="icon" />  
+            <p:outputLabel value="Nombres y Apellidos para firmas:" style="font-weight: bold;color: blue" for="inputTextNombres" 
+                           title="Nombres y Apellidos para firmas en documentos impresos"/>
+            <p:inputText id="inputTextNombres" value="#{autoridadBean.autoridadEdit.autNombres}" required="true"  requiredMessage="Nombre y apellidos obligatorios" 
+                         style="font-size: 8pt;width: 100%" autocomplete="off"/>
+            <p:message for="inputTextNombres" display="icon" />  
+        </h:panelGrid>
+    </p:panel>
+    <h:panelGroup>
+        <div align="right" style="margin-top: 5px;">
+            <p:commandButton  id="commandButtonGrabar" value="Grabar" icon="ui-icon-disk" title="Guardar datos ingresados" process="@form"
+                              update=":formLogin:growlLogin @form" actionListener="#{autoridadBean.guardarButton_processAction}"/>
+            <span style="padding-right: 10px;"/>
+            <p:commandButton  value="Cancelar" icon="ui-icon-cancel" title="Cancelar registro" process="@this" update="formMant:panelMant"
+                              actionListener="#{autoridadBean.cancelarButton_processAction(ae)}" onclick="mantWidget.hide();"/>
+        </div>
+    </h:panelGroup>
+
+</ui:composition>
+

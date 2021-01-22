@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition  xmlns="http://www.w3.org/1999/xhtml"
+                 xmlns:h="http://java.sun.com/jsf/html"
+                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                 xmlns:p="http://primefaces.org/ui"
+                 xmlns:f="http://java.sun.com/jsf/core">
+
+    <p:panel id="pnlContent" styleClass="myPanelHoja" header="#{solicContratoBean.navigationJSFManagedBean.nombreOpcion}">
+        <style>
+            .estiloPanelSelectOneMenu .ui-selectonemenu-list,.ui-selectonemenu-table tr {font-size: 8pt;border-color: whitesmoke}
+            .estiloPanelSelectOneMenu .ui-selectonemenu-filter{text-transform: uppercase;width: 165%;font-size: 8pt;}
+            .estiloPanelSelectOneMenu .ui-selectonemenu-filter-container .ui-icon{right: -100px;}
+            .estiloSelectOneMenuAre.ui-state-disabled {opacity: 1 ;border:none;}
+            .ui-icon.ui-icon-pencil {background-image: url("#{resource['images/Edit.png']}") !important;  background-repeat:inherit;}
+            .ui-icon.ui-icon-impresora {background-image: url("#{resource['/images/printer.png'] }"); background-size: 18px 18px;}
+            .ui-state-default .ui-icon-refrescar {background-image: url("#{resource['/images/refresh.png'] }");background-size: 18px 18px;}            
+        </style>
+        <h:form id="formSolic">
+            <h:panelGrid id="pnlArea" columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelArea" value="Área:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuArea" value="#{solicContratoBean.area}" style="width: 300px;" 
+                                 disabled="#{solicContratoBean.areas.size()==1}"
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{solicContratoBean.areas}"  var="area" itemValue="#{area.areCodigo}"
+                                   itemLabel="#{area.nombreArea}" itemDescription="#{area.areCodigo.toString()}"/>
+                    <p:ajax update="dataContrato formSolic:btnNuevo selectOneMenuProg" listener="#{solicContratoBean.handleAreaAnioProgChange('areas')}" oncomplete="widgetContrato.unselectAllRows();"/>                 
+                </p:selectOneMenu> 
+                <p:spacer width="10"/>
+                <p:outputLabel id="outputLabelAnio" value="Año académico:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuAnio" value="#{solicContratoBean.anio}" style="width: 100px;" 
+                                 styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{solicContratoBean.academicos}"  var="anioAcad" itemValue="#{anioAcad.anio}"
+                                   itemLabel="#{anioAcad.nombreCiclo}" itemDescription="#{anioAcad.nombreCiclo}"/>
+                    <p:ajax update="dataContrato formSolic:btnNuevo selectOneMenuProg"  listener="#{solicContratoBean.handleAreaAnioProgChange('anio')}"/>                 
+                </p:selectOneMenu> 
+            </h:panelGrid>
+            <h:panelGrid columns="5" cellpadding="5" cellspacing="0">
+                <p:outputLabel id="outputLabelProg" value="Programa:" style="font-weight: bold;color: blue" />
+                <p:selectOneMenu id="selectOneMenuProg" value="#{solicContratoBean.progra}" style="width: 600px" converter="programaConverter"
+                                 disabled="#{solicContratoBean.programas.size()==1}"  styleClass="estiloSelectOneMenuAre" panelStyleClass="estiloPanelSelectOneMenu">  
+                    <f:selectItem itemValue="#{null}" itemLabel="Seleccione ..." noSelectionOption="true" />                        
+                    <f:selectItems value="#{solicContratoBean.programas}"  var="prog" itemValue="#{prog}"
+                                   itemLabel="#{prog.nombrePrograma}" itemDescription="#{prog.programaPK.prgCodigo.toString()}"/>
+                    <p:ajax update="dataContrato btnNuevo btnBuscar"   listener="#{solicContratoBean.handleAreaAnioProgChange('contratos')}" />                 
+                </p:selectOneMenu>    
+                <p:commandButton  icon="ui-icon-refrescar" title="Buscar solicitudes" id="btnBuscar" 
+                                 disabled="#{solicContratoBean.area eq null or solicContratoBean.progra eq null or solicContratoBean.anio eq null}"
+                                 action="#{solicContratoBean.recupContratosAsignaturas()}" update=":formSolic:dataContrato" oncomplete="widgetContrato.unselectAllRows();"/>                   
+                <p:spacer width="10"/>
+                <p:commandButton value="Nuevo" icon="ui-icon-document" title="Nueva solicitud" id="btnNuevo" immediate="true" partialSubmit="true"
+                                 actionListener="#{solicContratoBean.nuevoButton_processAction(ae)}" update=":mantDialog :formSolic:dataContrato"
+                                 disabled="#{solicContratoBean.area eq null or solicContratoBean.progra eq null or solicContratoBean.anio eq null}" oncomplete="mantWidget.show();widgetContrato.unselectAllRows();"/>                
+            </h:panelGrid>              
+            <p:dataTable id="dataContrato" var="contrato" value="#{solicContratoBean.contratosDocentes}" 
+                         rowIndexVar="rowIndex" selectionMode="single" styleClass="evalFormStyle"  widgetVar="widgetContrato"
+                         selection="#{solicContratoBean.contratoSelected}" rowKey="#{contrato.cdoCodigo}"  
+                         emptyMessage="No existen solicitudes de contrato en esta Área y Programa.">
+                <p:ajax event="rowSelect" update=":formSolic:dataContrato"/>                      
+                <p:ajax event="rowUnselect"  update=":formSolic:dataContrato"/>                   
+                <p:column headerText="Nro." style="text-align: center;" width="3%">  
+                    <span style="font-weight: bold">#{contrato.cdoCodigo}</span>
+                </p:column> 
+                <p:column  style="text-align: center" width="3%">
+                    <p:commandLink value="Eliminar" title="Eliminar Contrato" update=":formLogin:growlLogin :formSolic:dataContrato" immediate="true" id="commandLinkElimContrato" styleClass="ui-icon ui-icon-trash" 
+                                   partialSubmit="true" action="#{solicContratoBean.eliminarButton_processAction(ae)}" style="color:blue;"
+                                   onstart="widgetContrato.unselectAllRows();" 
+                                   rendered="#{solicContratoBean.contratoSelected ne null and solicContratoBean.contratoSelected.cdoCodigo eq contrato.cdoCodigo  and  (contrato.estadoContrato eq 'I' or contrato.estadoContrato eq 'D')}">
+                        <f:setPropertyActionListener value="#{contrato}" target="#{solicContratoBean.contratoSelected}" />  
+                    </p:commandLink>                    
+                </p:column>                 
+                <p:column headerText="Apellidos y Nombres"  width="27%" >   
+                    #{contrato.contratado.nombresApellidos}
+                </p:column>    
+                <p:column headerText="Activ. Acad." style="text-align: center"  width="10%">   
+                    #{contrato.rolDocente.rdoDescripcion} 
+                </p:column>     
+                <p:column headerText="Solicitud" style="text-align: center"  width="8%">   
+                    <h:outputText value="#{contrato.cdoFechaCrea}" style="color: darkblue" >
+                        <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                       
+                </p:column>   
+                <p:column headerText="Proceso"  style="text-align: center"  width="9%">
+                    <h:outputText value="#{contrato.siguienteProceso}" 
+                                  style="text-transform: uppercase; color:#{contrato.estadoContrato eq 'I' or contrato.estadoContrato eq 'D'?'red':'blue'};
+                                  font-weight:#{contrato.estadoContrato eq 'I' or contrato.estadoContrato eq 'D'? 'bold':'normal'}"/>  
+                </p:column>              
+                <p:column headerText="Desde" style="text-align: center"  width="9%">   
+                    <h:outputText value="#{contrato.cdoFecini}" >
+                        <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                       
+                </p:column>    
+                <p:column headerText="Hasta" style="text-align: center"  width="9%">   
+                    <h:outputText value="#{contrato.cdoFecfin}" >
+                        <f:convertDateTime pattern="dd MMM yyyy"  locale="es_EC" timeZone="America/Guayaquil"/>
+                    </h:outputText>                       
+                </p:column>                      
+                <p:column headerText="Monto" style="text-align: center"  width="8%">   
+                    <h:outputText value="#{contrato.cdoMonto}" >
+                        <f:convertNumber pattern="$ #,##0.00" currencySymbol="$" locale="es_EC" />
+                    </h:outputText>                    
+                </p:column>                 
+                <p:column headerText="Estado área"  style="text-align: center"  width="8%">
+                    <h:outputText value="#{contrato.estadoContrato ne null ? 
+                                           contrato.estadoContrato eq 'I' or  contrato.estadoContrato eq 'D' ? 'Pendiente':contrato.estadoContrato eq 'X' ? 'Anulada':'Procesada':''}"
+                                  style="color:#{contrato.estadoContrato eq 'I' or  contrato.estadoContrato eq 'D' ? 'blue': contrato.estadoContrato eq 'X' ?'red':'limegreen'};
+                                  font-weight: #{contrato.estadoContrato eq 'A' ? 'bold':'normal'};text-transform: uppercase"/>  
+                </p:column>                 
+                <p:column headerText="Editar"  style="text-align: center"  width="3%">  
+                    <div align="center">
+                        <p:commandLink value="Editar" title="Editar registro"   styleClass="ui-icon ui-icon-pencil" 
+                                       action="#{solicContratoBean.editarButton_processAction(ae)}" style="color:blue;"
+                                       onstart="widgetContrato.unselectAllRows();widgetContrato.selectRow(#{rowIndex});"  
+                                       oncomplete="mantWidget.show();" update=":mantDialog ">
+                            <f:setPropertyActionListener value="#{contrato}" target="#{solicContratoBean.contratoSelected}" />  
+                        </p:commandLink>  
+                    </div>
+                </p:column>
+                <p:column style="text-align: center"  width="3%">  
+                    <div align="center">
+                        <p:commandLink value="Imprimir" title="Imprimir registro" immediate="true"  styleClass="ui-icon ui-icon-impresora" 
+                                       rendered="#{contrato.estadoContrato ne 'I' and contrato.estadoContrato ne 'D' and contrato.estadoContrato ne 'X' and contrato.estadoContrato ne 'P'}" 
+                                       partialSubmit="true" action="#{solicContratoBean.imprimirButton_processAction(ae)}" style="color:blue;"
+                                       onstart="widgetContrato.unselectAllRows();widgetContrato.selectRow(#{rowIndex});" oncomplete="pdfWidget.show();"  update=":pdfDialog">
+                            <f:setPropertyActionListener value="#{contrato}" target="#{solicContratoBean.contratoSelected}" />  
+                        </p:commandLink>    
+                    </div>
+                </p:column>
+            </p:dataTable>
+        </h:form> 
+    </p:panel>
+</ui:composition>
+
