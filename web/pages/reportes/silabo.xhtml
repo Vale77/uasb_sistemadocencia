@@ -65,14 +65,27 @@
                 <p:column headerText="Paralelo" filterBy="#{asig.nombreParalelo}" filterStyle="width:70px;" filterMatchMode="contains">  
                  #{asig.nombreParalelo}
                 </p:column>  
+                                
+                <p:column headerText="Paralelo" sortBy="#{asig.nombreParalelo}" filterBy="#{asig.asignaturaSyllabusPK.codigoProfesor}" filterStyle="width:70px;"  filterMatchMode="exact">   
+                    <f:facet name="filter" >
+                        <p:selectOneMenu onchange="PF('widgetSilabo').filter()">
+                            <f:selectItem itemLabel="--Seleccione--" itemValue="#{null}" noSelectionOption="true"/>  
+                            <f:selectItems value="#{silaboBean.asignaturaSyllabuses}" var="asig" itemValue="#{asig.asignaturaSyllabusPK.codigoProfesor}"/>  
+                         </p:selectOneMenu>
+                       </f:facet> 
+                <h:outputText value="#{asig.nombreParalelo}"/>
+                </p:column> 
                 
-                <p:column headerText="Trime"  width="25%" style="text-transform: uppercase">   
+                <p:column 
+                     headerText="Trime"  filterBy="#{asig.asignaturaSyllabusPK.codigoNivel}" filterStyle="width:70px;" filterMatchMode="contains">   
                     #{asig.asignaturaSyllabusPK.codigoNivel}
-                </p:column>                  
+                </p:column> 
+                
+                
                 <p:column headerText="Docente"  width="25%" style="text-transform: uppercase">   
                     #{asig.apellidoProfesor} #{asig.nombreProfesor}
                 </p:column>   
-                <p:column headerText="Estado Sílabo"  style="text-align: center"  width="10%">
+                <p:column headerText="Estado Sílabo"  filterBy="#{asig.estadoSyllabus}" filterStyle="width:70px;" filterMatchMode="contains">
                     <h:outputText value="#{asig.estadoSyllabus eq 'A' and asig.aprobadoPor ne null ?'Aprobado':
                                            asig.estadoSyllabus eq 'P' and asig.estadoEnvio eq 'P' ? asig.observacionCoordinador ne null ?'Con Observaciones':
                                            'No enviado al coordinador':asig.estadoSyllabus eq null and asig.estadoEnvio eq null? 'Pendiente de Ingreso':'Enviado al Coordinador'}" 
